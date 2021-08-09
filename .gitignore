@@ -1,0 +1,6 @@
+*.png
+*.gif
+simulations
+*.mat
+*.m~
+*.asv

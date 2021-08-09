@@ -1,8 +1,8 @@
 %% options
-makegif=0;
+makegif=1;
 drawperframe=10;
 L=100; % half-domain size, the domain is [-L,L]
-T=80;
+T=30;
 nx=100;
 dx=2*L/nx;
 dt=0.05;
@@ -16,7 +16,7 @@ alpha=1;
 beta=1;
 k=1;
 D = @(c) c.^n; % currently not used
-f = @(c) r*c.^alpha .* (1-c./k).^beta;
+f = @(c) r*c.^alpha .* (abs(1-c./k)).^beta .*sign(1-c./k);
 noisestrength = 0.0; % default 0.01
 fisherspeed = 2*sqrt(r*Dc);
 fprintf('Fisher speed: %.3f\n', fisherspeed);
@@ -49,15 +49,22 @@ A = A/(dx^2);
 % c(nx/2,nx/2)=k;
 
 % annulus
-c = sqrt(X.^2 + Y.^2) > 100;
+%c = sqrt(X.^2 + Y.^2) > 100;
+
+% ellipse
+%c = sqrt(X.^2./4 + Y.^2) > 50;
+
+% star
+c = sqrt(X.^2 + Y.^2) > 38*cos(8*atan2(X,Y))+70;
+
 
 if ispc % is windows
     folder='D:\liuyueFolderOxford1\woundhealing\simulations\';
 else % is linux
     folder='/home/liuy1/Documents/woundhealing/simulations/';
 end
-ictext = 'annulus_'; % 'centraldot_' or something else
-prefix = strcat('woundhealing_2d_',datestr(datetime('now'), 'yyyymmdd_HHMMSS'),ictext,'_n=',num2str(n), '_alpha=', num2str(alpha), '_beta=', num2str(beta));
+ictext = 'star8'; % 'centraldot' or something else
+prefix = strcat('woundhealing_2d_',datestr(datetime('now'), 'yyyymmdd_HHMMSS'),'_',ictext,'_n=',num2str(n), '_alpha=', num2str(alpha), '_beta=', num2str(beta));
 prefix = strcat(folder, prefix);
 if makegif
     cinit=c;
@@ -98,7 +105,7 @@ for ti=1:1:nt
     t=dt*(ti-1);
     if (mod(ti, drawperframe) == 1)
         cfig.CData=c;
-        ctitle.String=['c, t=',num2str(t)];
+        ctitle.String=['c, t=',num2str(t,'%.1f')];
         drawnow;
         iFrame=(ti-1)/drawperframe+1;
         if makegif
@@ -126,3 +133,8 @@ for ti=1:1:nt
     end
 end
 fprintf('Time to reach center: %.5f\n',timereachcenter);
+
+%% save
+if makegif
+    save([prefix,'.mat'],'timereachcenter','-mat','-append');
+end

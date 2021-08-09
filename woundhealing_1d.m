@@ -1,26 +1,33 @@
-function [timereachend] = woundhealing_1d(alpha,beta,n,makegif)
+function [timereachend] = woundhealing_1d(alpha,beta,n,scale_r,makegif)
 
 %% options
-makegif=1;
+%makegif=1;
 drawperframe=100;
 L=100; % domain size
 nx=600;
 dx=L/nx;
-T=80;
+T=800;
 dt=0.01;
 nt=T/dt+1;
 nFrame=ceil((T/dt)/drawperframe);
 
 %% parameters and reaction terms
 Dc=1;
-n=0; % assume this is always the case for now
+%n=0; % assume this is always the case for now
 r=1;
-alpha=1;
-beta=1;
+%alpha=1;
+%beta=1;
 k=1;
 D = @(c) c.^n; % currently not used
-f = @(c) r*c.^alpha .* (1-c./k).^beta;
+f = @(c) r*c.^alpha .* (abs(1-c./k)).^beta .*sign(1-c./k);
 noisestrength = 0.0; % default 0.01
+
+if scale_r
+    maxgrowthc = alpha*k/(alpha+beta);
+    fmax = f(maxgrowthc);
+    r = r/fmax;
+end
+
 fisherspeed = 2*sqrt(r*Dc);
 fprintf('Fisher speed: %.3f\n', fisherspeed);
 
@@ -58,19 +65,18 @@ if makegif
 end
 
 %% Set up figure
-fig_pos = [10 100 1000 500];
-fig=figure('Position',fig_pos,'color','w');
-hold on
-xlabel('x');
-ylabel('c');
-axis([0,L,0,1.5]);
-cfig=plot(x,c);
-figtitle=title('t=0');
-tightEdge(gca);
-hold off
-
 timereachend = NaN;
 if makegif
+    fig_pos = [10 100 1000 500];
+    fig=figure('Position',fig_pos,'color','w');
+    hold on
+    xlabel('x');
+    ylabel('c');
+    axis([0,L,0,1.5]);
+    cfig=plot(x,c);
+    figtitle=title('t=0');
+    tightEdge(gca);
+    hold off
     giffile = [prefix,'.gif'];
     cc=zeros(nFrame,nx);
 end
@@ -82,7 +88,7 @@ Tc=speye(nx)-th*dt*Dc*A;
 
 for ti=1:1:nt
     t=dt*(ti-1);
-    if (mod(ti, drawperframe) == 1)
+    if makegif && (mod(ti, drawperframe) == 1)
         cfig.YData=c;
         figtitle.String=['t=',num2str(t,'%.1f')];
         drawnow;
@@ -105,18 +111,29 @@ for ti=1:1:nt
     crhs = c + dt*(fvec + (1-th)*Dc*A*c);
     cnew = Tc\crhs;
     cnew = cnew + normrnd(0,noisestrength,size(c));
-    
     c=cnew;
     
+%     if ti == 4500
+%         disp('a');
+%     end
+    % just in case
+    %c = max(min(c,k),0);
+%     if any(c<0) || ~isreal(c)
+%         fprintf('Negative or complex value detected! something wrong');
+%     end
     if isnan(timereachend) && c(end)>0.9*k
         timereachend = t;
+        if ~makegif
+            % stop the simulation here if we don't need the gif
+            break;
+        end
     end
-    if (mod(ti, drawperframe) == 0)
+    if makegif && (mod(ti, drawperframe) == 0)
         ctotal=sum(sum(c))*dx;
         fprintf('ti=%d done, total stuff=%.2f\n',ti,ctotal);
     end
 end
-fprintf('Time to reach end: %.5f\n',timereachend);
+fprintf('alpha = %.3f, beta = %.3f, Time to reach end: %.5f\n',alpha,beta,timereachend);
 %% save
 if makegif
     kymograph_pos = [100,100,650,500];

@@ -1,12 +1,12 @@
-function [timereachend,frontwidth] = woundhealing_1d(Dc,r,alpha,beta,n,scale_r,makegif)
-%Dc=1;r=1;alpha=1;beta=1;n=1;scale_r=1;makegif=1;
+function [prefix,cc,timereachend] = woundhealing_1d(Dc,r,alpha,beta,T,n,scale_r,makegif)
+%Dc=500;r=0.05;alpha=1;beta=1;T=200;n=0;scale_r=0;makegif=1;
 %% options
 %makegif=1;
-drawperframe=100;
-L=100; % domain size
+drawperframe=400;
+L=2000; % domain size
 nx=600;
 dx=L/nx;
-T=800;
+%T=50;
 dt=0.01;
 nt=T/dt+1;
 nFrame=ceil((T/dt)/drawperframe);
@@ -34,6 +34,7 @@ fprintf('Fisher speed: %.3f\n', fisherspeed);
 %% FDM setup
 x=linspace(0,L,nx)';
 c=zeros(nx,1);
+cc=zeros(nFrame,nx);
 
 o=ones(nx,1);
 %central difference gradient
@@ -57,7 +58,7 @@ if ispc % is windows
 else % is linux
     folder='/home/liuy1/Documents/woundhealing/simulations/';
 end
-prefix = strcat('woundhealing_1d_',datestr(datetime('now'), 'yyyymmdd_HHMMSS'),'_n=',num2str(n), '_alpha=', num2str(alpha), '_beta=', num2str(beta));
+prefix = strcat('woundhealing_1d_',datestr(datetime('now'), 'yyyymmdd_HHMMSS'),'_Dc=',num2str(Dc),'_r=',num2str(r),'_n=',num2str(n), '_alpha=', num2str(alpha), '_beta=', num2str(beta));
 prefix = strcat(folder, prefix);
 if makegif
     cinit=c;
@@ -82,7 +83,6 @@ if makegif
     tightEdge(gca);
     hold off
     giffile = [prefix,'.gif'];
-    cc=zeros(nFrame,nx);
 end
 framereachend=nFrame;
 
@@ -92,12 +92,13 @@ Tc=speye(nx)-th*dt*Dc*A;
 
 for ti=1:1:nt
     t=dt*(ti-1);
-    if makegif && (mod(ti, drawperframe) == 1)
-        cfig.YData=c;
-        figtitle.String=['t=',num2str(t,'%.1f')];
-        drawnow;
+    if (mod(ti, drawperframe) == 1)
         iFrame=(ti-1)/drawperframe+1;
+        cc(iFrame,:)=c;
         if makegif
+            cfig.YData=c;
+            figtitle.String=['t=',num2str(t,'%.1f')];
+            drawnow;
             frame = getframe(fig);
             im = frame2im(frame);
             [imind,cm] = rgb2ind(im,256);
@@ -106,7 +107,6 @@ for ti=1:1:nt
             else
                 imwrite(imind,cm,giffile,'gif','WriteMode','append','DelayTime',0);
             end
-            cc(iFrame,:)=c;
         end
     end
     
@@ -116,10 +116,6 @@ for ti=1:1:nt
     cnew = Tc\crhs;
     cnew = cnew + normrnd(0,noisestrength,size(c)).*fvec;
     c=cnew;
-    
-%     if ti == 4500
-%         disp('a');
-%     end
 
     c = max(min(c,k),0);
     if any(c<0) || ~isreal(c)
@@ -136,19 +132,16 @@ for ti=1:1:nt
     end
     if isnan(timereachend) && c(end)>0.9*k
         timereachend = t;
-        T = timereachend + 20;
-        nt=T/dt+1;
+        %T = timereachend + 20;
+        %nt=T/dt+1;
         framereachend=ceil((ti-1)/drawperframe+1);
-    end
-    if ti > nt
-        break;
     end
     if makegif && (mod(ti, drawperframe) == 0)
         ctotal=sum(sum(c))*dx;
         fprintf('ti=%d done, total stuff=%.2f\n',ti,ctotal);
     end
 end
-fprintf('D=%.3f, r=%.3f, alpha = %.3f, beta = %.3f, Time to reach end: %.5f\n',Dc,r,alpha,beta,timereachend);
+fprintf('Dc = %.3f, r = %.3f, alpha = %.3f, beta = %.3f, Time to reach end: %.5f\n',Dc,r,alpha,beta,timereachend);
 
 %% save
 if makegif

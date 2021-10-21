@@ -4,3 +4,4 @@ simulations
 *.mat
 *.m~
 *.asv
+*.fig

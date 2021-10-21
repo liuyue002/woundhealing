@@ -1,5 +1,5 @@
-function [timereachend] = woundhealing_1d(alpha,beta,n,scale_r,makegif)
-
+function [timereachend,frontwidth] = woundhealing_1d(Dc,r,alpha,beta,n,scale_r,makegif)
+%Dc=1;r=1;alpha=1;beta=1;n=1;scale_r=1;makegif=1;
 %% options
 %makegif=1;
 drawperframe=100;
@@ -12,15 +12,15 @@ nt=T/dt+1;
 nFrame=ceil((T/dt)/drawperframe);
 
 %% parameters and reaction terms
-Dc=1;
+%Dc=1;
 %n=0; % assume this is always the case for now
-r=1;
+%r=1;
 %alpha=1;
 %beta=1;
 k=1;
 D = @(c) c.^n; % currently not used
 f = @(c) r*c.^alpha .* (abs(1-c./k)).^beta .*sign(1-c./k);
-noisestrength = 0.0; % default 0.01
+noisestrength = 0.02; % default 0 - 0.01
 
 if scale_r
     maxgrowthc = alpha*k/(alpha+beta);
@@ -50,7 +50,7 @@ A=A/(dx^2);
 
 %% initial condition
 c(:)=0;
-c(1)=k;
+c(1:ceil(nx/10))=k;
 
 if ispc % is windows
     folder='D:\liuyueFolderOxford1\woundhealing\simulations\';
@@ -66,6 +66,10 @@ end
 
 %% Set up figure
 timereachend = NaN;
+frontwidth=NaN;
+if alpha < 1
+    frontwidth=0;
+end
 if makegif
     fig_pos = [10 100 1000 500];
     fig=figure('Position',fig_pos,'color','w');
@@ -80,7 +84,7 @@ if makegif
     giffile = [prefix,'.gif'];
     cc=zeros(nFrame,nx);
 end
-
+framereachend=nFrame;
 
 %% simulation iteration
 th=0.5; % 0: fw euler, 0.5: Crank-Nicosen, 1: bw euler
@@ -110,35 +114,48 @@ for ti=1:1:nt
     
     crhs = c + dt*(fvec + (1-th)*Dc*A*c);
     cnew = Tc\crhs;
-    cnew = cnew + normrnd(0,noisestrength,size(c));
+    cnew = cnew + normrnd(0,noisestrength,size(c)).*fvec;
     c=cnew;
     
 %     if ti == 4500
 %         disp('a');
 %     end
-    % just in case
-    %c = max(min(c,k),0);
-%     if any(c<0) || ~isreal(c)
-%         fprintf('Negative or complex value detected! something wrong');
-%     end
+
+    c = max(min(c,k),0);
+    if any(c<0) || ~isreal(c)
+        fprintf('Negative or complex value detected! something wrong');
+        break;
+    end
+    if isnan(frontwidth) && c(nx/2)>0.5
+        % compute the width of the front when the wave reach the middle
+        % define width as between c>0.9 and c<0.1
+        wavetailloc=sum(c>0.9)/nx*L;
+        waveheadloc=sum(c>0.1)/nx*L;
+        frontwidth=waveheadloc-wavetailloc;
+        fprintf('front width: %.5f\n',frontwidth);
+    end
     if isnan(timereachend) && c(end)>0.9*k
         timereachend = t;
-        if ~makegif
-            % stop the simulation here if we don't need the gif
-            break;
-        end
+        T = timereachend + 20;
+        nt=T/dt+1;
+        framereachend=ceil((ti-1)/drawperframe+1);
+    end
+    if ti > nt
+        break;
     end
     if makegif && (mod(ti, drawperframe) == 0)
         ctotal=sum(sum(c))*dx;
         fprintf('ti=%d done, total stuff=%.2f\n',ti,ctotal);
     end
 end
-fprintf('alpha = %.3f, beta = %.3f, Time to reach end: %.5f\n',alpha,beta,timereachend);
+fprintf('D=%.3f, r=%.3f, alpha = %.3f, beta = %.3f, Time to reach end: %.5f\n',Dc,r,alpha,beta,timereachend);
+
 %% save
 if makegif
     kymograph_pos = [100,100,650,500];
-    c_kymograph = plot_kymograph(cc, kymograph_pos,T,[-L,L],NaN,'u',0);
+    c_kymograph = plot_kymograph(cc(1:framereachend,:), kymograph_pos,T,[0,L],NaN,'u',0);
     saveas(c_kymograph,[prefix,'_ckymograph.png']);
+    save([prefix,'.mat'],'timereachend','T','nt','nFrame','cc','-mat','-append');
 end
 
 end

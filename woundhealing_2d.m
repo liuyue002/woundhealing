@@ -1,8 +1,10 @@
+close all; clear; clc
+
 %% options
 makegif=1;
 drawperframe=10;
 L=100; % half-domain size, the domain is [-L,L]
-T=30;
+T=60;
 nx=100;
 dx=2*L/nx;
 dt=0.05;
@@ -12,7 +14,7 @@ nt=T/dt+1;
 Dc=1;
 n=0; % assume this is always the case for now
 r=1;
-alpha=1;
+alpha=1.5;
 beta=1;
 k=1;
 D = @(c) c.^n; % currently not used
@@ -48,14 +50,14 @@ A = A/(dx^2);
 % c(:)=0;
 % c(nx/2,nx/2)=k;
 
-% annulus
-%c = sqrt(X.^2 + Y.^2) > 100;
+% circle
+c = sqrt(X.^2 + Y.^2) < 10;
 
 % ellipse
-%c = sqrt(X.^2./4 + Y.^2) > 50;
+%c = sqrt(X.^2./4 + Y.^2) < 50;
 
 % star
-c = sqrt(X.^2 + Y.^2) > 38*cos(8*atan2(X,Y))+70;
+%c = sqrt(X.^2 + Y.^2) < 10*cos(5*atan2(X,Y))+20;
 
 
 if ispc % is windows
@@ -63,7 +65,7 @@ if ispc % is windows
 else % is linux
     folder='/home/liuy1/Documents/woundhealing/simulations/';
 end
-ictext = 'star8'; % 'centraldot' or something else
+ictext = 'circle'; % 'centraldot' or something else
 prefix = strcat('woundhealing_2d_',datestr(datetime('now'), 'yyyymmdd_HHMMSS'),'_',ictext,'_n=',num2str(n), '_alpha=', num2str(alpha), '_beta=', num2str(beta));
 prefix = strcat(folder, prefix);
 if makegif

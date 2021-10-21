@@ -1,9 +1,9 @@
 function [prefix,cc,timereachend] = woundhealing_1d(Dc,r,alpha,beta,T,n,scale_r,makegif)
-%Dc=1;r=1;alpha=1;beta=1;T=50;n=0;scale_r=0;makegif=1;
+%Dc=500;r=0.05;alpha=1;beta=1;T=200;n=0;scale_r=0;makegif=1;
 %% options
 %makegif=1;
-drawperframe=100;
-L=100; % domain size
+drawperframe=400;
+L=2000; % domain size
 nx=600;
 dx=L/nx;
 %T=50;

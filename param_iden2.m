@@ -132,3 +132,4 @@ hold off;
 saveas(fig,figtitle);
 %%
 save([prefix,'_paramiden_withalphabeta_noise=',num2str(noise_strength),'tskip=',num2str(t_skip),', xskip=',num2str(x_skip),'.mat'],'-mat');
+

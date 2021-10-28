@@ -25,7 +25,6 @@ addpath('/home/liuy1/Documents/woundhealing/DERIVESTsuite');
 eval(f_str);
 [grad,~,~] = gradest(f,overall_minimizer);
 [hess,err] = hessian(f,overall_minimizer);
-save([prefix,'_',figtitle,'.mat'],'-mat','-append');
 %% profile likelihood for each param
 numpts=20;
 param_vals=zeros(num_params,numpts);

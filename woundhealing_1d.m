@@ -1,5 +1,5 @@
-function [prefix,cc,timereachend] = woundhealing_1d(Dc,r,alpha,beta,T,n,scale_r,makegif)
-%Dc=500;r=0.05;alpha=1;beta=1;T=200;n=0;scale_r=0;makegif=1;
+function [prefix,cc,timereachend] = woundhealing_1d(D0,r,alpha,beta,T,n,scale_r,makegif)
+%D0=500;r=0.05;alpha=1;beta=1;T=600;n=2;scale_r=0;makegif=1;
 %% options
 %makegif=1;
 drawperframe=400;
@@ -18,7 +18,7 @@ nFrame=ceil((T/dt)/drawperframe);
 %alpha=1;
 %beta=1;
 k=1;
-D = @(c) c.^n; % currently not used
+D = @(c) D0*c.^n;
 f = @(c) r*c.^alpha .* (abs(1-c./k)).^beta .*sign(1-c./k);
 noisestrength = 0.02; % default 0 - 0.01
 
@@ -28,26 +28,13 @@ if scale_r
     r = r/fmax;
 end
 
-fisherspeed = 2*sqrt(r*Dc);
+fisherspeed = 2*sqrt(r*D0);
 fprintf('Fisher speed: %.3f\n', fisherspeed);
 
 %% FDM setup
 x=linspace(0,L,nx)';
 c=zeros(nx,1);
 cc=zeros(nFrame,nx);
-
-o=ones(nx,1);
-%central difference gradient
-grad = spdiags([-1*o 0*o o],[-1 0 1],nx,nx);
-grad(1,1)=-1;
-grad(nx,nx)=1;
-grad=grad/(2*dx);
-
-% laplacian
-A=spdiags([o -2*o o],[-1 0 1],nx,nx);
-A(1,1)=-1; % for no-flux BC
-A(nx,nx)=-1;
-A=A/(dx^2);
 
 %% initial condition
 c(:)=0;
@@ -58,7 +45,7 @@ if ispc % is windows
 else % is linux
     folder='/home/liuy1/Documents/woundhealing/simulations/';
 end
-prefix = strcat('woundhealing_1d_',datestr(datetime('now'), 'yyyymmdd_HHMMSS'),'_Dc=',num2str(Dc),'_r=',num2str(r),'_n=',num2str(n), '_alpha=', num2str(alpha), '_beta=', num2str(beta));
+prefix = strcat('woundhealing_1d_',datestr(datetime('now'), 'yyyymmdd_HHMMSS'),'_Dc=',num2str(D0),'_r=',num2str(r),'_n=',num2str(n), '_alpha=', num2str(alpha), '_beta=', num2str(beta));
 prefix = strcat(folder, prefix);
 if makegif
     cinit=c;
@@ -88,7 +75,6 @@ framereachend=nFrame;
 
 %% simulation iteration
 th=0.5; % 0: fw euler, 0.5: Crank-Nicosen, 1: bw euler
-Tc=speye(nx)-th*dt*Dc*A;
 
 for ti=1:1:nt
     t=dt*(ti-1);
@@ -109,10 +95,16 @@ for ti=1:1:nt
             end
         end
     end
+    Dvec=1/2 *([D(c(1:nx));0]+[0;D(c(1:nx))]);
+    A=spdiags([Dvec(2:end),-Dvec(1:end-1)-Dvec(2:end),Dvec(1:end-1)],[-1 0 1],nx,nx);
+    A(1,1)=Dvec(2); % for no-flux BC
+    A(nx,nx)=-Dvec(end-1);
+    A=A/(dx^2);
+    Tc=speye(nx)-th*dt*A;
     
     fvec=f(c);
     
-    crhs = c + dt*(fvec + (1-th)*Dc*A*c);
+    crhs = c + dt*(fvec + (1-th)*A*c);
     cnew = Tc\crhs;
     cnew = cnew + normrnd(0,noisestrength,size(c)).*fvec;
     c=cnew;
@@ -141,7 +133,7 @@ for ti=1:1:nt
         fprintf('ti=%d done, total stuff=%.2f\n',ti,ctotal);
     end
 end
-fprintf('Dc = %.3f, r = %.3f, alpha = %.3f, beta = %.3f, Time to reach end: %.5f\n',Dc,r,alpha,beta,timereachend);
+fprintf('Dc = %.3f, r = %.3f, alpha = %.3f, beta = %.3f, Time to reach end: %.5f\n',D0,r,alpha,beta,timereachend);
 
 %% save
 if makegif

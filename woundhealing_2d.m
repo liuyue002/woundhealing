@@ -3,47 +3,38 @@ close all; clear; clc
 %% options
 makegif=1;
 drawperframe=10;
-L=100; % half-domain size, the domain is [-L,L]
-T=30;
+Lx=100; % half-domain size, the domain is [-Lx,Lx] x [-Ly,Ly]
+Ly=Lx;
+T=60;
 nx=100;
-dx=2*L/nx;
+ny=nx;
+dx=2*Lx/nx;
+dy=2*Ly/ny;
 dt=0.05;
 nt=T/dt+1;
+nFrame=ceil((T/dt)/drawperframe);
 
 %% parameters and reaction terms
-Dc=1;
-n=0; % assume this is always the case for now
+D0=1;
+n=0;
 r=1;
 alpha=1;
 beta=1;
 k=1;
-D = @(c) c.^n; % currently not used
+D = @(c) D0*c.^n;
 f = @(c) r*c.^alpha .* (abs(1-c./k)).^beta .*sign(1-c./k);
 noisestrength = 0.0; % default 0.01
-fisherspeed = 2*sqrt(r*Dc);
-fprintf('Fisher speed: %.3f\n', fisherspeed);
+%fisherspeed = 2*sqrt(r*D0);
+%fprintf('Fisher speed: %.3f\n', fisherspeed);
 
 %% FDM setup
-x=linspace(-L,L,nx)';
-y=linspace(-L,L,nx)';
+x=linspace(-Lx,Lx,nx)';
+y=linspace(-Ly,Ly,ny)';
 [X,Y] = meshgrid(x,y);
-xmeshvec = reshape(X,[nx^2,1]);
-ymeshvec = reshape(Y,[nx^2,1]);
-c=zeros(nx,nx);
-
-I=speye(nx);
-e=ones(nx,1);
-T1 = spdiags([e -4*e e],[-1 0 1],nx,nx);
-T1(1,1)=-3;
-T1(end,end)=-3;
-S = spdiags([e e],[-1 1],nx,nx);
-A = (kron(I,T1) + kron(S,I));
-T2=spdiags([e,-3*e,e],[-1 0 1],nx,nx);
-T2(1,1)=-2;
-T2(nx,nx)=-2;
-A(1:nx,1:nx)=T2;
-A(end-nx+1:end,end-nx+1:end)=T2;
-A = A/(dx^2);
+xmeshvec = reshape(X,[nx*ny,1]);
+ymeshvec = reshape(Y,[nx*ny,1]);
+c=zeros(ny,nx);
+cc = zeros(nFrame,ny,nx); % history of c
 
 %% initial condition
 % central dot
@@ -90,8 +81,8 @@ colorbar;
 axis image;
 set(gca,'XTick',0:(nx/numticks):nx);
 set(gca,'YTick',0:(nx/numticks):nx);
-set(gca,'XTickLabel',num2str((-L:2*L/numticks:L)'));
-set(gca,'YTickLabel',num2str((-L:2*L/numticks:L)'));
+set(gca,'XTickLabel',num2str((-Lx:2*Lx/numticks:Lx)'));
+set(gca,'YTickLabel',num2str((-Ly:2*Ly/numticks:Ly)'));
 xlim([1,nx]);
 ylim([1,nx]);
 ctitle=title('c, t=0');
@@ -101,7 +92,6 @@ timereachcenter = NaN;
 
 %% simulation iteration
 th=0.5; % 0: fw euler, 0.5: Crank-Nicosen, 1: bw euler
-Tc=speye(nx^2)-th*dt*Dc*A;
 
 for ti=1:1:nt
     t=dt*(ti-1);
@@ -119,13 +109,31 @@ for ti=1:1:nt
             else
                 imwrite(imind,cm,giffile,'gif','WriteMode','append','DelayTime',0);
             end
+            cc(iFrame,:,:) = c;
         end
     end
+    
+    Dxmat=1/2 * (D([c,c(:,nx)]) + D([c(:,1),c]));
+    Dxvec=reshape(Dxmat(:,1:end-1),[nx*ny,1]);
+    Axx=spdiags([[Dxvec(1+ny:end);zeros(ny,1)], ...
+        -[Dxvec(1+ny:end);zeros(ny,1)]-[zeros(ny,1);Dxvec(1+ny:end)], ...
+        [zeros(ny,1);Dxvec(1+ny:end)]],[-ny,0,ny],nx*ny,nx*ny);
+    Axx=Axx/(dx^2);
+    
+    Dymat=1/2 * (D([c;c(ny,:)]) + D([c(1,:);c]));
+    Dymat(1,:)=0;
+    Dyvec=reshape(Dymat(1:end-1,:),[nx*ny,1]);
+    Ayy=spdiags([[Dyvec(2:end);0],...
+        -[Dyvec(2:end);0]-Dyvec,...
+        Dyvec],[-1,0,1],nx*ny,nx*ny);
+    Ayy=Ayy/(dy^2);
+    A=Axx+Ayy;
+    Tc=speye(nx^2)-th*dt*A;
     
     cvec=reshape(c,[nx^2,1]);
     fvec=f(cvec);
     
-    crhs = cvec + dt*(fvec + (1-th)*Dc*A*cvec);
+    crhs = cvec + dt*(fvec + (1-th)*A*cvec);
     cnew = Tc\crhs;
     c = reshape(cnew,[nx,nx]);
     c = c + normrnd(0,noisestrength,size(c));
@@ -138,5 +146,5 @@ fprintf('Time to reach center: %.5f\n',timereachcenter);
 
 %% save
 if makegif
-    save([prefix,'.mat'],'timereachcenter','-mat','-append');
+    save([prefix,'.mat'],'timereachcenter','cc','-mat','-append');
 end

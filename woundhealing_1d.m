@@ -1,35 +1,37 @@
-function [prefix,cc,timereachend] = woundhealing_1d(D0,r,alpha,beta,T,n,scale_r,makegif)
-%D0=500;r=0.05;alpha=1;beta=1;T=600;n=2;scale_r=0;makegif=1;
+function [prefix,cc,timereachend] = woundhealing_1d(params,T,makegif)
+% params: [D0,r,alpha,beta,gamma,n]
+% D0=500;r=0.07;alpha=1.5;beta=1.4;T=600;n=1;scale_r=0;makegif=1;
 %% options
 %makegif=1;
-drawperframe=400;
+drawperframe=200;
 L=2000; % domain size
 nx=600;
 dx=L/nx;
 %T=50;
-dt=0.01;
+dt=0.02;
 nt=T/dt+1;
 nFrame=ceil((T/dt)/drawperframe);
 
 %% parameters and reaction terms
-%Dc=1;
-%n=0; % assume this is always the case for now
-%r=1;
-%alpha=1;
-%beta=1;
+D0=params(1);
+r=params(2);
+alpha=params(3);
+beta=params(4);
+gamma=params(5);
+n=params(6);
 k=1;
 D = @(c) D0*c.^n;
-f = @(c) r*c.^alpha .* (abs(1-c./k)).^beta .*sign(1-c./k);
+f = @(c) r*c.^alpha .* (abs(1-(c./k).^gamma)).^beta .*sign(1-c./k);
 noisestrength = 0.02; % default 0 - 0.01
 
-if scale_r
-    maxgrowthc = alpha*k/(alpha+beta);
-    fmax = f(maxgrowthc);
-    r = r/fmax;
-end
+% if scale_r
+%     maxgrowthc = alpha*k/(alpha+beta);
+%     fmax = f(maxgrowthc);
+%     r = r/fmax;
+% end
 
-fisherspeed = 2*sqrt(r*D0);
-fprintf('Fisher speed: %.3f\n', fisherspeed);
+%fisherspeed = 2*sqrt(r*D0);
+%fprintf('Fisher speed: %.3f\n', fisherspeed);
 
 %% FDM setup
 x=linspace(0,L,nx)';
@@ -45,7 +47,7 @@ if ispc % is windows
 else % is linux
     folder='/home/liuy1/Documents/woundhealing/simulations/';
 end
-prefix = strcat('woundhealing_1d_',datestr(datetime('now'), 'yyyymmdd_HHMMSS'),'_Dc=',num2str(D0),'_r=',num2str(r),'_n=',num2str(n), '_alpha=', num2str(alpha), '_beta=', num2str(beta));
+prefix = sprintf('woundhealing_1d_%s_D0=%g,r=%g,alpha=%g,beta=%g,gamma=%g,n=%g',datestr(datetime('now'), 'yyyymmdd_HHMMSS'),params);
 prefix = strcat(folder, prefix);
 if makegif
     cinit=c;
@@ -120,7 +122,7 @@ for ti=1:1:nt
         wavetailloc=sum(c>0.9)/nx*L;
         waveheadloc=sum(c>0.1)/nx*L;
         frontwidth=waveheadloc-wavetailloc;
-        fprintf('front width: %.5f\n',frontwidth);
+        %fprintf('front width: %.5f\n',frontwidth);
     end
     if isnan(timereachend) && c(end)>0.9*k
         timereachend = t;
@@ -133,7 +135,7 @@ for ti=1:1:nt
         fprintf('ti=%d done, total stuff=%.2f\n',ti,ctotal);
     end
 end
-fprintf('Dc = %.3f, r = %.3f, alpha = %.3f, beta = %.3f, Time to reach end: %.5f\n',D0,r,alpha,beta,timereachend);
+fprintf('D0 = %.3f, r = %.3f, alpha = %.3f, beta = %.3f, Time to reach end: %.5f\n',D0,r,alpha,beta,timereachend);
 
 %% save
 if makegif

@@ -3,7 +3,8 @@
 
 %[prefix,~] = woundhealing_1d(1,1,1,1,50,0,0,1);
 %[prefix,~,~] = woundhealing_1d(500,0.12,1.5,1.4,200,0,0,1);
-[prefix,~,~] = woundhealing_1d([500,0.12,1.5,1.4,1,0],200,1);
+[prefix,~,~] = woundhealing_1d([500,0.05,1,1,1,0],200,1);
+%[prefix,~,~] = woundhealing_1d([500,0.12,1.5,1.4,1,0],200,1);
 load([prefix,'.mat']);
 
 ts=0:dt*drawperframe:T;

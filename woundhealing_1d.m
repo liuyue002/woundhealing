@@ -1,6 +1,7 @@
 function [prefix,cc,timereachend] = woundhealing_1d(params,T,makegif)
 % params: [D0,r,alpha,beta,gamma,n]
 % D0=500;r=0.07;alpha=1.5;beta=1.4;T=600;n=1;scale_r=0;makegif=1;
+%params=[500,0.05,1,1,1,0];T=200;makegif=1;
 %% options
 %makegif=1;
 drawperframe=200;
@@ -135,7 +136,7 @@ for ti=1:1:nt
         fprintf('ti=%d done, total stuff=%.2f\n',ti,ctotal);
     end
 end
-fprintf('D0 = %.3f, r = %.3f, alpha = %.3f, beta = %.3f, Time to reach end: %.5f\n',D0,r,alpha,beta,timereachend);
+%fprintf(['params=',repmat('%.3f,',size(params)),', Time to reach end: %.5f\n'],params,timereachend);
 
 %% save
 if makegif

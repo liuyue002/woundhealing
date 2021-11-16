@@ -23,7 +23,7 @@ n=params(6);
 k=1;
 D = @(c) D0*c.^n;
 f = @(c) r*c.^alpha .* (abs(1-(c./k).^gamma)).^beta .*sign(1-c./k);
-noisestrength = 0.02; % default 0 - 0.01
+noisestrength = 0; % default 0 - 0.01
 
 % if scale_r
 %     maxgrowthc = alpha*k/(alpha+beta);
@@ -48,7 +48,7 @@ if ispc % is windows
 else % is linux
     folder='/home/liuy1/Documents/woundhealing/simulations/';
 end
-prefix = sprintf('woundhealing_1d_%s_D0=%g,r=%g,alpha=%g,beta=%g,gamma=%g,n=%g',datestr(datetime('now'), 'yyyymmdd_HHMMSS'),params);
+prefix = sprintf('woundhealing_1d_%s_D0=%g,r=%g,alpha=%g,beta=%g,gamma=%g,n=%g,dt=%g',datestr(datetime('now'), 'yyyymmdd_HHMMSS'),params,dt);
 prefix = strcat(folder, prefix);
 if makegif
     cinit=c;

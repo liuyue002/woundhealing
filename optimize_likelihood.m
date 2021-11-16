@@ -1,4 +1,4 @@
-function [minimizer,sigma2,max_l,param_str,grad,hessian] = optimize_likelihood(fixed_params,initial,lb,ub,noisy_data,T,t_skip,x_skip)
+function [minimizer,sigma,max_l,param_str,grad,hessian] = optimize_likelihood(fixed_params,initial,lb,ub,noisy_data,T,t_skip,x_skip)
 %Build a string that defines the likelihood function in terms of the right
 %parameters
 %  fixed_params: which parameters are fixed at their initial value (1: fixed, 0: free)
@@ -51,7 +51,8 @@ problem.options=options;
 [minimizer,min_sq_err,~,~,~,grad,hessian] = fmincon(problem);
 N=prod(ceil(size(noisy_data)./[t_skip,x_skip]));
 [max_l,sigma2]= log_likelihood(min_sq_err,N);
-fprintf(['optimization outcome: ',repmat('%.3f,',size(minimizer)),'sigma2=%.3f\n'],minimizer,sigma2);
+sigma=sqrt(sigma2);
+fprintf(['optimization outcome: ',repmat('%.3f,',size(minimizer)),'sigma=%.3f\n'],minimizer,sigma);
 
 end
 

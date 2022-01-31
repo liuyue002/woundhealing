@@ -47,6 +47,8 @@ problem.solver='fmincon';
 %problem.lb=lb(fixed_params==0);
 problem.lb=zeros(size(lb(fixed_params==0)));
 %problem.ub=ub(fixed_params==0);
+ub=[2000,0.5,10,10,10,10];
+problem.ub=ub(fixed_params==0);
 problem.options=options;
 [minimizer,min_sq_err,~,~,~,grad,hessian] = fmincon(problem);
 N=prod(ceil(size(noisy_data)./[t_skip,x_skip]));

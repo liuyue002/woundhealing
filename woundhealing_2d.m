@@ -1,29 +1,30 @@
-close all; clear; clc
-
+function [prefix,cc,timereachcenter] = woundhealing_2d(params,T,makegif)
+%params=[500,0.05,1,1,1,0];T=50;makegif=1;
 %% options
-makegif=1;
-drawperframe=10;
-Lx=100; % half-domain size, the domain is [-Lx,Lx] x [-Ly,Ly]
+%makegif=1;
+drawperframe=40;
+Lx=2000; % half-domain size, the domain is [-Lx,Lx] x [-Ly,Ly]
 Ly=Lx;
-T=60;
+%T=60;
 nx=100;
 ny=nx;
 dx=2*Lx/nx;
 dy=2*Ly/ny;
-dt=0.05;
+dt=0.1;
 nt=T/dt+1;
-nFrame=ceil((T/dt)/drawperframe);
+nFrame=ceil((T/dt)/drawperframe)+1;
 
 %% parameters and reaction terms
-D0=1;
-n=0;
-r=1;
-alpha=1;
-beta=1;
+D0=params(1);
+r=params(2);
+alpha=params(3);
+beta=params(4);
+gamma=params(5);
+n=params(6);
 k=1;
 D = @(c) D0*c.^n;
-f = @(c) r*c.^alpha .* (abs(1-c./k)).^beta .*sign(1-c./k);
-noisestrength = 0.0; % default 0.01
+f = @(c) r*c.^alpha .* (abs(1-(c./k).^gamma)).^beta .*sign(1-c./k);
+noisestrength = 0; % default 0 - 0.01
 %fisherspeed = 2*sqrt(r*D0);
 %fprintf('Fisher speed: %.3f\n', fisherspeed);
 
@@ -42,7 +43,7 @@ cc = zeros(nFrame,ny,nx); % history of c
 % c(nx/2,nx/2)=k;
 
 % circle
-c = sqrt(X.^2 + Y.^2) < 10;
+c = sqrt(X.^2 + Y.^2) < 0.1*Lx;
 
 % ellipse
 %c = sqrt(X.^2./4 + Y.^2) < 50;
@@ -50,14 +51,13 @@ c = sqrt(X.^2 + Y.^2) < 10;
 % star
 %c = sqrt(X.^2 + Y.^2) < 10*cos(5*atan2(X,Y))+20;
 
-
 if ispc % is windows
     folder='D:\liuyueFolderOxford1\woundhealing\simulations\';
 else % is linux
     folder='/home/liuy1/Documents/woundhealing/simulations/';
 end
-ictext = 'circle'; % 'centraldot' or something else
-prefix = strcat('woundhealing_2d_',datestr(datetime('now'), 'yyyymmdd_HHMMSS'),'_',ictext,'_n=',num2str(n), '_alpha=', num2str(alpha), '_beta=', num2str(beta));
+ictext='circle';
+prefix = sprintf('woundhealing_2d_%s_%s_D0=%g,r=%g,alpha=%g,beta=%g,gamma=%g,n=%g,dt=%g',datestr(datetime('now'), 'yyyymmdd_HHMMSS'),ictext,params,dt);
 prefix = strcat(folder, prefix);
 if makegif
     cinit=c;
@@ -65,29 +65,31 @@ if makegif
 end
 
 %% Set up figure
-giffile = [prefix,'.gif'];
-crange=[0,1.2];
-
-fig_pos = [100 100 800 500];
-fig=figure('Position',fig_pos,'color','w');
-numticks=10;
-hold on
-cfig=imagesc(c,crange);
-xlabel('x');
-ylabel('y');
-set(gca,'YDir','normal');
-colormap('hot');
-colorbar;
-axis image;
-set(gca,'XTick',0:(nx/numticks):nx);
-set(gca,'YTick',0:(nx/numticks):nx);
-set(gca,'XTickLabel',num2str((-Lx:2*Lx/numticks:Lx)'));
-set(gca,'YTickLabel',num2str((-Ly:2*Ly/numticks:Ly)'));
-xlim([1,nx]);
-ylim([1,nx]);
-ctitle=title('c, t=0');
-hold off
-pbaspect([1 1 1]);
+if makegif
+    giffile = [prefix,'.gif'];
+    crange=[0,1.2];
+    
+    fig_pos = [100 100 800 500];
+    fig=figure('Position',fig_pos,'color','w');
+    numticks=10;
+    hold on
+    cfig=imagesc(c,crange);
+    xlabel('x');
+    ylabel('y');
+    set(gca,'YDir','normal');
+    colormap('hot');
+    colorbar;
+    axis image;
+    set(gca,'XTick',0:(nx/numticks):nx);
+    set(gca,'YTick',0:(nx/numticks):nx);
+    set(gca,'XTickLabel',num2str((-Lx:2*Lx/numticks:Lx)'));
+    set(gca,'YTickLabel',num2str((-Ly:2*Ly/numticks:Ly)'));
+    xlim([1,nx]);
+    ylim([1,nx]);
+    ctitle=title('c, t=0');
+    hold off
+    pbaspect([1 1 1]);
+end
 timereachcenter = NaN;
 
 %% simulation iteration
@@ -96,11 +98,12 @@ th=0.5; % 0: fw euler, 0.5: Crank-Nicosen, 1: bw euler
 for ti=1:1:nt
     t=dt*(ti-1);
     if (mod(ti, drawperframe) == 1)
-        cfig.CData=c;
-        ctitle.String=['c, t=',num2str(t,'%.1f')];
-        drawnow;
         iFrame=(ti-1)/drawperframe+1;
+        cc(iFrame,:,:) = c;
         if makegif
+            cfig.CData=c;
+            ctitle.String=['c, t=',num2str(t,'%.1f')];
+            drawnow;
             frame = getframe(fig);
             im = frame2im(frame);
             [imind,cm] = rgb2ind(im,256);
@@ -109,7 +112,6 @@ for ti=1:1:nt
             else
                 imwrite(imind,cm,giffile,'gif','WriteMode','append','DelayTime',0);
             end
-            cc(iFrame,:,:) = c;
         end
     end
     
@@ -142,9 +144,13 @@ for ti=1:1:nt
         timereachcenter = t;
     end
 end
-fprintf('Time to reach center: %.5f\n',timereachcenter);
+if makegif
+    fprintf('Time to reach center: %.5f\n',timereachcenter);
+end
 
 %% save
 if makegif
     save([prefix,'.mat'],'timereachcenter','cc','-mat','-append');
+end
+
 end

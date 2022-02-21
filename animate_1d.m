@@ -25,9 +25,9 @@ if makegif
     [imind,cm] = rgb2ind(im,256);
     imwrite(imind,cm,giffile,'gif', 'Loopcount',inf);
 end
-for frame=1:nFrame
-    cfig.YData=uu(frame,:);
-    figtitle.String=['t=',num2str(ts(frame),'%.1f')];
+for iframe=1:nFrame
+    cfig.YData=uu(iframe,:);
+    figtitle.String=['t=',num2str(ts(iframe),'%.1f')];
     drawnow;
     if makegif
         frame = getframe(fig);

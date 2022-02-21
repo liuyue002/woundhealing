@@ -51,7 +51,11 @@ ub=[2000,0.5,10,10,10,10];
 problem.ub=ub(fixed_params==0);
 problem.options=options;
 [minimizer,min_sq_err,~,~,~,grad,hessian] = fmincon(problem);
-N=prod(ceil(size(noisy_data)./[t_skip,x_skip]));
+if ndims(noisy_data)==2
+    N=prod(ceil(size(noisy_data)./[t_skip,x_skip]));
+else
+    N=prod(ceil(size(noisy_data)./[t_skip,x_skip,x_skip]));
+end
 [max_l,sigma2]= log_likelihood(min_sq_err,N);
 sigma=sqrt(sigma2);
 fprintf(['optimization outcome: ',repmat('%.3f,',size(minimizer)),'sigma=%.3f\n'],minimizer,sigma);

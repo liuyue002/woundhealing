@@ -66,7 +66,7 @@ end
 
 %% plot
 fig=figure('Position',[100 100 1400 400],'color','w');
-figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],noise=%g,tskip=%d,xskip=%d','_3'],fixed,fixed_param_val,noise_strength,t_skip,x_skip);
+figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],noise=%g,tskip=%d,xskip=%d',''],fixed,fixed_param_val,noise_strength,t_skip,x_skip);
 sgtitle(figtitle);
 free_param_count=0;
 for param=1:num_params
@@ -87,7 +87,7 @@ for param=1:num_params
 end
 
 %% fisher info
-ff_str=strcat('ff=@(x) get_reduced_model_data(T,',param_str,',t_skip,x_skip);');
+ff_str=strcat('ff=@(x) get_reduced_model_data(T,',param_str,',t_skip,x_skip,1);');
 N=prod(ceil(size(noisy_data)./[t_skip,x_skip])); % number of data pts
 eval(ff_str);
 dXdtheta=zeros(N,num_free_params);

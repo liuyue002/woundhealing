@@ -1,5 +1,5 @@
-%load('/home/liuy1/Documents/woundhealing/simulations/kevindata_highdensity_phase20220221_135604.mat')
-load('simulations/kevindata_highdensity_phase20220221_135604.mat')
+load('/home/liuy1/Documents/woundhealing/simulations/kevindata_highdensity_phase20220221_135604.mat')
+%load('simulations/kevindata_highdensity_phase20220221_135604.mat')
 nFrame=size(noisy_data,1);
 N=numel(noisy_data);
 ic=squeeze(noisy_data(1,:,:));
@@ -18,26 +18,26 @@ num_params=size(fixed_param_val,2);
 fixed=[0,0,1,1,1,1];
 num_free_params=sum(1-fixed);
 %% r vs D
-% numpts=40;
-% D0s=linspace(100,1000,numpts);
-% rs=linspace(0.3,2,numpts);
-% ls=zeros(numpts,numpts);
-% for i=1:numpts
-%     for j=1:numpts
-%         ls(i,j)=log_likelihood(squared_error(noisy_data,T,[D0s(i),rs(j),1,1,1,0],t_skip,x_skip,ic),N);
-%     end
-% end
-% %% plot r vs D
-% fig=figure;
-% imagesc(ls'); % need transpose + reverse axis to make it right
-% set(gca,'YDir','normal');
-% xlabel('D_0');
-% ylabel('r');
-% set(gca,'XTick',[1,round(numpts/2),numpts]);
-% set(gca,'XTickLabel',num2str([D0s(1),D0s(round(numpts/2)),D0s(numpts)]','%.0f'));
-% set(gca,'YTick',[1,round(numpts/2),numpts]);
-% set(gca,'YTickLabel',num2str([rs(1),rs(round(numpts/2)),rs(numpts)]','%.1f'));
-% save([prefix,'.mat'],'-mat','-append');
+numpts=40;
+D0s=linspace(100,1000,numpts);
+rs=linspace(0.3,2,numpts);
+ls=zeros(numpts,numpts);
+for i=1:numpts
+    for j=1:numpts
+        ls(i,j)=log_likelihood(squared_error(noisy_data,T,[D0s(i),rs(j),1,1,1,0],t_skip,x_skip,threshold,ic),N);
+    end
+end
+%% plot r vs D
+fig=figure;
+imagesc(ls'); % need transpose + reverse axis to make it right
+set(gca,'YDir','normal');
+xlabel('D_0');
+ylabel('r');
+set(gca,'XTick',[1,round(numpts/2),numpts]);
+set(gca,'XTickLabel',num2str([D0s(1),D0s(round(numpts/2)),D0s(numpts)]','%.0f'));
+set(gca,'YTick',[1,round(numpts/2),numpts]);
+set(gca,'YTickLabel',num2str([rs(1),rs(round(numpts/2)),rs(numpts)]','%.1f'));
+save([prefix,'_Dvsr_thresholded.mat'],'-mat','-append');
 
 %% overall iminimizer
 

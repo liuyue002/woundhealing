@@ -39,9 +39,9 @@ cc = zeros(nFrame,ny,nx); % history of c
 
 %% initial condition
 % central dot
-% c(:)=0;
-% c(nx/2,nx/2)=k;
-%ictext='dot';
+c(:)=0;
+c(nx/2,nx/2)=k;
+ictext='dot';
 
 % circle
 %c = sqrt(X.^2 + Y.^2) < 0.1*Lx;

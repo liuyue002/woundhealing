@@ -34,3 +34,16 @@ prefix=['/home/liuy1/Documents/woundhealing/simulations/kevindata_highdensity_ph
 noisy_data=1-Cdata(1:3:end,1:18:1800,1:18:1800);
 animate_2d(noisy_data,[0,3285],[0,3285],1,'C',prefix,1);
 save([prefix,'.mat'],'noisy_data','prefix','-mat');
+
+%% 1D porus fisher
+[prefix,~,~] = woundhealing_1d([1000,0.1,1,1,1,1],200,1);
+load([prefix,'.mat']);
+
+ts=0:dt*drawperframe:T;
+sigma=0.05;
+cc_noisy_005 = cc+normrnd(0,sigma,size(cc));
+animate_1d(cc_noisy_005,[0,L],drawperframe*dt,'c',[prefix,'_noise=',num2str(sigma)],1);
+sigma=0.01;
+cc_noisy_001 = cc+normrnd(0,sigma,size(cc));
+animate_1d(cc_noisy_001,[0,L],drawperframe*dt,'c',[prefix,'_noise=',num2str(sigma)],1);
+save([prefix,'.mat'],'cc_noisy_005','cc_noisy_001','-mat','-append');

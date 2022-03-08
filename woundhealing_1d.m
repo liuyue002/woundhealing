@@ -4,12 +4,12 @@ function [prefix,cc,timereachend] = woundhealing_1d(params,T,makegif)
 %params=[500,0.05,1,1,1,0];T=200;makegif=1;
 %% options
 %makegif=1;
-drawperframe=200;
+drawperframe=400;
 L=2000; % domain size
 nx=600;
 dx=L/nx;
 %T=50;
-dt=0.02;
+dt=0.01;
 nt=T/dt+1;
 nFrame=ceil((T/dt)/drawperframe);
 

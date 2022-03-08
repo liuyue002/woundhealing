@@ -1,19 +1,21 @@
-load('/home/liuy1/Documents/woundhealing/simulations/kevindata_highdensity_phase20220221_135604.mat')
+%load('/home/liuy1/Documents/woundhealing/simulations/kevindata_highdensity_phase20220221_135604.mat')
+load('simulations/kevindata_highdensity_phase20220221_135604.mat')
 nFrame=size(noisy_data,1);
 N=numel(noisy_data);
 ic=squeeze(noisy_data(1,:,:));
 T=23;
 t_skip=1;
 x_skip=1;
+threshold=0.5;
 
-fixed_param_val=[350,1,1,1,1,3.79];
-lb=[11000,0.9,1,1,1,3.5];
-ub=[12000,1.1,1,1,1,4];
+fixed_param_val=[350,1,1,1,1,0];
+lb=[200,0.9,1,1,1,3.5];
+ub=[500,1.6,1,1,1,4];
 param_names={'D0','r','alpha','beta','gamma','n'};
 %leave sigma out
 num_params=size(fixed_param_val,2);
 %if fixed(i)==1, then the ith param is set to the true value and not optimized over
-fixed=[0,0,1,1,1,0];
+fixed=[0,0,1,1,1,1];
 num_free_params=sum(1-fixed);
 %% r vs D
 % numpts=40;
@@ -39,7 +41,7 @@ num_free_params=sum(1-fixed);
 
 %% overall iminimizer
 
-[overall_minimizer,sigma,max_l,param_str,grad,hessian] = optimize_likelihood(fixed,fixed_param_val,lb,ub,noisy_data,T,t_skip,x_skip,ic);
+[overall_minimizer,sigma,max_l,param_str,grad,hessian] = optimize_likelihood(fixed,fixed_param_val,lb,ub,noisy_data,T,t_skip,x_skip,threshold,ic);
 fprintf(['Overall max likelihood param is: ',repmat('%.3f,',size(overall_minimizer)),'sigma=%.3f,\n'],overall_minimizer,sigma);
 %figure(fig);
 %hold on
@@ -72,14 +74,14 @@ for param=1:num_params
             initial(fixed_params==0)=minimizers{param,i-1};
         end
         initial(param)=param_vals(param,i);
-        [minimizer,~,max_ls(param,i),~,~,~] = optimize_likelihood(fixed_params,initial,lb,ub,noisy_data,T,t_skip,x_skip,ic);
+        [minimizer,~,max_ls(param,i),~,~,~] = optimize_likelihood(fixed_params,initial,lb,ub,noisy_data,T,t_skip,x_skip,threshold,ic);
         minimizers{param,i}=minimizer;
     end
 end
 
 %% plot
 fig=figure('Position',[100 100 1400 400],'color','w');
-figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,tskip=%d,xskip=%d','_2'],fixed,fixed_param_val,t_skip,x_skip);
+figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',''],fixed,fixed_param_val,threshold,t_skip,x_skip);
 sgtitle(figtitle);
 free_param_count=0;
 for param=1:num_params

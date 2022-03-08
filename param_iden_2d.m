@@ -32,7 +32,7 @@ fixed=[0,0,1,1,1,1];
 num_free_params=sum(1-fixed);
 
 %% overall max likelihood
-[overall_minimizer,sigma,max_l,param_str,grad,hessian] = optimize_likelihood(fixed,fixed_param_val,lb,ub,noisy_data,T,t_skip,x_skip);
+[overall_minimizer,sigma,max_l,param_str,grad,hessian] = optimize_likelihood(fixed,fixed_param_val,lb,ub,noisy_data,T,t_skip,x_skip,-1);
 fprintf(['Overall max likelihood param is: ',repmat('%.3f,',size(overall_minimizer)),'sigma=%.3f,\n'],overall_minimizer,sigma);
 
 %% profile likelihood for each param
@@ -59,7 +59,7 @@ for param=1:num_params
             initial(fixed_params==0)=minimizers{param,i-1};
         end
         initial(param)=param_vals(param,i);
-        [minimizer,~,max_ls(param,i),~,~,~] = optimize_likelihood(fixed_params,initial,lb,ub,noisy_data,T,t_skip,x_skip);
+        [minimizer,~,max_ls(param,i),~,~,~] = optimize_likelihood(fixed_params,initial,lb,ub,noisy_data,T,t_skip,x_skip,-1);
         minimizers{param,i}=minimizer;
     end
 end

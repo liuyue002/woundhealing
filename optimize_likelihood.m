@@ -1,10 +1,11 @@
-function [minimizer,sigma,max_l,param_str,grad,hessian] = optimize_likelihood(fixed_params,initial,lb,ub,noisy_data,T,t_skip,x_skip,ic)
+function [minimizer,sigma,max_l,param_str,grad,hessian] = optimize_likelihood(fixed_params,initial,lb,ub,noisy_data,T,t_skip,x_skip,threshold,ic)
 %Build a string that defines the likelihood function in terms of the right
 %parameters
 %  fixed_params: which parameters are fixed at their initial value (1: fixed, 0: free)
 %  initial: initial guess for all parameters
 %  lb,ub: lower/upper bound
 %  noisy_data,T,t_skip,x_skip: to be fed to f
+%  threshold: -1 for full density data, otherwise threshold the data
 %  ic: initial condition, optional
 
 
@@ -20,9 +21,9 @@ for i=1:size(fixed_params,2)
 end
 param_str=strcat(param_str,']');
 if exist('ic','var')
-    f_str=strcat('f=@(x) squared_error(noisy_data,T,',param_str,',t_skip,x_skip,ic);');
+    f_str=strcat('f=@(x) squared_error(noisy_data,T,',param_str,',t_skip,x_skip,threshold,ic);');
 else
-    f_str=strcat('f=@(x) squared_error(noisy_data,T,',param_str,',t_skip,x_skip);');
+    f_str=strcat('f=@(x) squared_error(noisy_data,T,',param_str,',t_skip,x_skip,threshold);');
 end
 eval(f_str);
 

@@ -1,12 +1,14 @@
-load('/home/liuy1/Documents/woundhealing/simulations/woundhealing_1d_20211116_153149_D0=500,r=0.12,alpha=1.5,beta=1.4,gamma=1,n=0,dt=0.02.mat');
-%load('/home/liuy1/Documents/woundhealing/simulations/woundhealing_1d_20211116_135259_D0=500,r=0.05,alpha=1,beta=1,gamma=1,n=0,dt=0.02.mat');
-noise_strength=0.01;
+%load('/home/liuy1/Documents/woundhealing/simulations/woundhealing_1d_20211116_153149_D0=500,r=0.12,alpha=1.5,beta=1.4,gamma=1,n=0,dt=0.02.mat');
+load('/home/liuy1/Documents/woundhealing/simulations/woundhealing_1d_20211116_135259_D0=500,r=0.05,alpha=1,beta=1,gamma=1,n=0,dt=0.02.mat');
+noise_strength=-1; % use -1 for segmented data
 if noise_strength==0.05
     noisy_data=cc_noisy_005;
 elseif noise_strength==0.01
     noisy_data=cc_noisy_001;
 elseif noise_strength==0
     noisy_data=cc;
+elseif noise_strength==-1
+    noisy_data=cc_seg;
 else
     error('no such data\n');
 end
@@ -19,16 +21,16 @@ x_skip=12;
 
 true_params=params;
 %fixed_param_val=true_params;
-fixed_param_val=[500,0.12,1,1,1,0];
+fixed_param_val=[500,0.05,1,1,1,0];
 %lb=fixed_param_val.*[0.8,0.8,0.9,0.9,0.9,0.9];
 %ub=fixed_param_val.*[1.2,1.2,1.1,1.1,1.1,1.1];
-lb=[250,0.05,1.1,1.0,0.9,0];
-ub=[400,0.15,1.9,1.8,1.6,0];
+lb=[50,0.10,1.1,1.0,0.9,0];
+ub=[200,0.20,1.9,1.8,1.6,1];
 param_names={'D0','r','alpha','beta','gamma','n'};
 %leave sigma out
 num_params=size(true_params,2);
 %if fixed(i)==1, then the ith param is set to the true value and not optimized over
-fixed=[0,0,1,1,1,1];
+fixed=[0,0,1,1,1,0];
 num_free_params=sum(1-fixed);
 
 %% overall max likelihood
@@ -66,7 +68,7 @@ end
 
 %% plot
 fig=figure('Position',[100 100 1400 400],'color','w');
-figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],noise=%g,tskip=%d,xskip=%d',''],fixed,fixed_param_val,noise_strength,t_skip,x_skip);
+figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],noise=%g,tskip=%d,xskip=%d','_2'],fixed,fixed_param_val,noise_strength,t_skip,x_skip);
 sgtitle(figtitle);
 free_param_count=0;
 for param=1:num_params

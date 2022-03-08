@@ -1,15 +1,15 @@
-function [prefix,cc,timereachcenter] = woundhealing_2d(params,T,makegif)
+function [prefix,cc,timereachcenter] = woundhealing_2d(params,T,makegif,ic)
 %params=[500,0.05,1,1,1,0];T=50;makegif=1;
 %% options
 %makegif=1;
-drawperframe=40;
-Lx=2000; % half-domain size, the domain is [-Lx,Lx] x [-Ly,Ly]
+drawperframe=10;
+Lx=3285; % domain length, the domain is [0,Lx] x [0,Ly]
 Ly=Lx;
 %T=60;
 nx=100;
 ny=nx;
-dx=2*Lx/nx;
-dy=2*Ly/ny;
+dx=Lx/nx;
+dy=Ly/ny;
 dt=0.1;
 nt=T/dt+1;
 nFrame=ceil((T/dt)/drawperframe)+1;
@@ -29,8 +29,8 @@ noisestrength = 0; % default 0 - 0.01
 %fprintf('Fisher speed: %.3f\n', fisherspeed);
 
 %% FDM setup
-x=linspace(-Lx,Lx,nx)';
-y=linspace(-Ly,Ly,ny)';
+x=linspace(0,Lx,nx)';
+y=linspace(0,Ly,ny)';
 [X,Y] = meshgrid(x,y);
 xmeshvec = reshape(X,[nx*ny,1]);
 ymeshvec = reshape(Y,[nx*ny,1]);
@@ -41,22 +41,30 @@ cc = zeros(nFrame,ny,nx); % history of c
 % central dot
 % c(:)=0;
 % c(nx/2,nx/2)=k;
+%ictext='dot';
 
 % circle
-c = sqrt(X.^2 + Y.^2) < 0.1*Lx;
+%c = sqrt(X.^2 + Y.^2) < 0.1*Lx;
+%ictext='circle';
 
 % ellipse
 %c = sqrt(X.^2./4 + Y.^2) < 50;
+%ictext='ellipse';
 
 % star
 %c = sqrt(X.^2 + Y.^2) < 10*cos(5*atan2(X,Y))+20;
+%ictext='star';
+
+if exist('ic','var')
+    c=ic;
+    ictext='kevinic';
+end
 
 if ispc % is windows
     folder='D:\liuyueFolderOxford1\woundhealing\simulations\';
 else % is linux
     folder='/home/liuy1/Documents/woundhealing/simulations/';
 end
-ictext='circle';
 prefix = sprintf('woundhealing_2d_%s_%s_D0=%g,r=%g,alpha=%g,beta=%g,gamma=%g,n=%g,dt=%g',datestr(datetime('now'), 'yyyymmdd_HHMMSS'),ictext,params,dt);
 prefix = strcat(folder, prefix);
 if makegif

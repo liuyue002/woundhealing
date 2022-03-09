@@ -19,8 +19,8 @@ fixed=[0,0,1,1,1,1];
 num_free_params=sum(1-fixed);
 %% r vs D
 numpts=40;
-D0s=linspace(100,1000,numpts);
-rs=linspace(0.3,2,numpts);
+D0s=linspace(50,500,numpts);
+rs=linspace(0.5,4,numpts);
 ls=zeros(numpts,numpts);
 for i=1:numpts
     for j=1:numpts
@@ -37,9 +37,16 @@ set(gca,'XTick',[1,round(numpts/2),numpts]);
 set(gca,'XTickLabel',num2str([D0s(1),D0s(round(numpts/2)),D0s(numpts)]','%.0f'));
 set(gca,'YTick',[1,round(numpts/2),numpts]);
 set(gca,'YTickLabel',num2str([rs(1),rs(round(numpts/2)),rs(numpts)]','%.1f'));
-save([prefix,'_Dvsr_thresholded.mat'],'-mat','-append');
 
-%% overall iminimizer
+[~,I] = max(ls',[],'all','linear');
+[ix, iy] = ind2sub(size(ls'),I);
+hold on
+plot(iy,ix,'r*','MarkerSize',20);
+save([prefix,'_Dvsr_thresholded.mat'],'-mat','-append');
+saveas(fig,[prefix,'_Dvsr_thresholded.png']);
+exit;%%%%%%%%%%%%%%
+
+%% overall minimizer
 
 [overall_minimizer,sigma,max_l,param_str,grad,hessian] = optimize_likelihood(fixed,fixed_param_val,lb,ub,noisy_data,T,t_skip,x_skip,threshold,ic);
 fprintf(['Overall max likelihood param is: ',repmat('%.3f,',size(overall_minimizer)),'sigma=%.3f,\n'],overall_minimizer,sigma);

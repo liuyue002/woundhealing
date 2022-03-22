@@ -1,4 +1,4 @@
-function [prefix,cc,timereachend] = woundhealing_1d(params,T,makegif)
+function [prefix,cc,timereachend,frontwidth] = woundhealing_1d(params,T,makegif)
 % params: [D0,r,alpha,beta,gamma,n]
 % D0=500;r=0.07;alpha=1.5;beta=1.4;T=600;n=1;scale_r=0;makegif=1;
 %params=[500,0.05,1,1,1,0];T=200;makegif=1;
@@ -11,7 +11,7 @@ dx=L/nx;
 %T=50;
 dt=0.01;
 nt=T/dt+1;
-nFrame=ceil((T/dt)/drawperframe);
+nFrame=floor((T/dt)/drawperframe)+1;
 
 %% parameters and reaction terms
 D0=params(1);
@@ -42,6 +42,7 @@ cc=zeros(nFrame,nx);
 %% initial condition
 c(:)=0;
 c(1:ceil(nx/10))=k;
+%c(1)=k;
 
 if ispc % is windows
     folder='D:\liuyueFolderOxford1\woundhealing\simulations\';
@@ -117,12 +118,13 @@ for ti=1:1:nt
         fprintf('Negative or complex value detected! something wrong');
         break;
     end
-    if isnan(frontwidth) && c(nx/2)>0.5
+    if isnan(frontwidth) && c(round(nx*0.8))>0.5
         % compute the width of the front when the wave reach the middle
         % define width as between c>0.9 and c<0.1
         wavetailloc=sum(c>0.9)/nx*L;
         waveheadloc=sum(c>0.1)/nx*L;
         frontwidth=waveheadloc-wavetailloc;
+        %break; %%%%%%%
         %fprintf('front width: %.5f\n',frontwidth);
     end
     if isnan(timereachend) && c(end)>0.9*k
@@ -130,6 +132,7 @@ for ti=1:1:nt
         %T = timereachend + 20;
         %nt=T/dt+1;
         framereachend=ceil((ti-1)/drawperframe+1);
+        break;
     end
     if makegif && (mod(ti, drawperframe) == 0)
         ctotal=sum(sum(c))*dx;

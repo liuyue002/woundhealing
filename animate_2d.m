@@ -7,17 +7,20 @@ function [fig] = animate_2d(uu,xlimit,ylimit,crange,Dt,fname,prefix,makegif)
 % fname: name of the function (i.e. 'u')
 % prefix: prefix for saving any file
 % whether to save gif
-[nFrame,nx,ny]=size(uu);
+
+%[nFrame,nx,ny]=size(uu);
+[nx,ny,nFrame]=size(uu);
 xs=linspace(xlimit(1),xlimit(2),nx);
 ys=linspace(ylimit(1),ylimit(2),ny);
 ts=(0:1:nFrame)*Dt;
 T=nFrame*Dt;
 fig=figure('Position',[10 100 600 500],'color','w');
 figtitle=title('t=0');
-crange=[0,1.2];
+%crange=[0,1.2];
 numticks=10;
 hold on
-cfig=imagesc(squeeze(uu(1,:,:)),crange);
+%cfig=imagesc(squeeze(uu(1,:,:)),crange);
+cfig=imagesc(squeeze(uu(:,:,1)),crange);
 xlabel('x');
 ylabel('y');
 set(gca,'YDir','normal');
@@ -41,7 +44,8 @@ if makegif
     imwrite(imind,cm,giffile,'gif', 'Loopcount',inf);
 end
 for iframe=1:nFrame
-    cfig.CData=squeeze(uu(iframe,:,:));
+    %cfig.CData=squeeze(uu(iframe,:,:));
+    cfig.CData=squeeze(uu(:,:,iframe));
     figtitle.String=['t=',num2str(ts(iframe),'%.1f')];
     drawnow;
     if makegif

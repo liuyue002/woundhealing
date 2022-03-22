@@ -6,17 +6,17 @@ function [err] = squared_error(noisy_data,T,params,t_skip,x_skip,threshold,ic)
 % t_skip: use only data at some of the time steps (set to 1 to use all)
 % t_skip: use only data at some of the spatial gridpts (set to 1 to use all)
 % threshold: -1 for full density data, otherwise threshold the data
-% ic: initial condition (optional)
+% ic: initial condition, set to NaN for using default
 if ndims(noisy_data)==2
     % this is 1D data
-    if exist('ic','var')
+    if ~isnan(ic)
         [~,model_data,~] = woundhealing_1d(params,T,0,ic);
     else
         [~,model_data,~] = woundhealing_1d(params,T,0);
     end
 else
     % this is 2D data
-    if exist('ic','var')
+    if ~isnan(ic)
         [~,model_data,~] = woundhealing_2d(params,T,0,ic);
     else
         [~,model_data,~] = woundhealing_2d(params,T,0);

@@ -3,10 +3,10 @@ function [prefix,cc,timereachcenter] = woundhealing_2d(params,T,makegif,ic)
 %% options
 %makegif=1;
 drawperframe=10;
-Lx=3285; % domain length, the domain is [0,Lx] x [0,Ly]
+Lx=4380;%3285; % domain length, the domain is [0,Lx] x [0,Ly]
 Ly=Lx;
 %T=60;
-nx=100;
+nx=150;
 ny=nx;
 dx=Lx/nx;
 dy=Ly/ny;

@@ -1,17 +1,18 @@
-load('/home/liuy1/Documents/woundhealing/simulations/kevindata_highdensity_phase20220221_135604.mat')
+%load('/home/liuy1/Documents/woundhealing/simulations/kevindata_highdensity_phase20220221_135604.mat')
 %load('simulations/kevindata_highdensity_phase20220221_135604.mat')
+load('simulations/kevindata_circle_20220405_scaled.mat');
 %addpath('/home/liuy1/my_programs/nlopt/lib/matlab');
 nFrame=size(noisy_data,1);
 N=numel(noisy_data);
 ic=squeeze(noisy_data(1,:,:));
-T=23;
+T=(nFrame-1)*1;
 t_skip=1;
 x_skip=1;
-threshold=0.5;
+threshold=-1;
 
-fixed_param_val=[43,4.2,1,1,1,0];
-lb=[30,4.0,1,1,1,3.5];
-ub=[50,4.5,1,1,1,4];
+fixed_param_val=[400,1,1,1,1,0];
+lb=[100,0.05,1,1,1,0];
+ub=[4000,2,1,1,1,0];
 param_names={'D0','r','alpha','beta','gamma','n'};
 %leave sigma out
 num_params=size(fixed_param_val,2);
@@ -19,32 +20,32 @@ num_params=size(fixed_param_val,2);
 fixed=[0,0,1,1,1,1];
 num_free_params=sum(1-fixed);
 %% r vs D
-% numpts=40;
-% D0s=linspace(50,500,numpts);
-% rs=linspace(0.5,4,numpts);
-% ls=zeros(numpts,numpts);
-% for i=1:numpts
-%     for j=1:numpts
-%         ls(i,j)=log_likelihood(squared_error(noisy_data,T,[D0s(i),rs(j),1,1,1,0],t_skip,x_skip,threshold,ic),N);
-%     end
-% end
-% %% plot r vs D
-% fig=figure;
-% imagesc(ls'); % need transpose + reverse axis to make it right
-% set(gca,'YDir','normal');
-% xlabel('D_0');
-% ylabel('r');
-% set(gca,'XTick',[1,round(numpts/2),numpts]);
-% set(gca,'XTickLabel',num2str([D0s(1),D0s(round(numpts/2)),D0s(numpts)]','%.0f'));
-% set(gca,'YTick',[1,round(numpts/2),numpts]);
-% set(gca,'YTickLabel',num2str([rs(1),rs(round(numpts/2)),rs(numpts)]','%.1f'));
-% 
-% [~,I] = max(ls',[],'all','linear');
-% [ix, iy] = ind2sub(size(ls'),I);
-% hold on
-% plot(iy,ix,'r*','MarkerSize',20);
-% save([prefix,'_Dvsr_thresholded.mat'],'-mat','-append');
-% saveas(fig,[prefix,'_Dvsr_thresholded.png']);
+numpts=40;
+D0s=linspace(100,1000,numpts);
+rs=linspace(0.1,4,numpts);
+ls=zeros(numpts,numpts);
+for i=1:numpts
+    for j=1:numpts
+        ls(i,j)=log_likelihood(squared_error(noisy_data,T,[D0s(i),rs(j),1,1,1,0],t_skip,x_skip,threshold,ic),N);
+    end
+end
+%% plot r vs D
+fig=figure;
+imagesc(ls'); % need transpose + reverse axis to make it right
+set(gca,'YDir','normal');
+xlabel('D_0');
+ylabel('r');
+set(gca,'XTick',[1,round(numpts/2),numpts]);
+set(gca,'XTickLabel',num2str([D0s(1),D0s(round(numpts/2)),D0s(numpts)]','%.0f'));
+set(gca,'YTick',[1,round(numpts/2),numpts]);
+set(gca,'YTickLabel',num2str([rs(1),rs(round(numpts/2)),rs(numpts)]','%.1f'));
+
+[~,I] = max(ls',[],'all','linear');
+[ix, iy] = ind2sub(size(ls'),I);
+hold on
+plot(iy,ix,'r*','MarkerSize',20);
+save([prefix,'_Dvsr.mat'],'-mat','-append');
+saveas(fig,[prefix,'_Dvsr.png']);
 % exit;%%%%%%%%%%%%%%
 
 %% overall minimizer

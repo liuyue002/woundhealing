@@ -10,7 +10,7 @@ nx=150;
 ny=nx;
 dx=Lx/nx;
 dy=Ly/ny;
-dt=0.1;
+dt=0.1/3;
 nt=T/dt+1;
 nFrame=ceil((T/dt)/drawperframe)+1;
 
@@ -21,7 +21,7 @@ alpha=params(3);
 beta=params(4);
 gamma=params(5);
 n=params(6);
-k=1;
+k=params(7);
 D = @(c) D0*c.^n;
 f = @(c) r*c.^alpha .* (abs(1-(c./k).^gamma)).^beta .*sign(1-c./k);
 noisestrength = 0; % default 0 - 0.01

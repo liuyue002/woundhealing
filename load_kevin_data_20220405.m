@@ -1,46 +1,25 @@
-load('/scratch/liuy1/wound_data/04-05-22 exp1/Circle/Density_CellcycleFraction/xy1_data.mat');
+%% basic processing of data
+
+%load('/scratch/liuy1/wound_data/04-05-22 exp1/Circle/Density_CellcycleFraction/xy2_data.mat');
+%prefix='/home/liuy1/Documents/woundhealing/simulations/kevindata_circle_xy2_20220405_raw';
 [nx,ny,nt]=size(density);
 Cmax=max(density,[],'all');
-animate_2d(density,[0,nx*29.2],[0,ny*29.2],[0,Cmax],1/3,'C','/home/liuy1/Documents/woundhealing/simulations/kevindata_circle_20220405_raw',1);
-
-density=density(:,:,1:3:end);
-density=density./Cmax;
+dt=1/3;
 density(isnan(density))=0;
-animate_2d(density,[0,nx*29.2],[0,ny*29.2],[0,1],1,'C','/home/liuy1/Documents/woundhealing/simulations/kevindata_circle_20220405_scaled',1);
-
-[nx,ny,nt]=size(density);
 noisy_data=zeros(nt,nx,ny);
 for i=1:nt
     noisy_data(i,:,:)=density(:,:,i);
 end
+animate_2d(noisy_data,[0,nx*29.2],[0,ny*29.2],[0,Cmax],dt,'C',prefix,1);
 close all;
-save('/home/liuy1/Documents/woundhealing/simulations/kevindata_circle_20220405_scaled.mat');
+save([prefix,'.mat']);
 
-%%
-% load('/scratch/liuy1/wound_data/04-05-22 exp1/Triangle/Density_CellCycleFraction/xy3_data.mat');
-% [nx,ny,nt]=size(density);
-% Cmax=max(density,[],'all');
-% animate_2d(density,[0,nx*29.2],[0,ny*29.2],[0,Cmax],1/3,'C','/home/liuy1/Documents/woundhealing/simulations/kevindata_triangle_20220405_raw',1);
-% 
-% density=density(:,:,1:3:end);
-% density=density./Cmax;
-% density(isnan(density))=0;
-% animate_2d(density,[0,nx*29.2],[0,ny*29.2],[0,1],1,'C','/home/liuy1/Documents/woundhealing/simulations/kevindata_triangle_20220405_scaled',1);
-% 
-% [nx,ny,nt]=size(density);
-% noisy_data=zeros(nt,nx,ny);
-% for i=1:nt
-%     noisy_data(i,:,:)=density(:,:,i);
-% end
-% close all;
-% save('/home/liuy1/Documents/woundhealing/simulations/kevindata_triangle_20220405_scaled.mat');
-
-%%
+%% draw equivalent circle
 fig=figure('Position',[10 100 600 500],'color','w');
 figtitle=title('t=0');
 C=squeeze(noisy_data(1,:,:));
 hold on
-cfig=imagesc(C,[0,1]);
+cfig=imagesc(C,[0,Cmax]);
 xlabel('x');
 ylabel('y');
 set(gca,'YDir','normal');
@@ -71,8 +50,7 @@ centery=sum(row)/num_nonzero;
 radiuss(1)=sqrt(num_nonzero/pi);
 circ=draw_circle(centerx,centery,radiuss(1));
 
-prefix='/home/liuy1/Documents/woundhealing/simulations/kevindata_circle_20220405_scaled_withcircle';
-giffile=[prefix,'.gif'];
+giffile=[prefix,'_withcircle.gif'];
 frame = getframe(fig);
 im = frame2im(frame);
 [imind,cm] = rgb2ind(im,256);
@@ -81,7 +59,7 @@ imwrite(imind,cm,giffile,'gif', 'Loopcount',inf);
 for i=2:nt
     C=squeeze(noisy_data(i,:,:));
     cfig.CData=C;
-    figtitle.String=['t=',num2str(i-1,'%.0f')];
+    figtitle.String=['t=',num2str((i-1)*dt,'%.1f')];
     
     [row,col]=find(C>0);
     num_nonzero=size(row,1);
@@ -95,30 +73,56 @@ for i=2:nt
     imwrite(imind,cm,giffile,'gif', 'WriteMode','append','DelayTime',0);
 end
 
-%%
+%% radial averaging
 
-C=squeeze(noisy_data(1,:,:));
+
 distance_to_center=zeros(nx,ny);
-
+edges=(0:30:5000)'; % 5000 radius is large enough to cover the whole domain
+rs=(edges(2:end)+edges(1:end-1))/2;
+edges=edges(1:end-1);
+C_radial_avg=zeros(nt,size(edges,1));
 for i=1:nx
     for j=1:ny
         distance_to_center(i,j)=sqrt((i-centery)^2 + (j-centerx)^2) *29.2;
-        dist_list((i-1)*nx+j,1)=distance_to_center(i,j);
     end
 end
+bins=discretize(reshape(distance_to_center,[nx*ny,1]),edges);
 
-
-for i=1:nx
-    for j=1:ny
-        dist_list((i-1)*nx+j,2)=C(i,j);
+for ti=1:nt
+    disp(ti);
+    C=squeeze(noisy_data(ti,:,:));
+    for i=1:nx
+        for j=1:ny
+            Cvec = reshape(C,[nx*ny,1]);
+            bin_avg=accumarray(bins,Cvec,size(edges))./accumarray(bins,1,size(edges));
+            C_radial_avg(ti,:)=bin_avg;
+        end
     end
 end
+C_radial_avg(isnan(C_radial_avg))=0;
 
-fig=figure;
-plot(dist_list(:,1),dist_list(:,2),'.');
+%fig=figure;
+%plot(dist_list(:,1),dist_list(:,2),'.');
 
-edges=(0:30:5000)'; % only take the first 100 at the end
-bins=discretize(dist_list(:,1),edges);
-bin_avg=accumarray(bins,dist_list(:,2),size(edges))./accumarray(bins,1,size(edges));
-figure;
-plot(edges,bin_avg);
+%plot(edges,bin_avg);
+
+animate_1d(C_radial_avg,[0,5000],1/3,'C',[prefix,'_radialavg'],1);
+close all;
+save([prefix,'.mat'],'-append');
+
+
+%% triangles
+load('/scratch/liuy1/wound_data/04-05-22 exp1/Triangle/Density_CellCycleFraction/xy3_data.mat');
+prefix='/home/liuy1/Documents/woundhealing/simulations/kevindata_triangle_xy3_20220405_raw';
+
+[nx,ny,nt]=size(density);
+Cmax=max(density,[],'all');
+dt=1/3;
+density(isnan(density))=0;
+noisy_data=zeros(nt,nx,ny);
+for i=1:nt
+    noisy_data(i,:,:)=density(:,:,i);
+end
+animate_2d(noisy_data,[0,nx*29.2],[0,ny*29.2],[0,Cmax],dt,'C',prefix,1);
+close all;
+save([prefix,'.mat']);

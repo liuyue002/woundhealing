@@ -1,56 +1,58 @@
 %load('/home/liuy1/Documents/woundhealing/simulations/kevindata_highdensity_phase20220221_135604.mat')
 %load('simulations/kevindata_highdensity_phase20220221_135604.mat')
-load('simulations/kevindata_circle_20220405_scaled.mat');
+%load('simulations/kevindata_circle_xy2_20220405_raw.mat');
+load('simulations/kevindata_triangle_xy3_20220405_raw.mat');
 %addpath('/home/liuy1/my_programs/nlopt/lib/matlab');
 nFrame=size(noisy_data,1);
 N=numel(noisy_data);
 ic=squeeze(noisy_data(1,:,:));
-T=(nFrame-1)*1;
+dt=1/3;
+T=(nFrame-1)*dt;
 t_skip=1;
 x_skip=1;
 threshold=-1;
 
-fixed_param_val=[400,1,1,1,1,0];
-lb=[100,0.05,1,1,1,0];
-ub=[4000,2,1,1,1,0];
-param_names={'D0','r','alpha','beta','gamma','n'};
+fixed_param_val=[1200,0.3,1,1,1,0,2600];
+lb=[800,0.2,0.9,0.9,0.5,0,2550];
+ub=[1400,0.5,1.1,1.5,1.1,0.05,2750];
+param_names={'D0','r','alpha','beta','gamma','n','k'};
 %leave sigma out
 num_params=size(fixed_param_val,2);
 %if fixed(i)==1, then the ith param is set to the true value and not optimized over
-fixed=[0,0,1,1,1,1];
+fixed=[0,0,1,1,1,1,0];
 num_free_params=sum(1-fixed);
 %% r vs D
-numpts=40;
-D0s=linspace(100,1000,numpts);
-rs=linspace(0.1,4,numpts);
-ls=zeros(numpts,numpts);
-for i=1:numpts
-    for j=1:numpts
-        ls(i,j)=log_likelihood(squared_error(noisy_data,T,[D0s(i),rs(j),1,1,1,0],t_skip,x_skip,threshold,ic),N);
-    end
-end
-%% plot r vs D
-fig=figure;
-imagesc(ls'); % need transpose + reverse axis to make it right
-set(gca,'YDir','normal');
-xlabel('D_0');
-ylabel('r');
-set(gca,'XTick',[1,round(numpts/2),numpts]);
-set(gca,'XTickLabel',num2str([D0s(1),D0s(round(numpts/2)),D0s(numpts)]','%.0f'));
-set(gca,'YTick',[1,round(numpts/2),numpts]);
-set(gca,'YTickLabel',num2str([rs(1),rs(round(numpts/2)),rs(numpts)]','%.1f'));
-
-[~,I] = max(ls',[],'all','linear');
-[ix, iy] = ind2sub(size(ls'),I);
-hold on
-plot(iy,ix,'r*','MarkerSize',20);
-save([prefix,'_Dvsr.mat'],'-mat','-append');
-saveas(fig,[prefix,'_Dvsr.png']);
-% exit;%%%%%%%%%%%%%%
+% numpts=40;
+% D0s=linspace(100,1000,numpts);
+% rs=linspace(0.1,4,numpts);
+% ls=zeros(numpts,numpts);
+% for i=1:numpts
+%     for j=1:numpts
+%         ls(i,j)=log_likelihood(squared_error(noisy_data,T,[D0s(i),rs(j),1,1,1,0],t_skip,x_skip,threshold,ic),N);
+%     end
+% end
+% %% plot r vs D
+% fig=figure;
+% imagesc(ls'); % need transpose + reverse axis to make it right
+% set(gca,'YDir','normal');
+% xlabel('D_0');
+% ylabel('r');
+% set(gca,'XTick',[1,round(numpts/2),numpts]);
+% set(gca,'XTickLabel',num2str([D0s(1),D0s(round(numpts/2)),D0s(numpts)]','%.0f'));
+% set(gca,'YTick',[1,round(numpts/2),numpts]);
+% set(gca,'YTickLabel',num2str([rs(1),rs(round(numpts/2)),rs(numpts)]','%.1f'));
+% 
+% [~,I] = max(ls',[],'all','linear');
+% [ix, iy] = ind2sub(size(ls'),I);
+% hold on
+% plot(iy,ix,'r*','MarkerSize',20);
+% save([prefix,'_Dvsr.mat'],'-mat','-append');
+% saveas(fig,[prefix,'_Dvsr.png']);
+% % exit;%%%%%%%%%%%%%%
 
 %% overall minimizer
 
-[overall_minimizer,sigma,max_l,param_str,~,~] = optimize_likelihood(fixed,fixed_param_val,lb,ub,noisy_data,T,t_skip,x_skip,threshold,ic,0);
+[overall_minimizer,sigma,max_l,param_str,~,~] = optimize_likelihood(fixed,fixed_param_val,lb,ub,noisy_data,T,t_skip,x_skip,threshold,ic,1,0,nan);
 fprintf(['Overall max likelihood param is: ',repmat('%.3f,',size(overall_minimizer)),'sigma=%.3f,\n'],overall_minimizer,sigma);
 %figure(fig);
 %hold on
@@ -83,14 +85,14 @@ for param=1:num_params
             initial(fixed_params==0)=minimizers{param,i-1};
         end
         initial(param)=param_vals(param,i);
-        [minimizer,~,max_ls(param,i),~,~,~] = optimize_likelihood(fixed_params,initial,lb,ub,noisy_data,T,t_skip,x_skip,threshold,ic,0);
+        [minimizer,~,max_ls(param,i),~,~,~] = optimize_likelihood(fixed_params,initial,lb,ub,noisy_data,T,t_skip,x_skip,threshold,ic,1,0,nan);
         minimizers{param,i}=minimizer;
     end
 end
 
 %% plot
 fig=figure('Position',[100 100 1400 400],'color','w');
-figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d','_4'],fixed,fixed_param_val,threshold,t_skip,x_skip);
+figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',6'],fixed,fixed_param_val,threshold,t_skip,x_skip);
 sgtitle(figtitle);
 free_param_count=0;
 for param=1:num_params

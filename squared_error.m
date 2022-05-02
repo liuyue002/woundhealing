@@ -1,4 +1,4 @@
-function [err] = squared_error(noisy_data,T,params,t_skip,x_skip,threshold,ic)
+function [err] = squared_error(noisy_data,T,params,t_skip,x_skip,threshold,ic,ispolar,xs)
 %Squared error between data and model
 % noisy_data: the experimental data with observation noise (1D or 2D)
 % T: end time of the noisy data
@@ -9,11 +9,7 @@ function [err] = squared_error(noisy_data,T,params,t_skip,x_skip,threshold,ic)
 % ic: initial condition, set to NaN for using default
 if ndims(noisy_data)==2
     % this is 1D data
-    if ~isnan(ic)
-        [~,model_data,~] = woundhealing_1d(params,T,0,ic);
-    else
-        [~,model_data,~] = woundhealing_1d(params,T,0);
-    end
+    [~,model_data,~] = woundhealing_1d(params,T,0,ispolar,ic,xs);
 else
     % this is 2D data
     if ~isnan(ic)

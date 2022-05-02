@@ -1,17 +1,28 @@
-function [prefix,cc,timereachend,frontwidth] = woundhealing_1d(params,T,makegif)
+function [prefix,cc,timereachend,frontwidth] = woundhealing_1d(params,T,makegif,ispolar,ic,xs)
 % params: [D0,r,alpha,beta,gamma,n]
 % D0=500;r=0.07;alpha=1.5;beta=1.4;T=600;n=1;scale_r=0;makegif=1;
 %params=[500,0.05,1,1,1,0];T=200;makegif=1;
+% polar: whether the laplacian is in polar form
+% ic: nan for default IC, otherwise provide ic (as col vector)
+% xs: nan for default, otherwise is the gridpoints as a col vector
 %% options
 %makegif=1;
-drawperframe=400;
-L=2000; % domain size
-nx=600;
-dx=L/nx;
+drawperframe=100;
 %T=50;
-dt=0.01;
+dt=0.01/3;
 nt=T/dt+1;
 nFrame=floor((T/dt)/drawperframe)+1;
+if isnan(xs)
+    L=2000; % domain size
+    nx=600;
+    dx=L/nx;
+    x=linspace(0,L,nx)';
+else
+    x=xs;
+    L=x(end);
+    nx=size(x,1);
+    dx=x(2)-x(1);
+end
 
 %% parameters and reaction terms
 D0=params(1);
@@ -20,7 +31,7 @@ alpha=params(3);
 beta=params(4);
 gamma=params(5);
 n=params(6);
-k=1;
+k=params(7);
 D = @(c) D0*c.^n;
 f = @(c) r*c.^alpha .* (abs(1-(c./k).^gamma)).^beta .*sign(1-c./k);
 noisestrength = 0; % default 0 - 0.01
@@ -35,7 +46,6 @@ noisestrength = 0; % default 0 - 0.01
 %fprintf('Fisher speed: %.3f\n', fisherspeed);
 
 %% FDM setup
-x=linspace(0,L,nx)';
 c=zeros(nx,1);
 cc=zeros(nFrame,nx);
 
@@ -43,6 +53,10 @@ cc=zeros(nFrame,nx);
 c(:)=0;
 c(1:ceil(nx/10))=k;
 %c(1)=k;
+
+if ~isnan(ic)
+    c=ic;
+end
 
 if ispc % is windows
     folder='D:\liuyueFolderOxford1\woundhealing\simulations\';
@@ -99,12 +113,23 @@ for ti=1:1:nt
             end
         end
     end
-    Dvec=1/2 *([D(c(1:nx));0]+[0;D(c(1:nx))]);
-    A=spdiags([Dvec(2:end),-Dvec(1:end-1)-Dvec(2:end),Dvec(1:end-1)],[-1 0 1],nx,nx);
-    A(1,1)=Dvec(2); % for no-flux BC
-    A(nx,nx)=-Dvec(end-1);
-    A=A/(dx^2);
-    Tc=speye(nx)-th*dt*A;
+    if ~ispolar
+        Dvec=1/2 *([D(c(1:nx));0]+[0;D(c(1:nx))]);
+        A=spdiags([Dvec(2:end),-Dvec(1:end-1)-Dvec(2:end),Dvec(1:end-1)],[-1 0 1],nx,nx);
+        A(1,1)=Dvec(2); % for no-flux BC
+        A(nx,nx)=-Dvec(end-1);
+        A=A/(dx^2);
+        Tc=speye(nx)-th*dt*A;
+    else
+        Dvec=1/2 *([x;0].*[D(c(1:nx));0]+[0;x].*[0;D(c(1:nx))]);
+        A=spdiags([Dvec(2:end),-Dvec(1:end-1)-Dvec(2:end),Dvec(1:end-1)],[-1 0 1],nx,nx);
+        A(1,1)=Dvec(2); % for no-flux BC
+        A(nx,nx)=-Dvec(end-1);
+        A=A/(dx^2);
+        A=A./x;
+        Tc=speye(nx)-th*dt*A;
+    end
+    
     
     fvec=f(c);
     

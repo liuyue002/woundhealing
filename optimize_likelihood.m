@@ -1,4 +1,4 @@
-function [minimizer,sigma,max_l,param_str,grad,hessian] = optimize_likelihood(fixed_params,initial,lb,ub,noisy_data,T,t_skip,x_skip,threshold,ic,smooth,ispolar,xs)
+function [minimizer,sigma,max_l,param_str,grad,hessian] = optimize_likelihood(fixed_params,initial,lb,ub,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,smooth,xs)
 %Build a string that defines the likelihood function in terms of the right
 %parameters
 %  fixed_params: which parameters are fixed at their initial value (1: fixed, 0: free)
@@ -9,7 +9,6 @@ function [minimizer,sigma,max_l,param_str,grad,hessian] = optimize_likelihood(fi
 %  ic: initial condition, set to NaN if using default
 %  smooth: whether the optimization problem is smooth. 
 %  (should be smooth with full density data, nonsmooth with thresholded data)
-%  ispolar: for 1D case only, whether the laplacian is in polar form
 %  xs: for 1D only, provide spatial grid points (nan for default)
 
 
@@ -24,7 +23,7 @@ for i=1:size(fixed_params,2)
     end
 end
 param_str=strcat(param_str,']');
-f_str=strcat('f=@(x) squared_error(noisy_data,T,',param_str,',t_skip,x_skip,threshold,ic,ispolar,xs);');
+f_str=strcat('f=@(x) squared_error(noisy_data,',param_str,',numeric_params,t_skip,x_skip,threshold,ic,xs);');
 eval(f_str);
 
 % % at initial point log likelihood is -Inf
@@ -51,10 +50,7 @@ if smooth
     problem.objective=f;
     problem.x0=initial(fixed_params==0);
     problem.solver='fmincon';
-    %problem.lb=lb(fixed_params==0);
-    problem.lb=zeros(size(lb(fixed_params==0)));
-    %problem.ub=ub(fixed_params==0);
-    ub=[20000,5,10,10,10,10,10000];
+    problem.ub=lb(fixed_params==0);
     problem.ub=ub(fixed_params==0);
     problem.options=options;
     [minimizer,min_sq_err,~,~,~,grad,hessian] = fmincon(problem);
@@ -64,10 +60,7 @@ else
     problem.objective=f;
     problem.x0=initial(fixed_params==0);
     problem.solver='patternsearch';
-    %problem.lb=lb(fixed_params==0);
-    problem.lb=zeros(size(lb(fixed_params==0)));
-    %problem.ub=ub(fixed_params==0);
-    ub=[5000,5,10,10,10,10,10000];
+    problem.ub=lb(fixed_params==0);
     problem.ub=ub(fixed_params==0);
     problem.options=options;
     [minimizer,min_sq_err] = patternsearch(problem);

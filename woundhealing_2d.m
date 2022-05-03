@@ -1,18 +1,21 @@
-function [prefix,cc,timereachcenter] = woundhealing_2d(params,T,makegif,ic)
-%params=[500,0.05,1,1,1,0];T=50;makegif=1;
+function [prefix,cc,timereachcenter] = woundhealing_2d(params,numeric_params,makegif,ic)
+% params: [D0,r,alpha,beta,gamma,n,k]
+% numeric_params: [T, dt, drawperframe, Lx, Ly, nx, ny]
+% the domain is [0,Lx] x [0,Ly]
+%params=[500,0.05,1,1,1,0,1];numeric_params=[50,0.01,100,2000,2000,100];makegif=1;
 %% options
-%makegif=1;
-drawperframe=10;
-Lx=4380;%3285; % domain length, the domain is [0,Lx] x [0,Ly]
-Ly=Lx;
-%T=60;
-nx=150;
-ny=nx;
+T=numeric_params(1);
+dt=numeric_params(2);
+drawperframe=numeric_params(3);
+nt=T/dt+1;
+nFrame=floor((T/dt)/drawperframe)+1;
+
+Lx=numeric_params(4);
+Ly=numeric_params(5);
+nx=numeric_params(6);
+ny=numeric_params(7);
 dx=Lx/nx;
 dy=Ly/ny;
-dt=0.1/3;
-nt=T/dt+1;
-nFrame=ceil((T/dt)/drawperframe)+1;
 
 %% parameters and reaction terms
 D0=params(1);

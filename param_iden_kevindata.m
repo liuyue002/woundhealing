@@ -21,6 +21,10 @@ num_params=size(fixed_param_val,2);
 %if fixed(i)==1, then the ith param is set to the true value and not optimized over
 fixed=[0,0,1,1,1,1,0];
 num_free_params=sum(1-fixed);
+numeric_params=[T, dt/10, 10, 4380, 4380, 150, 150];
+% feasible range for the optimization algorithm
+lb_opt=[100,0.01,0.1,0.1,0.1,0,500]; %[0,0,0,0,0,0,0]
+ub_opt=[5000,1,3,3,3,2,5000]; %[20000,5,10,10,10,10,10000]
 %% r vs D
 % numpts=40;
 % D0s=linspace(100,1000,numpts);
@@ -51,8 +55,7 @@ num_free_params=sum(1-fixed);
 % % exit;%%%%%%%%%%%%%%
 
 %% overall minimizer
-
-[overall_minimizer,sigma,max_l,param_str,~,~] = optimize_likelihood(fixed,fixed_param_val,lb,ub,noisy_data,T,t_skip,x_skip,threshold,ic,1,0,nan);
+[overall_minimizer,sigma,max_l,param_str,~,~] = optimize_likelihood(fixed,fixed_param_val,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,NaN);
 fprintf(['Overall max likelihood param is: ',repmat('%.3f,',size(overall_minimizer)),'sigma=%.3f,\n'],overall_minimizer,sigma);
 %figure(fig);
 %hold on

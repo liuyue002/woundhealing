@@ -1,4 +1,4 @@
-function [err] = squared_error(noisy_data,params,numeric_params,t_skip,x_skip,threshold,ic,ispolar,xs)
+function [err] = squared_error(noisy_data,params,numeric_params,t_skip,x_skip,threshold,ic,xs)
 %Squared error between data and model
 % noisy_data: the experimental data with observation noise (1D or 2D)
 % T: end time of the noisy data

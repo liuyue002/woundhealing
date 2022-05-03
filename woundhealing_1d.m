@@ -2,7 +2,7 @@ function [prefix,cc,timereachend,frontwidth] = woundhealing_1d(params,numeric_pa
 % params: [D0,r,alpha,beta,gamma,n,k]
 % numeric_params: [T, dt, drawperframe, L, nx, ispolar]
 % D0=500;r=0.07;alpha=1.5;beta=1.4;T=600;n=1;scale_r=0;makegif=1;
-params=[500,0.05,1,1,1,0,1];numeric_params=[200,0.01,400,2000,600,0];makegif=1;ic=nan;xs=nan;
+%params=[500,0.05,1,1,1,0,1];numeric_params=[200,0.01,400,2000,600,0];makegif=1;ic=nan;xs=nan;
 %params=[1000,0.3,1,1,1,0,2600];numeric_params=[25,0.01/3,100,5000,166,0];makegif=1;ic=nan;xs=nan;
 % ic: nan for default IC, otherwise provide ic (as col vector)
 % xs: nan for default, otherwise is the gridpoints as a col vector
@@ -112,6 +112,8 @@ for ti=1:1:nt
             else
                 imwrite(imind,cm,giffile,'gif','WriteMode','append','DelayTime',0);
             end
+            ctotal=sum(sum(c));
+            fprintf('ti=%d done, total stuff=%.2f\n',ti,ctotal);
         end
     end
     if ~ispolar
@@ -124,7 +126,7 @@ for ti=1:1:nt
     else
         Dvec=1/2 *([x;0].*[D(c(1:nx));0]+[0;x].*[0;D(c(1:nx))]);
         A=spdiags([Dvec(2:end),-Dvec(1:end-1)-Dvec(2:end),Dvec(1:end-1)],[-1 0 1],nx,nx);
-        A(1,1)=Dvec(2); % for no-flux BC
+        A(1,1)=-Dvec(2); % for no-flux BC
         A(nx,nx)=-Dvec(end-1);
         A=A/(dx^2);
         A=A./x;
@@ -159,10 +161,6 @@ for ti=1:1:nt
         %nt=T/dt+1;
         framereachend=ceil((ti-1)/drawperframe+1);
         break;
-    end
-    if makegif && (mod(ti, drawperframe) == 0)
-        ctotal=sum(sum(c))*dx;
-        fprintf('ti=%d done, total stuff=%.2f\n',ti,ctotal);
     end
 end
 %fprintf(['params=',repmat('%.3f,',size(params)),', Time to reach end: %.5f\n'],params,timereachend);

@@ -88,7 +88,7 @@ for param=1:num_params
             initial(fixed_params==0)=minimizers{param,i-1};
         end
         initial(param)=param_vals(param,i);
-        [minimizer,~,max_ls(param,i),~,~,~] = optimize_likelihood(fixed_params,initial,lb,ub,noisy_data,T,t_skip,x_skip,threshold,ic,1,0,nan);
+        [minimizer,~,max_ls(param,i),~,~,~] = optimize_likelihood(fixed_params,initial,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,nan);
         minimizers{param,i}=minimizer;
     end
 end

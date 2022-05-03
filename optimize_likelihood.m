@@ -50,7 +50,7 @@ if smooth
     problem.objective=f;
     problem.x0=initial(fixed_params==0);
     problem.solver='fmincon';
-    problem.ub=lb(fixed_params==0);
+    problem.lb=lb(fixed_params==0);
     problem.ub=ub(fixed_params==0);
     problem.options=options;
     [minimizer,min_sq_err,~,~,~,grad,hessian] = fmincon(problem);
@@ -60,7 +60,7 @@ else
     problem.objective=f;
     problem.x0=initial(fixed_params==0);
     problem.solver='patternsearch';
-    problem.ub=lb(fixed_params==0);
+    problem.lb=lb(fixed_params==0);
     problem.ub=ub(fixed_params==0);
     problem.options=options;
     [minimizer,min_sq_err] = patternsearch(problem);

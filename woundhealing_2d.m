@@ -2,7 +2,7 @@ function [prefix,cc,timereachcenter] = woundhealing_2d(params,numeric_params,mak
 % params: [D0,r,alpha,beta,gamma,n,k]
 % numeric_params: [T, dt, drawperframe, Lx, Ly, nx, ny]
 % the domain is [0,Lx] x [0,Ly]
-%params=[500,0.05,1,1,1,0,1];numeric_params=[50,0.01,100,2000,2000,100,100];makegif=1;ic=nan;
+%params=[500,0.05,1,1,1,0,1];numeric_params=[50,0.1,10,2000,2000,100,100];makegif=1;ic=nan;
 %% options
 T=numeric_params(1);
 dt=numeric_params(2);

@@ -4,6 +4,7 @@ function [prefix,cc,timereachend,frontwidth] = woundhealing_1d(params,numeric_pa
 % D0=500;r=0.07;alpha=1.5;beta=1.4;T=600;n=1;scale_r=0;makegif=1;
 %params=[500,0.05,1,1,1,0,1];numeric_params=[200,0.01,400,2000,600,0];makegif=1;ic=nan;xs=nan;
 %params=[1000,0.3,1,1,1,0,2600];numeric_params=[25,0.01/3,100,5000,166,0];makegif=1;ic=nan;xs=nan;
+% ispolar: whether the laplacian is in polar form
 % ic: nan for default IC, otherwise provide ic (as col vector)
 % xs: nan for default, otherwise is the gridpoints as a col vector
 %% options
@@ -23,7 +24,7 @@ else
     nx=size(x,1);
     dx=x(2)-x(1); % assume given grid is equaly-sized
 end
-ispolar=numeric_params(6); % whether the laplacian is in polar form
+ispolar=numeric_params(6);
 
 %% parameters and reaction terms
 D0=params(1);
@@ -143,7 +144,7 @@ for ti=1:1:nt
 
     c = max(c,0);
     if any(c<0) || ~isreal(c)
-        fprintf('Negative or complex value detected! something wrong');
+        fprintf('Negative or complex value detected! something wrong\n');
         break;
     end
     if isnan(frontwidth) && c(round(nx*0.8))>0.5

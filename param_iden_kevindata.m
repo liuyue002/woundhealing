@@ -1,6 +1,6 @@
 %load('/home/liuy1/Documents/woundhealing/simulations/kevindata_highdensity_phase20220221_135604.mat')
 %load('simulations/kevindata_highdensity_phase20220221_135604.mat')
-%load('simulations/kevindata_circle_xy2_20220405_raw.mat');
+%load('simulations/kevindata_circle_xy1_20220405_raw.mat');
 load('simulations/kevindata_triangle_xy3_20220405_raw.mat');
 %addpath('/home/liuy1/my_programs/nlopt/lib/matlab');
 nFrame=size(noisy_data,1);
@@ -13,18 +13,19 @@ x_skip=1;
 threshold=-1;
 
 fixed_param_val=[1200,0.3,1,1,1,0,2600];
-lb=[800,0.2,0.9,0.9,0.5,0,2550];
-ub=[1400,0.5,1.1,1.5,1.1,0.05,2750];
+lb=[ 800, 0.20, 0.9, 0.9, 0.7, 0.00, 2500];
+ub=[1500, 0.40, 1.1, 1.5, 1.3, 0.50, 2700];
 param_names={'D0','r','alpha','beta','gamma','n','k'};
 %leave sigma out
 num_params=size(fixed_param_val,2);
 %if fixed(i)==1, then the ith param is set to the true value and not optimized over
-fixed=[0,0,1,1,1,1,0];
+fixed=[0,0,1,1,1,0,0];
 num_free_params=sum(1-fixed);
 numeric_params=[T, dt/10, 10, 4380, 4380, 150, 150];
 % feasible range for the optimization algorithm
-lb_opt=[100,0.01,0.1,0.1,0.1,0,500]; %[0,0,0,0,0,0,0]
-ub_opt=[5000,1,3,3,3,2,5000]; %[20000,5,10,10,10,10,10000]
+lb_opt=[ 100, 0.01, 0.1, 0.1, 0.1, 0,  500]; %[0,0,0,0,0,0,0]
+ub_opt=[5000, 1.00, 3.0, 3.0, 3.0, 2, 5000]; %[20000,5,10,10,10,10,10000]
+figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',8'],fixed,fixed_param_val,threshold,t_skip,x_skip);
 %% r vs D
 % numpts=40;
 % D0s=linspace(100,1000,numpts);
@@ -55,17 +56,17 @@ ub_opt=[5000,1,3,3,3,2,5000]; %[20000,5,10,10,10,10,10000]
 % % exit;%%%%%%%%%%%%%%
 
 %% overall minimizer
-[overall_minimizer,sigma,max_l,param_str,~,~] = optimize_likelihood(fixed,fixed_param_val,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,NaN);
+[overall_minimizer,sigma,max_l,param_str,~,~] = optimize_likelihood(fixed,fixed_param_val,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,NaN,NaN);
 fprintf(['Overall max likelihood param is: ',repmat('%.3f,',size(overall_minimizer)),'sigma=%.3f,\n'],overall_minimizer,sigma);
 %figure(fig);
 %hold on
 %plot(round((overall_minimizer(1)-D0s(1))/(D0s(end)-D0s(1))*numpts),round((overall_minimizer(2)-rs(1))/(rs(end)-rs(1))*numpts),'r*','MarkerSize',20);
 %saveas(fig,[prefix,'_Dvsr.png']);
-%save([prefix,'.mat'],'-mat','-append');
+save([prefix,'_',figtitle,'.mat'],'-mat');
 
 %% profile likelihood
 
-numpts=21;
+numpts=11;
 param_vals=zeros(num_params,numpts);
 max_ls=zeros(num_params,numpts);
 minimizers=cell(num_params,numpts);
@@ -88,14 +89,13 @@ for param=1:num_params
             initial(fixed_params==0)=minimizers{param,i-1};
         end
         initial(param)=param_vals(param,i);
-        [minimizer,~,max_ls(param,i),~,~,~] = optimize_likelihood(fixed_params,initial,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,nan);
+        [minimizer,~,max_ls(param,i),~,~,~] = optimize_likelihood(fixed_params,initial,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,NaN,NaN);
         minimizers{param,i}=minimizer;
     end
 end
 
 %% plot
 fig=figure('Position',[100 100 1400 400],'color','w');
-figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',6'],fixed,fixed_param_val,threshold,t_skip,x_skip);
 sgtitle(figtitle);
 free_param_count=0;
 for param=1:num_params

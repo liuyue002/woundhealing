@@ -25,7 +25,10 @@ numeric_params=[T, dt/10, 10, 4380, 4380, 150, 150];
 % feasible range for the optimization algorithm
 lb_opt=[ 100, 0.01, 0.1, 0.1, 0.1, 0,  500]; %[0,0,0,0,0,0,0]
 ub_opt=[5000, 1.00, 3.0, 3.0, 3.0, 2, 5000]; %[20000,5,10,10,10,10,10000]
+
 figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',8'],fixed,fixed_param_val,threshold,t_skip,x_skip);
+logfile = [prefix,'_',figtitle,'_log.txt'];
+diary(logfile);
 %% r vs D
 % numpts=40;
 % D0s=linspace(100,1000,numpts);
@@ -62,6 +65,12 @@ fprintf(['Overall max likelihood param is: ',repmat('%.3f,',size(overall_minimiz
 %hold on
 %plot(round((overall_minimizer(1)-D0s(1))/(D0s(end)-D0s(1))*numpts),round((overall_minimizer(2)-rs(1))/(rs(end)-rs(1))*numpts),'r*','MarkerSize',20);
 %saveas(fig,[prefix,'_Dvsr.png']);
+
+num_free_param=sum(fixed==0);
+aic = -2*max_l + 2*num_free_param;
+bic = -2*max_l + log(N)*num_free_param;
+fprintf('AIC=%.3f,BIC=%.3f\n',aic,bic);
+
 save([prefix,'_',figtitle,'.mat'],'-mat');
 
 %% profile likelihood
@@ -116,3 +125,4 @@ for param=1:num_params
 end
 saveas(fig,[prefix,'_',figtitle,'.png']);
 save([prefix,'_',figtitle,'.mat'],'-mat');
+diary off;

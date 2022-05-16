@@ -48,7 +48,13 @@ eval(f_str);
 
 if smooth
     options=optimoptions('fmincon','Algorithm','interior-point');
+    %options=optimoptions('fmincon','Algorithm','sqp');
     options.Display='iter';
+    options.Diagnostics='on';
+    options.MaxFunctionEvaluations=6000;
+    %options.OptimalityTolerance=1e-6;
+    options.StepTolerance=1e-4;
+    options.ScaleProblem=true;
     problem.objective=f;
     problem.x0=initial(fixed_params==0);
     problem.solver='fmincon';

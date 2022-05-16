@@ -74,6 +74,7 @@ end
 fig=figure('Position',[100 100 1400 400],'color','w');
 sgtitle(figtitle);
 free_param_count=0;
+zs = cell(num_params,1);
 for param=1:num_params
     if fixed(param)
         continue;
@@ -81,7 +82,9 @@ for param=1:num_params
     free_param_count = free_param_count+1;
     subplot(1,num_free_params,free_param_count);
     hold on;
-    plot(param_vals(param,:),max_ls(param,:)-max(max_ls(param,:)));
+    xx=param_vals(param,:);
+    yy=max_ls(param,:)-max(max_ls(param,:));
+    plot(xx,yy);
     plot([min(param_vals(param,:)),max(param_vals(param,:))],[-2,-2]);
     xlabel(param_names{param});
     ylabel('log(L)');
@@ -89,6 +92,10 @@ for param=1:num_params
     xlim([min(param_vals(param,:)),max(param_vals(param,:))]);
     ylim([-2.5,0]);
     hold off;
+    
+    zs{param}=interp_zero(xx,yy+2);
+    fprintf('Intercept at -2 for param %s are:\n',param_names{param});
+    disp(zs{param});
 end
 
 saveas(fig,[prefix,'_',figtitle,'.png']);

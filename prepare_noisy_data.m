@@ -35,6 +35,13 @@ noisy_data=1-Cdata(1:3:end,1:18:1800,1:18:1800);
 animate_2d(noisy_data,[0,3285],[0,3285],1,'C',prefix,1);
 save([prefix,'.mat'],'noisy_data','prefix','-mat');
 
+%% cleaned kevin data
+load('kevin-data/highDen_phase_clean.mat');
+prefix=['simulations/kevindata_hd_phase_clean',datestr(datetime('now'), 'yyyymmdd_HHMMSS')];
+noisy_data=1-Cdata(1:3:end,1:18:1800,1:18:1800);
+animate_2d(noisy_data,[0,3285],[0,3285],[0,1.2],1,'C',prefix,1);
+save([prefix,'.mat'],'noisy_data','prefix','-mat');
+
 %% 1D porus fisher
 [prefix,~,~] = woundhealing_1d([1000,0.1,1,1,1,1],200,1);
 load([prefix,'.mat']);

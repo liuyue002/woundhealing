@@ -1,18 +1,21 @@
-function [prefix,cc,timereachcenter] = woundhealing_2d(params,T,makegif,ic)
-%params=[500,0.05,1,1,1,0];T=50;makegif=1;
+function [prefix,cc,timereachcenter] = woundhealing_2d(params,numeric_params,makegif,ic)
+% params: [D0,r,alpha,beta,gamma,n,k]
+% numeric_params: [T, dt, drawperframe, Lx, Ly, nx, ny]
+% the domain is [0,Lx] x [0,Ly]
+%params=[500,0.05,1,1,1,0,1];numeric_params=[50,0.1,10,2000,2000,100,100];makegif=1;ic=nan;
 %% options
-%makegif=1;
-drawperframe=10;
-Lx=3285; % domain length, the domain is [0,Lx] x [0,Ly]
-Ly=Lx;
-%T=60;
-nx=100;
-ny=nx;
+T=numeric_params(1);
+dt=numeric_params(2);
+drawperframe=numeric_params(3);
+nt=T/dt+1;
+nFrame=floor((T/dt)/drawperframe)+1;
+
+Lx=numeric_params(4);
+Ly=numeric_params(5);
+nx=numeric_params(6);
+ny=numeric_params(7);
 dx=Lx/nx;
 dy=Ly/ny;
-dt=0.1;
-nt=T/dt+1;
-nFrame=ceil((T/dt)/drawperframe)+1;
 
 %% parameters and reaction terms
 D0=params(1);
@@ -21,10 +24,10 @@ alpha=params(3);
 beta=params(4);
 gamma=params(5);
 n=params(6);
-k=1;
+k=params(7);
 D = @(c) D0*c.^n;
 f = @(c) r*c.^alpha .* (abs(1-(c./k).^gamma)).^beta .*sign(1-c./k);
-noisestrength = 0; % default 0 - 0.01
+%noisestrength = 0; % default 0 - 0.01
 %fisherspeed = 2*sqrt(r*D0);
 %fprintf('Fisher speed: %.3f\n', fisherspeed);
 
@@ -39,13 +42,13 @@ cc = zeros(nFrame,ny,nx); % history of c
 
 %% initial condition
 % central dot
-c(:)=0;
-c(nx/2,nx/2)=k;
-ictext='dot';
+% c(:)=0;
+% c(nx/2,nx/2)=k;
+% ictext='dot';
 
 % circle
-%c = sqrt(X.^2 + Y.^2) < 0.1*Lx;
-%ictext='circle';
+c = sqrt((X-Lx/2).^2 + (Y-Ly/2).^2) < 0.1*Lx;
+ictext='circle';
 
 % ellipse
 %c = sqrt(X.^2./4 + Y.^2) < 50;
@@ -55,7 +58,7 @@ ictext='dot';
 %c = sqrt(X.^2 + Y.^2) < 10*cos(5*atan2(X,Y))+20;
 %ictext='star';
 
-if exist('ic','var')
+if ~isnan(ic)
     c=ic;
     ictext='kevinic';
 end
@@ -65,7 +68,7 @@ if ispc % is windows
 else % is linux
     folder='/home/liuy1/Documents/woundhealing/simulations/';
 end
-prefix = sprintf('woundhealing_2d_%s_%s_D0=%g,r=%g,alpha=%g,beta=%g,gamma=%g,n=%g,dt=%g',datestr(datetime('now'), 'yyyymmdd_HHMMSS'),ictext,params,dt);
+prefix = sprintf('woundhealing_2d_%s_%s_D0=%g,r=%g,alpha=%g,beta=%g,gamma=%g,n=%g,k=%.1f,dt=%.3f',datestr(datetime('now'), 'yyyymmdd_HHMMSS'),ictext,params,dt);
 prefix = strcat(folder, prefix);
 if makegif
     cinit=c;
@@ -75,7 +78,7 @@ end
 %% Set up figure
 if makegif
     giffile = [prefix,'.gif'];
-    crange=[0,1.2];
+    crange=[0,1.5*k];
     
     fig_pos = [100 100 800 500];
     fig=figure('Position',fig_pos,'color','w');
@@ -90,8 +93,8 @@ if makegif
     axis image;
     set(gca,'XTick',0:(nx/numticks):nx);
     set(gca,'YTick',0:(nx/numticks):nx);
-    set(gca,'XTickLabel',num2str((-Lx:2*Lx/numticks:Lx)'));
-    set(gca,'YTickLabel',num2str((-Ly:2*Ly/numticks:Ly)'));
+    set(gca,'XTickLabel',num2str((0:Lx/numticks:Lx)'));
+    set(gca,'YTickLabel',num2str((0:Ly/numticks:Ly)'));
     xlim([1,nx]);
     ylim([1,nx]);
     ctitle=title('c, t=0');
@@ -120,6 +123,8 @@ for ti=1:1:nt
             else
                 imwrite(imind,cm,giffile,'gif','WriteMode','append','DelayTime',0);
             end
+            ctotal=sum(sum(c));
+            fprintf('ti=%d done, total stuff=%.2f\n',ti,ctotal);
         end
     end
     
@@ -146,7 +151,7 @@ for ti=1:1:nt
     crhs = cvec + dt*(fvec + (1-th)*A*cvec);
     cnew = Tc\crhs;
     c = reshape(cnew,[nx,nx]);
-    c = c + normrnd(0,noisestrength,size(c));
+    %c = c + normrnd(0,noisestrength,size(c));
     
     if isnan(timereachcenter) && c(nx/2,nx/2)>0.9*k
         timereachcenter = t;

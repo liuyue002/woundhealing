@@ -1,17 +1,30 @@
-function [prefix,cc,timereachend] = woundhealing_1d(params,T,makegif)
-% params: [D0,r,alpha,beta,gamma,n]
+function [prefix,cc,timereachend,frontwidth] = woundhealing_1d(params,numeric_params,makegif,ic,xs)
+% params: [D0,r,alpha,beta,gamma,n,k]
+% numeric_params: [T, dt, drawperframe, L, nx, ispolar]
 % D0=500;r=0.07;alpha=1.5;beta=1.4;T=600;n=1;scale_r=0;makegif=1;
-%params=[500,0.05,1,1,1,0];T=200;makegif=1;
+%params=[500,0.05,1,1,1,0,1];numeric_params=[200,0.01,400,2000,600,0];makegif=1;ic=nan;xs=nan;
+%params=[1000,0.3,1,1,1,0,2600];numeric_params=[25,0.01/3,100,5000,166,0];makegif=1;ic=nan;xs=nan;
+% ispolar: whether the laplacian is in polar form
+% ic: nan for default IC, otherwise provide ic (as col vector)
+% xs: nan for default, otherwise is the gridpoints as a col vector
 %% options
-%makegif=1;
-drawperframe=400;
-L=2000; % domain size
-nx=600;
-dx=L/nx;
-%T=50;
-dt=0.01;
+T=numeric_params(1);
+dt=numeric_params(2);
+drawperframe=numeric_params(3);
 nt=T/dt+1;
-nFrame=ceil((T/dt)/drawperframe);
+nFrame=floor((T/dt)/drawperframe)+1;
+if isnan(xs)
+    L=numeric_params(4); % domain size
+    nx=numeric_params(5);
+    dx=L/nx;
+    x=linspace(0,L,nx)';
+else
+    x=xs;
+    L=x(end);
+    nx=size(x,1);
+    dx=x(2)-x(1); % assume given grid is equaly-sized
+end
+ispolar=numeric_params(6);
 
 %% parameters and reaction terms
 D0=params(1);
@@ -20,7 +33,7 @@ alpha=params(3);
 beta=params(4);
 gamma=params(5);
 n=params(6);
-k=1;
+k=params(7);
 D = @(c) D0*c.^n;
 f = @(c) r*c.^alpha .* (abs(1-(c./k).^gamma)).^beta .*sign(1-c./k);
 noisestrength = 0; % default 0 - 0.01
@@ -35,20 +48,24 @@ noisestrength = 0; % default 0 - 0.01
 %fprintf('Fisher speed: %.3f\n', fisherspeed);
 
 %% FDM setup
-x=linspace(0,L,nx)';
 c=zeros(nx,1);
 cc=zeros(nFrame,nx);
 
 %% initial condition
 c(:)=0;
 c(1:ceil(nx/10))=k;
+%c(1)=k;
+
+if ~isnan(ic)
+    c=ic;
+end
 
 if ispc % is windows
     folder='D:\liuyueFolderOxford1\woundhealing\simulations\';
 else % is linux
     folder='/home/liuy1/Documents/woundhealing/simulations/';
 end
-prefix = sprintf('woundhealing_1d_%s_D0=%g,r=%g,alpha=%g,beta=%g,gamma=%g,n=%g,dt=%g',datestr(datetime('now'), 'yyyymmdd_HHMMSS'),params,dt);
+prefix = sprintf('woundhealing_1d_%s_D0=%g,r=%g,alpha=%g,beta=%g,gamma=%g,n=%g,k=%.1f,dt=%.3g',datestr(datetime('now'), 'yyyymmdd_HHMMSS'),params,dt);
 prefix = strcat(folder, prefix);
 if makegif
     cinit=c;
@@ -67,7 +84,7 @@ if makegif
     hold on
     xlabel('x');
     ylabel('c');
-    axis([0,L,0,1.5]);
+    axis([0,L,0,k*1.5]);
     cfig=plot(x,c);
     figtitle=title('t=0');
     tightEdge(gca);
@@ -96,14 +113,27 @@ for ti=1:1:nt
             else
                 imwrite(imind,cm,giffile,'gif','WriteMode','append','DelayTime',0);
             end
+            ctotal=sum(sum(c));
+            fprintf('ti=%d done, total stuff=%.2f\n',ti,ctotal);
         end
     end
-    Dvec=1/2 *([D(c(1:nx));0]+[0;D(c(1:nx))]);
-    A=spdiags([Dvec(2:end),-Dvec(1:end-1)-Dvec(2:end),Dvec(1:end-1)],[-1 0 1],nx,nx);
-    A(1,1)=Dvec(2); % for no-flux BC
-    A(nx,nx)=-Dvec(end-1);
-    A=A/(dx^2);
-    Tc=speye(nx)-th*dt*A;
+    if ~ispolar
+        Dvec=1/2 *([D(c(1:nx));0]+[0;D(c(1:nx))]);
+        A=spdiags([Dvec(2:end),-Dvec(1:end-1)-Dvec(2:end),Dvec(1:end-1)],[-1 0 1],nx,nx);
+        A(1,1)=-Dvec(2); % for no-flux BC
+        A(nx,nx)=-Dvec(end-1);
+        A=A/(dx^2);
+        Tc=speye(nx)-th*dt*A;
+    else
+        Dvec=1/2 *([x;0].*[D(c(1:nx));0]+[0;x].*[0;D(c(1:nx))]);
+        A=spdiags([Dvec(2:end),-Dvec(1:end-1)-Dvec(2:end),Dvec(1:end-1)],[-1 0 1],nx,nx);
+        A(1,1)=-Dvec(2); % for no-flux BC
+        A(nx,nx)=-Dvec(end-1);
+        A=A/(dx^2);
+        A=A./x;
+        Tc=speye(nx)-th*dt*A;
+    end
+    
     
     fvec=f(c);
     
@@ -112,17 +142,18 @@ for ti=1:1:nt
     cnew = cnew + normrnd(0,noisestrength,size(c)).*fvec;
     c=cnew;
 
-    c = max(min(c,k),0);
+    c = max(c,0);
     if any(c<0) || ~isreal(c)
-        fprintf('Negative or complex value detected! something wrong');
+        fprintf('Negative or complex value detected! something wrong\n');
         break;
     end
-    if isnan(frontwidth) && c(nx/2)>0.5
+    if isnan(frontwidth) && c(round(nx*0.8))>0.5
         % compute the width of the front when the wave reach the middle
         % define width as between c>0.9 and c<0.1
         wavetailloc=sum(c>0.9)/nx*L;
         waveheadloc=sum(c>0.1)/nx*L;
         frontwidth=waveheadloc-wavetailloc;
+        %break; %%%%%%%
         %fprintf('front width: %.5f\n',frontwidth);
     end
     if isnan(timereachend) && c(end)>0.9*k
@@ -130,10 +161,7 @@ for ti=1:1:nt
         %T = timereachend + 20;
         %nt=T/dt+1;
         framereachend=ceil((ti-1)/drawperframe+1);
-    end
-    if makegif && (mod(ti, drawperframe) == 0)
-        ctotal=sum(sum(c))*dx;
-        fprintf('ti=%d done, total stuff=%.2f\n',ti,ctotal);
+        break;
     end
 end
 %fprintf(['params=',repmat('%.3f,',size(params)),', Time to reach end: %.5f\n'],params,timereachend);

@@ -153,6 +153,12 @@ for ti=1:1:nt
     c = reshape(cnew,[nx,nx]);
     %c = c + normrnd(0,noisestrength,size(c));
     
+    c = max(c,0);
+    if any(c<0,'all') || ~isreal(c)
+        fprintf('Negative or complex value detected! something wrong\n');
+        error('Negative or complex value detected! something wrong');
+    end
+    
     if isnan(timereachcenter) && c(nx/2,nx/2)>0.9*k
         timereachcenter = t;
     end

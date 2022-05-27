@@ -1,5 +1,5 @@
 %load('simulations/kevindata_circle_xy1_20220405_raw.mat');
-load('simulations/kevindata_circle_xy2_20220405_raw.mat');
+load('simulations/kevindata_circle_xy5_20220405_raw.mat');
 noisy_data=C_radial_avg;
 nFrame=size(noisy_data,1);
 N=numel(noisy_data);
@@ -10,15 +10,15 @@ t_skip=1;
 x_skip=1;
 threshold=-1;
 
-fixed_param_val=[1300,0.3,1,1,1,0,2640]; % a 'good guess' for param values
+fixed_param_val=[1190,0.3,1,1,1,0,2600]; % a 'good guess' for param values
 % range of param values to scan over for profile likelihood
-lb=[ 900, 0.1, 1.00, 1.20, 0.70, 0.00, 2770]; 
-ub=[1200, 0.3, 1.20, 1.80, 1.30, 0.20, 2840];
+lb=[1150, 0.28, 0.90, 0.65, 0.70, 0.00, 2590]; 
+ub=[1230, 0.32, 1.10, 0.76, 2.50, 0.20, 2620];
 param_names={'D0','r','alpha','beta','gamma','n','k'};
 %leave sigma out
 num_params=size(fixed_param_val,2);
 %if fixed(i)==1, then the ith param is set to the true value and not optimized over
-fixed=[0,0,0,0,1,1,0];
+fixed=[0,0,1,1,1,1,0];
 num_free_params=sum(1-fixed);
 numeric_params=[T, dt/100, 100, NaN, NaN, 1];
 
@@ -27,7 +27,7 @@ lb_opt=[ 100, 0.01,  0.01,  0.01,  0.01, 0,   500]; %[0,0,0,0,0,0,0]
 ub_opt=[5000, 5.00,  99.0,  99.0,  99.0, 2, 20000]; %[20000,5,10,10,10,10,10000]
 noiseweight = max(num_pts_in_bins,1)';
 
-figtitle=sprintf(['radial1D,weighted_hightol,fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',4'],fixed,fixed_param_val,threshold,t_skip,x_skip);
+figtitle=sprintf(['radial1D,weighted,fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',2'],fixed,fixed_param_val,threshold,t_skip,x_skip);
 logfile = [prefix,'_',figtitle,'_log.txt'];
 diary(logfile);
 %% overall minimizer
@@ -61,9 +61,10 @@ for param=1:num_params
     initial=fixed_param_val;
     for i=1:numpts+1
         fprintf('Optimizing for %s=%.3f\n',param_names{param},param_vals(param,i));
-        if i>1
-            initial(fixed_params==0)=minimizers{param,i-1};
-        end
+%         if i>1
+%             initial(fixed_params==0)=minimizers{param,i-1};
+%         end
+        initial(fixed_params==0)=optimal_param_vals(fixed_params==0);
         initial(param)=param_vals(param,i);
         [minimizer,~,max_ls(param,i),~,~,~] = optimize_likelihood(fixed_params,initial,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,rs,noiseweight);
         minimizers{param,i}=minimizer;
@@ -85,7 +86,7 @@ for param=1:num_params
     xx=param_vals(param,:);
     yy=max_ls(param,:)-max(max_ls(param,:));
     plot(xx,yy);
-    plot([min(param_vals(param,:)),max(param_vals(param,:))],[-2,-2]);
+    plot([min(param_vals(param,:)),max(param_vals(param,:))],[-1.96,-1.96]);
     xlabel(param_names{param});
     ylabel('log(L)');
     axis('square');
@@ -93,8 +94,8 @@ for param=1:num_params
     ylim([-2.5,0]);
     hold off;
     
-    zs{param}=interp_zero(xx,yy+2);
-    fprintf('Intercept at -2 for param %s are:\n',param_names{param});
+    zs{param}=interp_zero(xx,yy+1.96);
+    fprintf('Intercept at -1.96 for param %s are:\n',param_names{param});
     disp(zs{param});
 end
 

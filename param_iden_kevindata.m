@@ -12,9 +12,9 @@ t_skip=1;
 x_skip=1;
 threshold=-1;
 
-fixed_param_val=[1200,0.3,1,1,1,0,2600];
-lb=[ 800, 0.20, 0.9, 0.9, 0.7, 0.00, 2500];
-ub=[1500, 0.40, 1.1, 1.5, 1.3, 0.50, 2700];
+fixed_param_val=[1300,0.3,1,1,1,0.01,2600];
+lb=[1100, 0.2, 0.8, 0.8, 1.15, 0.00, 2300];
+ub=[1500, 0.4, 1.3, 1.3, 1.25, 0.50, 2700];
 param_names={'D0','r','alpha','beta','gamma','n','k'};
 %leave sigma out
 num_params=size(fixed_param_val,2);
@@ -26,7 +26,7 @@ numeric_params=[T, dt/10, 10, 4380, 4380, 150, 150];
 lb_opt=[ 100, 0.01, 0.1, 0.1, 0.1, 0,  500]; %[0,0,0,0,0,0,0]
 ub_opt=[5000, 1.00, 3.0, 3.0, 3.0, 2, 5000]; %[20000,5,10,10,10,10,10000]
 
-figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',8'],fixed,fixed_param_val,threshold,t_skip,x_skip);
+figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',9'],fixed,fixed_param_val,threshold,t_skip,x_skip);
 logfile = [prefix,'_',figtitle,'_log.txt'];
 diary(logfile);
 %% r vs D
@@ -115,8 +115,10 @@ for param=1:num_params
     free_param_count = free_param_count+1;
     subplot(1,num_free_params,free_param_count);
     hold on;
-    plot(param_vals(param,:),max_ls(param,:)-max(max_ls(param,:)));
-    plot([min(param_vals(param,:)),max(param_vals(param,:))],[-2,-2]);
+    xx=param_vals(param,:);
+    yy=max_ls(param,:)-max(max_ls(param,:));
+    plot(xx,yy);
+    plot([min(param_vals(param,:)),max(param_vals(param,:))],[-1.96,-1.96]);
     xlabel(param_names{param});
     ylabel('log(L)');
     axis('square');
@@ -124,7 +126,7 @@ for param=1:num_params
     ylim([-2.5,0]);
     hold off;
     
-    zs{param}=interp_zero(xx,yy+2);
+    zs{param}=interp_zero(xx,yy+1.96);
     fprintf('Intercept at -2 for param %s are:\n',param_names{param});
     disp(zs{param});
 end

@@ -1,5 +1,4 @@
-%load('simulations/kevindata_circle_xy1_20220405_raw.mat');
-load('simulations/kevindata_circle_xy5_20220405_raw.mat');
+load('simulations/kevindata_circle_xy6_20220405_raw.mat');
 noisy_data=C_radial_avg;
 nFrame=size(noisy_data,1);
 N=numel(noisy_data);
@@ -10,26 +9,27 @@ t_skip=1;
 x_skip=1;
 threshold=-1;
 
-fixed_param_val=[1190,0.3,1,1,1,0,2600]; % a 'good guess' for param values
+fixed_param_val=[1700,0.19,1,1,1,0,2800]; % a 'good guess' for param values
 % range of param values to scan over for profile likelihood
-lb=[1150, 0.28, 0.90, 0.65, 0.70, 0.00, 2590]; 
-ub=[1230, 0.32, 1.10, 0.76, 2.50, 0.20, 2620];
+lb=[1600, 0.17, 0.90, 0.65, 1.60, 0.03, 2780]; 
+ub=[1800, 0.21, 1.10, 0.76, 2.20, 0.07, 2820];
 param_names={'D0','r','alpha','beta','gamma','n','k'};
 %leave sigma out
 num_params=size(fixed_param_val,2);
 %if fixed(i)==1, then the ith param is set to the true value and not optimized over
-fixed=[0,0,1,1,1,1,0];
+fixed=[0,0,1,1,0,1,0];
 num_free_params=sum(1-fixed);
 numeric_params=[T, dt/100, 100, NaN, NaN, 1];
 
 % feasible range for the optimization algorithm
 lb_opt=[ 100, 0.01,  0.01,  0.01,  0.01, 0,   500]; %[0,0,0,0,0,0,0]
-ub_opt=[5000, 5.00,  99.0,  99.0,  99.0, 2, 20000]; %[20000,5,10,10,10,10,10000]
+ub_opt=[5000, 5.00,  99.0,  99.0,  99.0, 4, 20000]; %[20000,5,10,10,10,10,10000]
 noiseweight = max(num_pts_in_bins,1)';
 
-figtitle=sprintf(['radial1D,weighted,fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',2'],fixed,fixed_param_val,threshold,t_skip,x_skip);
+figtitle=sprintf(['radial1D,weighted,fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',3'],fixed,fixed_param_val,threshold,t_skip,x_skip);
 logfile = [prefix,'_',figtitle,'_log.txt'];
 diary(logfile);
+fprintf('start run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
 %% overall minimizer
 
 [overall_minimizer,sigma,max_l,param_str,~,~] = optimize_likelihood(fixed,fixed_param_val,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,rs,noiseweight);
@@ -101,4 +101,5 @@ end
 
 saveas(fig,[prefix,'_',figtitle,'.png']);
 save([prefix,'_',figtitle,'.mat'],'-mat');
+fprintf('finish run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
 diary off;

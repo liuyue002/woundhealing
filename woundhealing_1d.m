@@ -34,7 +34,7 @@ beta=params(4);
 gamma=params(5);
 n=params(6);
 k=params(7);
-D = @(c) D0*c.^n;
+D = @(c) D0*(c./k).^n;
 f = @(c) r*c.^alpha .* (abs(1-(c./k).^gamma)).^beta .*sign(1-c./k);
 noisestrength = 0; % default 0 - 0.01
 
@@ -161,7 +161,7 @@ for ti=1:1:nt
         %T = timereachend + 20;
         %nt=T/dt+1;
         framereachend=ceil((ti-1)/drawperframe+1);
-        break;
+        %break;
     end
 end
 %fprintf(['params=',repmat('%.3f,',size(params)),', Time to reach end: %.5f\n'],params,timereachend);

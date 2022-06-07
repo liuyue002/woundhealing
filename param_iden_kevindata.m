@@ -1,8 +1,10 @@
 %load('/home/liuy1/Documents/woundhealing/simulations/kevindata_highdensity_phase20220221_135604.mat')
 %load('simulations/kevindata_highdensity_phase20220221_135604.mat')
-%load('simulations/kevindata_circle_xy2_20220405_raw.mat');
-load('simulations/kevindata_triangle_xy3_20220405_raw.mat');
+load('simulations/kevindata_circle_xy6_20220405_raw.mat');
+%load('simulations/kevindata_triangle_xy4_20220405_raw.mat');
 %addpath('/home/liuy1/my_programs/nlopt/lib/matlab');
+k=strfind(prefix,'/');
+prefix=strcat('./simulations/',prefix(k(end)+1:end));
 nFrame=size(noisy_data,1);
 N=numel(noisy_data);
 ic=squeeze(noisy_data(1,:,:));
@@ -12,24 +14,28 @@ t_skip=1;
 x_skip=1;
 threshold=-1;
 
-fixed_param_val=[916,0.4,1,1,1,0.1,2561];
-lb=[900, 0.39, 0.8, 0.8, 0.60, 0.07, 2558];
-ub=[930, 0.42, 1.3, 1.3, 0.65, 0.15, 2563];
+fixed_param_val=[1400,0.3,1,1,1,0,2400];
+lb=[1000, 0.2, 0.8, 0.8, 0.60, 0.00, 2300];
+ub=[1800, 0.4, 1.3, 1.3, 1.60, 1.00, 2500];
 param_names={'D0','r','alpha','beta','gamma','n','k'};
 %leave sigma out
 num_params=size(fixed_param_val,2);
 %if fixed(i)==1, then the ith param is set to the true value and not optimized over
-fixed=[0,0,1,1,0,1,0];
+fixed=[0,0,1,1,1,1,0];
 num_free_params=sum(1-fixed);
 numeric_params=[T, dt/10, 10, 4380, 4380, 150, 150];
 % feasible range for the optimization algorithm
 lb_opt=[ 100, 0.01, 0.1, 0.1, 0.1, 0,  500]; %[0,0,0,0,0,0,0]
 ub_opt=[5000, 1.00, 9.0, 9.0, 9.0, 4, 5000]; %[20000,5,10,10,10,10,10000]
 
-figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',11'],fixed,fixed_param_val,threshold,t_skip,x_skip);
+figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',1'],fixed,fixed_param_val,threshold,t_skip,x_skip);
 logfile = [prefix,'_',figtitle,'_log.txt'];
 diary(logfile);
 fprintf('start run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
+parpool('local');
+ppool=gcp('nocreate');
+fprintf('%s\n',matlab.unittest.diagnostics.ConstraintDiagnostic.getDisplayableString(ppool));
+
 %% r vs D
 % numpts=40;
 % D0s=linspace(100,1000,numpts);
@@ -73,6 +79,8 @@ bic = -2*max_l + log(N)*num_free_param;
 fprintf('AIC=%.3f,BIC=%.3f\n',aic,bic);
 
 save([prefix,'_',figtitle,'.mat'],'-mat');
+
+%exit; %%%%%%%%%%%%%%%
 
 %% profile likelihood
 
@@ -135,4 +143,5 @@ end
 saveas(fig,[prefix,'_',figtitle,'.png']);
 save([prefix,'_',figtitle,'.mat'],'-mat');
 fprintf('finish run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
+delete(ppool);
 diary off;

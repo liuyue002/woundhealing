@@ -49,6 +49,7 @@ eval(f_str);
 if smooth
     options=optimoptions('fmincon','Algorithm','interior-point');
     %options=optimoptions('fmincon','Algorithm','sqp');
+    options.UseParallel=true;
     options.Display='iter';
     options.Diagnostics='on';
     options.MaxFunctionEvaluations=6000;

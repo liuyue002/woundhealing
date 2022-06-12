@@ -1,18 +1,18 @@
-load('simulations/kevindata_circle_xy6_20220405_raw.mat');
+load('simulations/kevindata_circle_xy1_20220405_raw.mat');
 noisy_data=C_radial_avg;
 nFrame=size(noisy_data,1);
 N=numel(noisy_data);
 ic=noisy_data(1,:)';
 dt=1/3;
 T=(nFrame-1)*dt+0.001;% helps with off-by-1 rounding
-t_skip=1;
+t_skip=36;
 x_skip=1;
 threshold=-1;
 
-fixed_param_val=[1700,0.19,1,1,1,0,2800]; % a 'good guess' for param values
+fixed_param_val=[1850,0.17,1.0,1.0,2.26,0,2615]; % a 'good guess' for param values
 % range of param values to scan over for profile likelihood
-lb=[1600, 0.17, 0.90, 0.65, 1.60, 0.03, 2780]; 
-ub=[1800, 0.21, 1.10, 0.76, 2.20, 0.07, 2820];
+lb=[1700, 0.060, 0.80, 0.60, 1.50, 0.00, 2620]; 
+ub=[3300, 0.160, 1.20, 1.00, 9.00, 0.10, 2730];
 param_names={'D0','r','alpha','beta','gamma','n','k'};
 %leave sigma out
 num_params=size(fixed_param_val,2);
@@ -26,13 +26,13 @@ lb_opt=[ 100, 0.01,  0.01,  0.01,  0.01, 0,   500]; %[0,0,0,0,0,0,0]
 ub_opt=[5000, 5.00,  99.0,  99.0,  99.0, 4, 20000]; %[20000,5,10,10,10,10,10000]
 noiseweight = max(num_pts_in_bins,1)';
 
-figtitle=sprintf(['radial1D,weighted,fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',3'],fixed,fixed_param_val,threshold,t_skip,x_skip);
+figtitle=sprintf(['radial1D,weighted,lowdata,fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',2'],fixed,fixed_param_val,threshold,t_skip,x_skip);
 logfile = [prefix,'_',figtitle,'_log.txt'];
 diary(logfile);
 fprintf('start run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
 %% overall minimizer
 
-[overall_minimizer,sigma,max_l,param_str,~,~] = optimize_likelihood(fixed,fixed_param_val,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,rs,noiseweight);
+[overall_minimizer,sigma,max_l,param_str,~,~] = optimize_likelihood(fixed,fixed_param_val,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,2,rs,noiseweight);
 fprintf(['Overall max likelihood param is: ',repmat('%.3f,',size(overall_minimizer)),'sigma=%.3f,maxLikelihood=%.3f\n'],overall_minimizer,sigma,max_l);
 
 num_free_param=sum(fixed==0);
@@ -98,6 +98,25 @@ for param=1:num_params
     fprintf('Intercept at -1.96 for param %s are:\n',param_names{param});
     disp(zs{param});
 end
+
+%% fisher info
+ff_str=strcat('ff=@(x) get_reduced_model_data(',param_str,',numeric_params,t_skip,x_skip,1,ic,rs);');
+N=prod(ceil(size(noisy_data)./[t_skip,x_skip])); % number of data pts
+eval(ff_str);
+dXdtheta=zeros(N,num_free_params);
+model_data0=ff(optimal_param_vals);
+for i=1:num_free_params
+    dtheta=0.00001;
+    param_vals2=optimal_param_vals;
+    param_vals2(i)=param_vals2(i)+dtheta;
+    model_data_plus=ff(param_vals2);
+    param_vals2(i)=param_vals2(i)-2*dtheta;
+    model_data_minus=ff(param_vals2);
+    dXdtheta(:,i)=(model_data_plus-model_data_minus)/(2*dtheta);
+end
+fim = sigma^2 * (dXdtheta'*dXdtheta);
+
+%% save
 
 saveas(fig,[prefix,'_',figtitle,'.png']);
 save([prefix,'_',figtitle,'.mat'],'-mat');

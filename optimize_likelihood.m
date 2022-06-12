@@ -1,4 +1,4 @@
-function [minimizer,sigma,max_l,param_str,grad,hessian] = optimize_likelihood(fixed_params,initial,lb,ub,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,smooth,xs,noiseweight)
+function [minimizer,sigma,max_l,param_str,grad,hessian] = optimize_likelihood(fixed_params,initial,lb,ub,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,alg,xs,noiseweight)
 %Build a string that defines the likelihood function in terms of the right
 %parameters
 %  fixed_params: which parameters are fixed at their initial value (1: fixed, 0: free)
@@ -7,7 +7,7 @@ function [minimizer,sigma,max_l,param_str,grad,hessian] = optimize_likelihood(fi
 %  noisy_data,T,t_skip,x_skip: to be fed to f
 %  threshold: -1 for full density data, otherwise threshold the data
 %  ic: initial condition, set to NaN if using default
-%  smooth: whether the optimization problem is smooth. 
+%  alg: algorithm (1: interior-point, default; 0: pattern search for nonsmooth; 2: global search)
 %  (should be smooth with full density data, nonsmooth with thresholded data)
 %  xs: for 1D only, provide spatial grid points (nan for default)
 %  noiseweight: weight for contribution to the error/residual from each
@@ -46,7 +46,7 @@ eval(f_str);
 %     end
 % end
 
-if smooth
+if alg==1
     options=optimoptions('fmincon','Algorithm','interior-point');
     %options=optimoptions('fmincon','Algorithm','sqp');
     options.Display='iter';
@@ -62,7 +62,7 @@ if smooth
     problem.ub=ub(fixed_params==0);
     problem.options=options;
     [minimizer,min_sq_err,~,~,~,grad,hessian] = fmincon(problem);
-else
+elseif alg==0
     options=optimoptions('patternsearch');
     options.Display='iter';
     problem.objective=f;
@@ -72,6 +72,26 @@ else
     problem.ub=ub(fixed_params==0);
     problem.options=options;
     [minimizer,min_sq_err] = patternsearch(problem);
+    grad=NaN;
+    hessian=NaN;
+else
+    %alg==2
+    gs = GlobalSearch;
+    options=optimoptions('fmincon','Algorithm','interior-point');
+    %options=optimoptions('fmincon','Algorithm','sqp');
+    options.Display='iter';
+    options.Diagnostics='on';
+    options.MaxFunctionEvaluations=6000;
+    %options.OptimalityTolerance=1e-6;
+    %options.StepTolerance=1e-4;
+    options.ScaleProblem=true;
+    problem.objective=f;
+    problem.x0=initial(fixed_params==0);
+    problem.solver='fmincon';
+    problem.lb=lb(fixed_params==0);
+    problem.ub=ub(fixed_params==0);
+    problem.options=options;
+    [minimizer,min_sq_err] = run(gs,problem);
     grad=NaN;
     hessian=NaN;
 end

@@ -42,6 +42,9 @@ if ~iscell(noisy_data)
     else
         % todo
     end
+    % there could be rounding here, matlab keep 16 digits precision
+    % err can be 1e14 to 1e16
+    % but it should be fine
     err=sum(data_diff.^2,'all');
 else
     % simulation with cell cycle model

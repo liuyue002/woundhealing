@@ -1,7 +1,7 @@
 %load('/home/liuy1/Documents/woundhealing/simulations/kevindata_highdensity_phase20220221_135604.mat')
 %load('simulations/kevindata_highdensity_phase20220221_135604.mat')
-%load('simulations/kevindata_circle_xy2_20220405_raw.mat');
-load('simulations/kevindata_triangle_xy3_20220405_raw.mat');
+load('simulations/kevindata_circle_xy2_20220405_raw.mat');
+%load('simulations/kevindata_triangle_xy3_20220405_raw.mat');
 %addpath('/home/liuy1/my_programs/nlopt/lib/matlab');
 nFrame=size(noisy_data,1);
 N=numel(noisy_data);
@@ -12,9 +12,9 @@ t_skip=1;
 x_skip=1;
 threshold=-1;
 
-fixed_param_val=[916,0.4,1,1,1,0.1,2561];
-lb=[900, 0.39, 0.8, 0.8, 0.60, 0.07, 2558];
-ub=[930, 0.42, 1.3, 1.3, 0.65, 0.15, 2563];
+fixed_param_val=[1300,0.3,1,1,1,0,2600];
+lb=[ 900, 0.10, 0.7, 0.5, 7.70, 0.555, 2400];
+ub=[1600, 0.40, 1.4, 1.8, 8.00, 0.580, 2700];
 param_names={'D0','r','alpha','beta','gamma','n','k'};
 %leave sigma out
 num_params=size(fixed_param_val,2);
@@ -26,7 +26,7 @@ numeric_params=[T, dt/10, 10, 4380, 4380, 150, 150];
 lb_opt=[ 100, 0.01, 0.1, 0.1, 0.1, 0,  500]; %[0,0,0,0,0,0,0]
 ub_opt=[5000, 1.00, 9.0, 9.0, 9.0, 4, 5000]; %[20000,5,10,10,10,10,10000]
 
-figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',11'],fixed,fixed_param_val,threshold,t_skip,x_skip);
+figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',13'],fixed,fixed_param_val,threshold,t_skip,x_skip);
 logfile = [prefix,'_',figtitle,'_log.txt'];
 diary(logfile);
 fprintf('start run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
@@ -60,7 +60,7 @@ fprintf('start run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
 % % exit;%%%%%%%%%%%%%%
 
 %% overall minimizer
-[overall_minimizer,sigma,max_l,param_str,~,~] = optimize_likelihood(fixed,fixed_param_val,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,NaN,NaN);
+[overall_minimizer,sigma,max_l,param_str,~,~] = optimize_likelihood(fixed,fixed_param_val,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,2,NaN,NaN);
 fprintf(['Overall max likelihood param is: ',repmat('%.3f,',size(overall_minimizer)),'sigma=%.3f,\n'],overall_minimizer,sigma);
 %figure(fig);
 %hold on

@@ -128,17 +128,17 @@ save([prefix,'.mat'],'-append');
 
 
 %% triangles
-% load('/scratch/liuy1/wound_data/04-05-22 exp1/Triangle/Density_CellCycleFraction/xy3_data.mat');
-% prefix='/home/liuy1/Documents/woundhealing/simulations/kevindata_triangle_xy3_20220405_raw';
-% 
-% [nx,ny,nt]=size(density);
-% Cmax=max(density,[],'all');
-% dt=1/3;
-% density(isnan(density))=0;
-% noisy_data=zeros(nt,nx,ny);
-% for i=1:nt
-%     noisy_data(i,:,:)=density(:,:,i);
-% end
-% animate_2d(noisy_data,[0,nx*29.2],[0,ny*29.2],[0,Cmax],dt,'C',prefix,1);
-% close all;
-% save([prefix,'.mat']);
+load('/scratch/liuy1/wound_data/04-05-22 exp1/Triangle/Density_CellCycleFraction/xy8_data.mat');
+prefix='/home/liuy1/Documents/woundhealing/simulations/kevindata_triangle_xy8_20220405_raw';
+
+[nx,ny,nt]=size(density);
+Cmax=max(density,[],'all');
+dt=1/3;
+density(isnan(density))=0;
+noisy_data=zeros(nt,nx,ny);
+for i=1:nt
+    noisy_data(i,:,:)=density(:,:,i);
+end
+animate_2d(noisy_data,[0,nx*29.2],[0,ny*29.2],[0,Cmax],dt,'C',prefix,1);
+close all;
+save([prefix,'.mat']);

@@ -1,12 +1,12 @@
 load('simulations/kevindata_circle_xy1_20220405_raw.mat');
 noisy_data=C_radial_avg;
 nFrame=size(noisy_data,1);
-N=numel(noisy_data);
 ic=noisy_data(1,:)';
 dt=1/3;
 T=(nFrame-1)*dt+0.001;% helps with off-by-1 rounding
 t_skip=36;
 x_skip=1;
+N=prod(ceil(size(noisy_data)./[t_skip,x_skip])); % number of data pts
 threshold=-1;
 
 fixed_param_val=[1850,0.17,1.0,1.0,2.26,0,2615]; % a 'good guess' for param values
@@ -35,9 +35,8 @@ fprintf('start run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
 [overall_minimizer,sigma,max_l,param_str,~,~] = optimize_likelihood(fixed,fixed_param_val,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,2,rs,noiseweight);
 fprintf(['Overall max likelihood param is: ',repmat('%.3f,',size(overall_minimizer)),'sigma=%.3f,maxLikelihood=%.3f\n'],overall_minimizer,sigma,max_l);
 
-num_free_param=sum(fixed==0);
-aic = -2*max_l + 2*num_free_param;
-bic = -2*max_l + log(N)*num_free_param;
+aic = -2*max_l + 2*num_free_params;
+bic = -2*max_l + log(N)*num_free_params;
 fprintf('AIC=%.3f,BIC=%.3f\n',aic,bic);
 
 %% profile likelihood
@@ -76,6 +75,7 @@ fig=figure('Position',[100 100 1400 400],'color','w');
 sgtitle(figtitle);
 free_param_count=0;
 zs = cell(num_params,1);
+conf_interval=nan(num_params,1);
 for param=1:num_params
     if fixed(param)
         continue;
@@ -86,7 +86,7 @@ for param=1:num_params
     xx=param_vals(param,:);
     yy=max_ls(param,:)-max(max_ls(param,:));
     plot(xx,yy);
-    plot([min(param_vals(param,:)),max(param_vals(param,:))],[-1.96,-1.96]);
+    plot([min(param_vals(param,:)),max(param_vals(param,:))],[-1.92,-1.92]);
     xlabel(param_names{param});
     ylabel('log(L)');
     axis('square');
@@ -94,9 +94,23 @@ for param=1:num_params
     ylim([-2.5,0]);
     hold off;
     
-    zs{param}=interp_zero(xx,yy+1.96);
-    fprintf('Intercept at -1.96 for param %s are:\n',param_names{param});
-    disp(zs{param});
+    zs{param}=interp_zero(xx,yy+1.92);
+    if size(zs{param},2) == 2
+        conf_interval(param)=zs{param}(2)-zs{param}(1);
+        fprintf('95%% Confidence interval for param %s is: (intercept at -1.92)\n',param_names{param});
+        fprintf('width=%.4f: [%.4f,%.4f]\n',conf_interval(param),zs{param}(1),zs{param}(2));
+    elseif size(zs{param},2) == 1 && strcmp(param_names{param},'n')
+        conf_interval(param)=zs{param}(1);
+        fprintf('95%% Confidence interval for param %s is: (intercept at -1.92)\n',param_names{param});
+        fprintf('width=%.4f: [0,%.4f]\n',conf_interval(param),zs{param}(1));
+    elseif size(zs{param},2) == 1 && strcmp(param_names{param},'gamma')
+        conf_interval(param)=Inf;
+        fprintf('95%% Confidence interval for param %s is: (intercept at -1.92)\n',param_names{param});
+        fprintf('width=Inf: [%.4f,Inf]\n',zs{param}(1));
+    else
+        fprintf('Do not have 2 intercepts for param %s, they are:\n',param_names{param});
+        disp(zs{param});
+    end
 end
 
 %% fisher info

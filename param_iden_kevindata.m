@@ -4,12 +4,12 @@ load('simulations/kevindata_circle_xy2_20220405_raw.mat');
 %load('simulations/kevindata_triangle_xy3_20220405_raw.mat');
 %addpath('/home/liuy1/my_programs/nlopt/lib/matlab');
 nFrame=size(noisy_data,1);
-N=numel(noisy_data);
 ic=squeeze(noisy_data(1,:,:));
 dt=1/3;
 T=(nFrame-1)*dt;
 t_skip=1;
 x_skip=1;
+N=prod(ceil(size(noisy_data)./[t_skip,x_skip,x_skip]));
 threshold=-1;
 
 fixed_param_val=[1300,0.3,1,1,1,0,2600];
@@ -67,9 +67,8 @@ fprintf(['Overall max likelihood param is: ',repmat('%.3f,',size(overall_minimiz
 %plot(round((overall_minimizer(1)-D0s(1))/(D0s(end)-D0s(1))*numpts),round((overall_minimizer(2)-rs(1))/(rs(end)-rs(1))*numpts),'r*','MarkerSize',20);
 %saveas(fig,[prefix,'_Dvsr.png']);
 
-num_free_param=sum(fixed==0);
-aic = -2*max_l + 2*num_free_param;
-bic = -2*max_l + log(N)*num_free_param;
+aic = -2*max_l + 2*num_free_params;
+bic = -2*max_l + log(N)*num_free_params;
 fprintf('AIC=%.3f,BIC=%.3f\n',aic,bic);
 
 save([prefix,'_',figtitle,'.mat'],'-mat');
@@ -110,6 +109,7 @@ fig=figure('Position',[100 100 1400 400],'color','w');
 sgtitle(figtitle);
 free_param_count=0;
 zs = cell(num_params,1);
+conf_interval=nan(num_params,1);
 for param=1:num_params
     if fixed(param)
         continue;
@@ -128,10 +128,26 @@ for param=1:num_params
     ylim([-2.5,0]);
     hold off;
     
-    zs{param}=interp_zero(xx,yy+1.96);
-    fprintf('Intercept at -2 for param %s are:\n',param_names{param});
-    disp(zs{param});
+    zs{param}=interp_zero(xx,yy+1.92);
+    if size(zs{param},2) == 2
+        conf_interval(param)=zs{param}(2)-zs{param}(1);
+        fprintf('95%% Confidence interval for param %s is: (intercept at -1.92)\n',param_names{param});
+        fprintf('width=%.4f: [%.4f,%.4f]\n',conf_interval(param),zs{param}(1),zs{param}(2));
+    elseif size(zs{param},2) == 1 && strcmp(param_names{param},'n')
+        conf_interval(param)=zs{param}(1);
+        fprintf('95%% Confidence interval for param %s is: (intercept at -1.92)\n',param_names{param});
+        fprintf('width=%.4f: [0,%.4f]\n',conf_interval(param),zs{param}(1));
+    elseif size(zs{param},2) == 1 && strcmp(param_names{param},'gamma')
+        conf_interval(param)=Inf;
+        fprintf('95%% Confidence interval for param %s is: (intercept at -1.92)\n',param_names{param});
+        fprintf('width=Inf: [%.4f,Inf]\n',zs{param}(1));
+    else
+        fprintf('Do not have 2 intercepts for param %s, they are:\n',param_names{param});
+        disp(zs{param});
+    end
 end
+
+%% save
 saveas(fig,[prefix,'_',figtitle,'.png']);
 save([prefix,'_',figtitle,'.mat'],'-mat');
 fprintf('finish run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));

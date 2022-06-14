@@ -34,6 +34,11 @@ figtitle=sprintf(['radial1D,bivariate,fixed=[',repmat('%d,',size(fixed)),'],%s,%
 logfile = [prefix,'_',figtitle,'_log.txt'];
 diary(logfile);
 fprintf('start run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
+pc = parcluster('local');
+pc.JobStorageLocation = strcat('/home/wolf5640/woundhealing/tmp/',getenv('SLURM_JOB_ID'));
+parpool(pc);
+ppool=gcp('nocreate');
+fprintf('%s\n',matlab.unittest.diagnostics.ConstraintDiagnostic.getDisplayableString(ppool));
 
 %% r vs D
 numpts=21;
@@ -41,7 +46,7 @@ p1s=linspace(lb(param1),ub(param1),numpts);
 p2s=linspace(lb(param2),ub(param2),numpts);
 ls=zeros(numpts,numpts);
 minimizers=cell(numpts,numpts);
-for i=1:numpts
+parfor i=1:numpts
     for j=1:numpts
         initial=fixed_param_val;
         initial(param1)=p1s(i);
@@ -81,4 +86,5 @@ plot(iy,ix,'r*','MarkerSize',20);
 save([prefix,figtitle,'.mat'],'-mat');
 saveas(fig,[prefix,'_',figtitle,'.png']);
 fprintf('finish run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
+delete(ppool);
 diary off;

@@ -1,12 +1,12 @@
 load('simulations/kevindata_circle_xy1_20220405_raw.mat');
 noisy_data=C_radial_avg;
 nFrame=size(noisy_data,1);
-N=numel(noisy_data);
 ic=noisy_data(1,:)';
 dt=1/3;
 T=(nFrame-1)*dt+0.001;% helps with off-by-1 rounding
 t_skip=1;
 x_skip=1;
+N=prod(ceil(size(noisy_data)./[t_skip,x_skip]));
 threshold=-1;
 
 fixed_param_val=[1300,0.26,1,1,1,0,2645]; % a 'good guess' for param values

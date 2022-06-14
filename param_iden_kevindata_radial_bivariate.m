@@ -46,7 +46,7 @@ for i=1:numpts
         initial=fixed_param_val;
         initial(param1)=p1s(i);
         initial(param2)=p2s(j);
-        fprintf('Optimizing for %s=%.3f,%s=%.3f\n',initial(param1),param_names{param1},initial(param2),param_names{param2});
+        fprintf('Optimizing for %s=%.3f,%s=%.3f\n',param_names{param1},initial(param1),param_names{param2},initial(param2));
         if num_free_params==0
             ls(i,j)=log_likelihood(squared_error(noisy_data,initial,numeric_params,t_skip,x_skip,threshold,ic,rs,noiseweight),N);
             minimizers{i,j}=initial;

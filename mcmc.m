@@ -19,6 +19,9 @@ fixed=[0,0,1,1,1,1,0];
 num_free_params=sum(1-fixed);
 numeric_params=[T, dt/100, 100, NaN, NaN, 1];
 
+% sensible bound for the parameters
+lb_opt=[ 100, 0.01,  0.01,  0.01,  0.01, 0,   500];
+ub_opt=[5000, 5.00,  99.0,  99.0,  99.0, 4, 20000];
 noiseweight = max(num_pts_in_bins,1)';
 
 figtitle=sprintf(['radial1D,mcmc,fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],1'],fixed,fixed_param_val);
@@ -27,15 +30,31 @@ diary(logfile);
 fprintf('start run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
 
 %% chain
-maxiter=1000;
+maxiter=5000;
 samples=zeros(maxiter,num_free_params);
 ls=zeros(maxiter,1);
 samples(1,:)=fixed_param_val(fixed==0);
 ls(1)=log_likelihood(squared_error(noisy_data,fixed_param_val,numeric_params,t_skip,x_skip,threshold,ic,rs,noiseweight),N);
 iter=2;
 total_sample=1;
-while iter<maxiter
-    proposal=samples(iter-1,:)+randn(1,num_free_params).*scale(fixed==0);
+iter_check=100; % frequency to check acceptance rate
+stepsize=1;
+while iter<=maxiter
+    if mod(iter,iter_check)==0
+        accept_rate = iter_check/total_sample;
+        fprintf(['From iter %d to %d, acceptance rate =  %.2f\n'],iter-100, iter, accept_rate);
+        if  accept_rate < 0.2
+            stepsize=stepsize*0.9;
+        elseif accept_rate > 0.6
+            stepsize=stepsize*1.1;
+        end
+        fprintf(['Stepsize = %.3f\n'],stepsize);
+        total_sample=0;
+    end
+    
+    proposal=samples(iter-1,:)+randn(1,num_free_params).*scale(fixed==0).*stepsize;
+    proposal=max(proposal,lb_opt(fixed==0));
+    proposal=min(proposal,ub_opt(fixed==0));
     proposal_params=fixed_param_val;
     proposal_params(fixed==0)=proposal;
     l=log_likelihood(squared_error(noisy_data,proposal_params,numeric_params,t_skip,x_skip,threshold,ic,rs,noiseweight),N);
@@ -55,6 +74,12 @@ end
 fig=figure;
 param1=1;
 param2=2;
-plot(samples(:,param1),samples(:,param2));
+plot(samples(:,param1),samples(:,param2),'b.');
 xlabel(param_names{1});
 ylabel(param_names{2});
+
+%% save
+saveas(fig,[prefix,'_',figtitle,'_2.png']);
+save([prefix,'_',figtitle,'.mat'],'-mat');
+fprintf('finish run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
+diary off;

@@ -20,9 +20,6 @@ num_params=size(fixed_param_val,2);
 fixed=[0,0,1,1,1,1,0];
 param1=1; % which 2 params to loop over
 param2=2;
-fixed(param1)=1;
-fixed(param2)=1;
-num_free_params=sum(1-fixed);
 numeric_params=[T, dt/100, 100, NaN, NaN, 1];
 
 % feasible range for the optimization algorithm
@@ -34,6 +31,10 @@ figtitle=sprintf(['radial1D,bivariate,fixed=[',repmat('%d,',size(fixed)),'],%s,%
 logfile = [prefix,'_',figtitle,'_log.txt'];
 diary(logfile);
 fprintf('start run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
+
+fixed(param1)=1;
+fixed(param2)=1;
+num_free_params=sum(1-fixed);
 
 %% r vs D
 numpts=21;
@@ -78,7 +79,7 @@ hold on
 plot(iy,ix,'r*','MarkerSize',20);
 
 %% save
-save([prefix,figtitle,'.mat'],'-mat');
+save([prefix,'_',figtitle,'.mat'],'-mat');
 saveas(fig,[prefix,'_',figtitle,'.png']);
 fprintf('finish run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
 diary off;

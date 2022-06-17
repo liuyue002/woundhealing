@@ -40,23 +40,12 @@ total_sample=1;
 iter_check=100; % frequency to check acceptance rate
 stepsize=1;
 while iter<=maxiter
-    if mod(iter,iter_check)==0
-        accept_rate = iter_check/total_sample;
-        fprintf(['From iter %d to %d, acceptance rate =  %.2f\n'],iter-100, iter, accept_rate);
-        if  accept_rate < 0.2
-            stepsize=stepsize*0.9;
-        elseif accept_rate > 0.6
-            stepsize=stepsize*1.1;
-        end
-        fprintf(['Stepsize = %.3f\n'],stepsize);
-        total_sample=0;
-    end
-    
     proposal=samples(iter-1,:)+randn(1,num_free_params).*scale(fixed==0).*stepsize;
     proposal=max(proposal,lb_opt(fixed==0));
     proposal=min(proposal,ub_opt(fixed==0));
     proposal_params=fixed_param_val;
     proposal_params(fixed==0)=proposal;
+    total_sample=total_sample+1;
     l=log_likelihood(squared_error(noisy_data,proposal_params,numeric_params,t_skip,x_skip,threshold,ic,rs,noiseweight),N);
     r=exp(l-ls(iter-1));
     if rand(1)<r
@@ -64,6 +53,17 @@ while iter<=maxiter
         ls(iter)=l;
         fprintf(['iter=%d, accepted [',repmat('%.3f,',1,num_free_params),'], probability %.3f\n'],iter,proposal,r);
         iter=iter+1;
+        if mod(iter,iter_check)==0
+            accept_rate = iter_check/total_sample;
+            fprintf(['From iter %d to %d, acceptance rate =  %.2f\n'],iter-100, iter, accept_rate);
+            if  accept_rate < 0.2
+                stepsize=stepsize*0.9;
+            elseif accept_rate > 0.6
+                stepsize=stepsize*1.1;
+            end
+            fprintf(['Stepsize = %.3f\n'],stepsize);
+            total_sample=0;
+        end
     else
         fprintf(['iter=%d, rejected [',repmat('%.3f,',1,num_free_params),'], probability %.3f\n'],iter,proposal,r);
     end
@@ -79,7 +79,7 @@ xlabel(param_names{1});
 ylabel(param_names{2});
 
 %% save
-saveas(fig,[prefix,'_',figtitle,'_2.png']);
+saveas(fig,[prefix,'_',figtitle,'.png']);
 save([prefix,'_',figtitle,'.mat'],'-mat');
 fprintf('finish run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
 diary off;

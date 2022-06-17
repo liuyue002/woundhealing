@@ -1,4 +1,6 @@
 load('simulations/kevindata_circle_xy1_20220405_raw.mat');
+k=strfind(prefix,'/');
+prefix=strcat('./simulations/',prefix(k(end)+1:end));
 noisy_data=C_radial_avg;
 nFrame=size(noisy_data,1);
 ic=noisy_data(1,:)';
@@ -9,15 +11,15 @@ x_skip=1;
 N=prod(ceil(size(noisy_data)./[t_skip,x_skip]));
 threshold=-1;
 
-fixed_param_val=[1300,0.26,1,1,1,0,2645]; % a 'good guess' for param values
+fixed_param_val=[1336,0.26,1,1,1,0.01,2647]; % a 'good guess' for param values
 % range of param values to scan over for profile likelihood
-lb=[1250, 0.255, 0.80, 0.60, 0.78, 0.115, 2630]; 
-ub=[1350, 0.280, 1.10, 0.80, 0.88, 0.160, 2660];
+lb=[1200, 0.255, 0.80, 0.60, 0.78, 0.00, 2630]; 
+ub=[1500, 0.280, 1.10, 0.80, 0.88, 0.05, 2670];
 param_names={'D0','r','alpha','beta','gamma','n','k'};
 %leave sigma out
 num_params=size(fixed_param_val,2);
 %if fixed(i)==1, then the ith param is set to the true value and not optimized over
-fixed=[0,0,1,1,1,1,0];
+fixed=[0,0,1,1,1,0,0];
 param1=1; % which 2 params to loop over
 param2=2;
 numeric_params=[T, dt/100, 100, NaN, NaN, 1];

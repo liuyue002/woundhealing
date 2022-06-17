@@ -81,6 +81,7 @@ else
     options=optimoptions('fmincon','Algorithm','interior-point');
     %options=optimoptions('fmincon','Algorithm','sqp');
     options.Display='iter';
+    options.UseParallel=false;
     options.Diagnostics='on';
     options.MaxFunctionEvaluations=6000;
     %options.OptimalityTolerance=1e-6;

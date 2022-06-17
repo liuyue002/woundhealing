@@ -1,12 +1,12 @@
 load('simulations/kevindata_circle_xy1_20220405_raw.mat');
 noisy_data=C_radial_avg;
 nFrame=size(noisy_data,1);
-N=numel(noisy_data);
 ic=noisy_data(1,:)';
 dt=1/3;
 T=(nFrame-1)*dt+0.001;% helps with off-by-1 rounding
 t_skip=1;
 x_skip=1;
+N=prod(ceil(size(noisy_data)./[t_skip,x_skip]));
 threshold=-1;
 
 fixed_param_val=[1300,0.26,1,1,1,0,2645]; % a 'good guess' for param values
@@ -20,9 +20,6 @@ num_params=size(fixed_param_val,2);
 fixed=[0,0,1,1,1,1,0];
 param1=1; % which 2 params to loop over
 param2=2;
-fixed(param1)=1;
-fixed(param2)=1;
-num_free_params=sum(1-fixed);
 numeric_params=[T, dt/100, 100, NaN, NaN, 1];
 
 % feasible range for the optimization algorithm
@@ -39,6 +36,10 @@ pc.JobStorageLocation = strcat('/home/wolf5640/woundhealing/tmp/',getenv('SLURM_
 parpool(pc);
 ppool=gcp('nocreate');
 fprintf('%s\n',matlab.unittest.diagnostics.ConstraintDiagnostic.getDisplayableString(ppool));
+
+fixed(param1)=1;
+fixed(param2)=1;
+num_free_params=sum(1-fixed);
 
 %% r vs D
 numpts=21;
@@ -83,7 +84,7 @@ hold on
 plot(iy,ix,'r*','MarkerSize',20);
 
 %% save
-save([prefix,figtitle,'.mat'],'-mat');
+save([prefix,'_',figtitle,'.mat'],'-mat');
 saveas(fig,[prefix,'_',figtitle,'.png']);
 fprintf('finish run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
 delete(ppool);

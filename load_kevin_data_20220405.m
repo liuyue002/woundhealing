@@ -126,6 +126,23 @@ animate_2var_1d(C1_radial_avg,C2_radial_avg,[0,3600],1/3,'C_1','C_2',[prefix,'_c
 close all;
 save([prefix,'.mat'],'-append');
 
+%% interior density
+interior_density=zeros(nt,1);
+for ti=1:nt
+    r=radiuss(ti)*29.2/2;
+    interior_pts=noisy_data(ti,distance_to_center<r);
+    interior_density(ti)=mean(interior_pts);
+end
+ts=0:dt:(nt-1)*dt;
+int_density_fig=figure('Position',[10 100 600 500],'color','w');
+figtitle=title('t=0');
+plot(ts,interior_density);
+xlabel('t');
+ylabel('interior density');
+xlim([0,26]);
+saveas(int_density_fig,[prefix,'_interiordensity.png']);
+close all;
+save([prefix,'.mat'],'-append');
 
 %% triangles
 load('/scratch/liuy1/wound_data/04-05-22 exp1/Triangle/Density_CellCycleFraction/xy8_data.mat');

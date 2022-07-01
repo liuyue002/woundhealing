@@ -120,7 +120,7 @@ for param=1:num_params
     xx=param_vals(param,:);
     yy=max_ls(param,:)-max(max_ls(param,:));
     plot(xx,yy);
-    plot([min(param_vals(param,:)),max(param_vals(param,:))],[-1.96,-1.96]);
+    plot([min(param_vals(param,:)),max(param_vals(param,:))],[-1.92,-1.92]);
     xlabel(param_names{param});
     ylabel('log(L)');
     axis('square');

@@ -52,7 +52,7 @@ for f=1:num_files
         xx=param_vals(param,:);
         yy=max_ls(param,:)-max(max_ls(param,:));
         hold on;
-        plot(xx,yy,'DisplayName',num2str(t_skip));
+        plot(xx,yy,'DisplayName',num2str(ceil(nt/t_skip)));
         h=plot([min(param_vals(param,:)),max(param_vals(param,:))],[-1.92,-1.92],'-k');
         h.Annotation.LegendInformation.IconDisplayStyle = 'off'; % no legend
         xlabel(param_names{param});
@@ -65,20 +65,20 @@ for f=1:num_files
 end
 
 %%
-figure(figg);
-subplot(1,4,1);
-xlim([1600,3000]);
-ylim([-2.5,0]);
-subplot(1,4,2);
-xlim([0.1,0.2]);
-ylim([-2.5,0]);
-subplot(1,4,3);
-xlim([1.5,5]);
-ylim([-2.5,0]);
-subplot(1,4,4);
-xlim([2570,2720]);
-ylim([-2.5,0]);
-% legend('1','2','3','6','12','36');
+% figure(figg);
+% subplot(1,4,1);
+% xlim([1600,3000]);
+% ylim([-2.5,0]);
+% subplot(1,4,2);
+% xlim([0.1,0.2]);
+% ylim([-2.5,0]);
+% subplot(1,4,3);
+% xlim([1.5,5]);
+% ylim([-2.5,0]);
+% subplot(1,4,4);
+% xlim([2570,2720]);
+% ylim([-2.5,0]);
+% % legend('1','2','3','6','12','36');
 legend;
 
 %%
@@ -96,10 +96,11 @@ for param=1:num_params
     %plot(xx,conf_interval_width(param,1)./sqrt(xx));
     
     nts=ceil(nt./tskips);
+    xx=linspace(1,80,80);
     plot(nts,conf_interval_width(param,:),'*b','Markersize',20);
     plot(xx,conf_interval_width(param,1)./sqrt(xx/nt));
+    xlim([0,80]);
     xticks(flip(nts));
-    xx=linspace(1,80,80);
     hold off
     title(param_names{param});
     %xlabel('Proportion of data used');

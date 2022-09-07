@@ -1,23 +1,23 @@
-load('simulations/kevindata_circle_xy1_20220405_raw.mat');
+load('simulations/kevindata_circle_xy5_20220405_raw.mat');
 noisy_data=C_radial_avg;
 nFrame=size(noisy_data,1);
 ic=noisy_data(1,:)';
 dt=1/3;
 T=(nFrame-1)*dt+0.001;% helps with off-by-1 rounding
-t_skip=36;
+t_skip=1;
 x_skip=1;
 N=prod(ceil(size(noisy_data)./[t_skip,x_skip])); % number of data pts
 threshold=-1;
 
-fixed_param_val=[1850,0.17,1.0,1.0,2.26,0,2615]; % a 'good guess' for param values
+fixed_param_val=[1680,0.19,1.02,0.62,1,0,2548]; % a 'good guess' for param values
 % range of param values to scan over for profile likelihood
-lb=[1700, 0.060, 0.80, 0.60, 1.50, 0.00, 2620]; 
-ub=[3300, 0.160, 1.20, 1.00, 9.00, 0.10, 2730];
+lb=[1200, 0.160, 0.90, 0.50, 1.50, 0.00, 2500]; 
+ub=[2000, 0.260, 1.10, 0.70, 9.00, 0.10, 2600];
 param_names={'D0','r','alpha','beta','gamma','n','k'};
 %leave sigma out
 num_params=size(fixed_param_val,2);
 %if fixed(i)==1, then the ith param is set to the true value and not optimized over
-fixed=[0,0,1,1,0,1,0];
+fixed=[0,0,0,0,1,1,0];
 num_free_params=sum(1-fixed);
 numeric_params=[T, dt/100, 100, NaN, NaN, 1];
 
@@ -26,7 +26,7 @@ lb_opt=[ 100, 0.01,  0.01,  0.01,  0.01, 0,   500]; %[0,0,0,0,0,0,0]
 ub_opt=[5000, 5.00,  99.0,  99.0,  99.0, 4, 20000]; %[20000,5,10,10,10,10,10000]
 noiseweight = max(num_pts_in_bins,1)';
 
-figtitle=sprintf(['radial1D,weighted,lowdata,fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',2'],fixed,fixed_param_val,threshold,t_skip,x_skip);
+figtitle=sprintf(['radial1D,weighted,fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',3'],fixed,fixed_param_val,threshold,t_skip,x_skip);
 logfile = [prefix,'_',figtitle,'_log.txt'];
 diary(logfile);
 fprintf('start run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));

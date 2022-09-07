@@ -91,16 +91,24 @@ for param=1:num_params
     free_param_count = free_param_count+1;
     subplot(1,num_free_params,free_param_count);
     hold on
-    plot(1./tskips,conf_interval_width(param,:),'*b','Markersize',20);
-    xx=linspace(1/36,1,50);
-    plot(xx,conf_interval_width(param,1)./sqrt(xx));
+    %plot(1./tskips,conf_interval_width(param,:),'*b','Markersize',20);
+    %xx=linspace(1/36,1,50);
+    %plot(xx,conf_interval_width(param,1)./sqrt(xx));
+    
+    nts=ceil(nt./tskips);
+    plot(nts,conf_interval_width(param,:),'*b','Markersize',20);
+    plot(xx,conf_interval_width(param,1)./sqrt(xx/nt));
+    xticks(flip(nts));
+    xx=linspace(1,80,80);
     hold off
     title(param_names{param});
-    xlabel('Proportion of data used');
+    %xlabel('Proportion of data used');
+    xlabel('n_t');
     ylabel('Confidence interval width');
 end
 legend('actual','predicted');
 %%
 prefix='simulations/kevindata_circle_xy1_20220405_raw_radial1D,weighted,lowdata,fixed=[0,0,1,1,0,1,0,],';
 saveas(figg,[prefix,'_overlay.png']);
-saveas(figg_conf_int,[prefix,'_conf_interval_width.png']);
+saveas(figg_conf_int,[prefix,'_conf_interval_width_2.png']);
+saveas(figg_conf_int,[prefix,'_conf_interval_width_2.fig']);

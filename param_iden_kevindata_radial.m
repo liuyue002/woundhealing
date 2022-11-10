@@ -9,10 +9,10 @@ x_skip=1;
 N=prod(ceil(size(noisy_data)./[t_skip,x_skip])); % number of data pts
 threshold=-1;
 
-fixed_param_val=[1680,0.19,1.02,0.62,1,0,2548]; % a 'good guess' for param values
+fixed_param_val=[1680,0.215,1.015,0.59,1,0,2548]; % a 'good guess' for param values
 % range of param values to scan over for profile likelihood
-lb=[1200, 0.160, 0.90, 0.50, 1.50, 0.00, 2500]; 
-ub=[2000, 0.260, 1.10, 0.70, 9.00, 0.10, 2600];
+lb=[1600, 0.150, 0.95, 0.53, 1.50, 0.00, 2530]; 
+ub=[1800, 0.240, 1.10, 0.67, 9.00, 0.10, 2570];
 param_names={'D0','r','alpha','beta','gamma','n','k'};
 %leave sigma out
 num_params=size(fixed_param_val,2);
@@ -26,13 +26,13 @@ lb_opt=[ 100, 0.01,  0.01,  0.01,  0.01, 0,   500]; %[0,0,0,0,0,0,0]
 ub_opt=[5000, 5.00,  99.0,  99.0,  99.0, 4, 20000]; %[20000,5,10,10,10,10,10000]
 noiseweight = max(num_pts_in_bins,1)';
 
-figtitle=sprintf(['radial1D,weighted,fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',3'],fixed,fixed_param_val,threshold,t_skip,x_skip);
+figtitle=sprintf(['radial1D,weighted,fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',4'],fixed,fixed_param_val,threshold,t_skip,x_skip);
 logfile = [prefix,'_',figtitle,'_log.txt'];
 diary(logfile);
 fprintf('start run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
 %% overall minimizer
 
-[overall_minimizer,sigma,max_l,param_str,~,~] = optimize_likelihood(fixed,fixed_param_val,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,2,rs,noiseweight);
+[overall_minimizer,sigma,max_l,param_str,~,~] = optimize_likelihood(fixed,fixed_param_val,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,rs,noiseweight);
 fprintf(['Overall max likelihood param is: ',repmat('%.3f,',size(overall_minimizer)),'sigma=%.3f,maxLikelihood=%.3f\n'],overall_minimizer,sigma,max_l);
 
 aic = -2*max_l + 2*num_free_params;
@@ -41,7 +41,7 @@ fprintf('AIC=%.3f,BIC=%.3f\n',aic,bic);
 
 %% profile likelihood
 
-numpts=21;
+numpts=41;
 param_vals=zeros(num_params,numpts);
 max_ls=zeros(num_params,numpts);
 minimizers=cell(num_params,numpts);

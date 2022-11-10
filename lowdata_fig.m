@@ -1,5 +1,5 @@
 figg=figure('Position',[100 100 1400 400],'color','w');
-sgtitle('low data comparison, xy1');
+%sgtitle('low data comparison, xy1');
 num_params=7;
 %%
 
@@ -40,6 +40,7 @@ conf_interval_width=nan(num_params,num_files);
 
 for f=1:num_files
     load(files{f});
+    param_names{5}='\gamma';
     tskips(f)=t_skip;
     figure(figg);
     free_param_count=0;
@@ -52,7 +53,7 @@ for f=1:num_files
         xx=param_vals(param,:);
         yy=max_ls(param,:)-max(max_ls(param,:));
         hold on;
-        plot(xx,yy,'DisplayName',num2str(ceil(nt/t_skip)));
+        plot(xx,yy,'DisplayName',num2str(ceil(nt/t_skip)),'Color',[1,1-f/num_files,0.0]);
         h=plot([min(param_vals(param,:)),max(param_vals(param,:))],[-1.92,-1.92],'-k');
         h.Annotation.LegendInformation.IconDisplayStyle = 'off'; % no legend
         xlabel(param_names{param});
@@ -79,7 +80,9 @@ end
 % xlim([2570,2720]);
 % ylim([-2.5,0]);
 % % legend('1','2','3','6','12','36');
-legend;
+% legend();
+%legend('Location','eastoutside');
+biggerFont(gcf);
 
 %%
 figg_conf_int=figure('Position',[100 100 1400 400],'color','w');

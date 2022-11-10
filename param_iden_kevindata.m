@@ -146,6 +146,22 @@ for param=1:num_params
         disp(zs{param});
     end
 end
+%% fisher info
+ff_str=strcat('ff=@(x) get_reduced_model_data(',param_str,',numeric_params,t_skip,x_skip,2,ic,nan);');
+N=prod(ceil(size(noisy_data)./[t_skip,x_skip,x_skip])); % number of data pts
+eval(ff_str);
+dXdtheta=zeros(N,num_free_params);
+model_data0=ff(overall_minimizer);
+for i=1:num_free_params
+    dtheta=0.00001;
+    param_vals2=overall_minimizer;
+    param_vals2(i)=param_vals2(i)+dtheta;
+    model_data_plus=ff(param_vals2);
+    param_vals2(i)=param_vals2(i)-2*dtheta;
+    model_data_minus=ff(param_vals2);
+    dXdtheta(:,i)=(model_data_plus-model_data_minus)/(2*dtheta);
+end
+fim = sigma^2 * (dXdtheta'*dXdtheta);
 
 %% save
 saveas(fig,[prefix,'_',figtitle,'.png']);

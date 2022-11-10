@@ -15,7 +15,7 @@ param_names={'D0','r','alpha','beta','gamma','n','k'};
 %leave sigma out
 num_params=size(fixed_param_val,2);
 %if fixed(i)==1, then the ith param is set to the true value and not optimized over
-fixed=[0,0,1,1,1,1,0];
+fixed=[0,0,0,0,1,1,0];
 num_free_params=sum(1-fixed);
 numeric_params=[T, dt/100, 100, NaN, NaN, 1];
 
@@ -30,7 +30,7 @@ diary(logfile);
 fprintf('start run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
 
 %% chain
-maxiter=5000;
+maxiter=10000;
 samples=zeros(maxiter,num_free_params);
 ls=zeros(maxiter,1);
 samples(1,:)=fixed_param_val(fixed==0);
@@ -72,9 +72,10 @@ end
 
 %% plot
 fig=figure;
+burnin=1000;
 param1=1;
 param2=2;
-plot(samples(:,param1),samples(:,param2),'b.');
+plot(samples(burnin:end,param1),samples(burnin:end,param2),'b.');
 xlabel(param_names{1});
 ylabel(param_names{2});
 

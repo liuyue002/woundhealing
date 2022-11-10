@@ -112,8 +112,7 @@ else
         N=prod(ceil(size(noisy_data{1})./[t_skip,x_skip,x_skip]));
     end
 end
-[max_l,sigma2]= log_likelihood(min_sq_err,N);
-sigma=sqrt(sigma2);
+[max_l,sigma]= log_likelihood(min_sq_err,N);
 fprintf(['optimization outcome: ',repmat('%.3f,',size(minimizer)),'sigma=%.3f\n'],minimizer,sigma);
 
 end

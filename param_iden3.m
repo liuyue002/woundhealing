@@ -18,9 +18,9 @@ load('/home/liuy1/Documents/woundhealing/simulations/woundhealing_1d_20221110_14
 % else
 %     error('no such data\n');
 % end
-noise_strength=sigma_low;
+noise_strength=sigma_high;
 threshold=-1;
-noisy_data=cc_noisy_low;
+noisy_data=cc_noisy_high;
 %use only early data
 % noisy_data=noisy_data(1:21,:);
 % T=80;
@@ -34,13 +34,13 @@ fixed_param_val=[1300, 0.3, 1, 1, 1, 0.00, 2600];
 %fixed_param_val=[500,0.05,1,1,1,0];
 %lb=fixed_param_val.*[0.8,0.8,0.9,0.9,0.9,0.9];
 %ub=fixed_param_val.*[1.2,1.2,1.1,1.1,1.1,1.1];
-lb=[1295, 0.298, 0.85, 0.75, 0.7, 0.00, 2599];
-ub=[1305, 0.302, 1.15, 1.10, 1.6, 0.03, 2601];
-param_names={'D_0','r','alpha','beta','gamma','n','K'};
+lb=[1150, 0.18, 0.80, 0.80, 0.50, 0.000, 2580];
+ub=[1700, 0.80, 1.20, 1.60, 4.00, 0.150, 2625];
+param_names={'D_0','r','\alpha','\beta','\gamma','\eta','K'};
 %leave sigma out
 num_params=size(fixed_param_val,2);
 %if fixed(i)==1, then the ith param is set to the true value and not optimized over
-fixed=[0,0,1,1,1,1,0];
+fixed=[0,0,0,0,0,0,0];
 num_free_params=sum(1-fixed);
 %numeric_params=[T, dt/100, 100, NaN, NaN, 1];
 
@@ -119,6 +119,7 @@ for param=1:num_params
     plot([min(param_vals(param,:)),max(param_vals(param,:))],[-1.92,-1.92]);
     plot([true_params(param),true_params(param)],[-10,10],'--r'); % true max
     plot([optimal_param_vals(param),optimal_param_vals(param)],[-10,10],'--g'); % MLE
+    %xlabel(param_names{param},'FontName','TeX\040tipa12');
     xlabel(['$',param_names{param},'$'],'Interpreter','latex');
     ylabel('$\log(L)$','Interpreter','latex');
     axis('square');

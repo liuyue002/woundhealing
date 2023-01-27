@@ -139,7 +139,7 @@ for ti=1:1:nt
     
     crhs = c + dt*(fvec + (1-th)*A*c);
     cnew = Tc\crhs;
-    cnew = cnew + normrnd(0,noisestrength,size(c)).*fvec;
+    %cnew = cnew + normrnd(0,noisestrength,size(c)).*fvec;
     c=cnew;
 
     c = max(c,0);

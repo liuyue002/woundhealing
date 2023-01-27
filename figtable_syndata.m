@@ -25,7 +25,6 @@ for i=1:3
     plot([optimal_param_vals(param),optimal_param_vals(param)],[-10,10],'--g'); % MLE
     xlabel(['$',param_names{param},'$'],'Interpreter','latex');
     ylabel('$\log(L)$','Interpreter','latex');
-    %ylabel('l');
     axis('square');
     xlim(ranges{param});
     ylim([-2.5,0]);

@@ -1,4 +1,6 @@
-load('/home/liuy1/Documents/woundhealing/simulations/woundhealing_1d_20221110_142214_D0=1300,r=0.3,alpha=1,beta=1,gamma=1,n=0,k=2600.0,dt=0.0333.mat');
+%load('/home/liuy1/Documents/woundhealing/simulations/woundhealing_1d_20221110_142214_D0=1300,r=0.3,alpha=1,beta=1,gamma=1,n=0,k=2600.0,dt=0.0333.mat');
+%load('/home/liuy1/Documents/woundhealing/simulations/woundhealing_1d_20221122_141339_D0=3000,r=0.3,alpha=1,beta=1,gamma=1,n=1,k=2600.0,dt=0.0333.mat');
+load('/home/liuy1/Documents/woundhealing/simulations/woundhealing_1d_20221122_144801_D0=2500,r=0.14,alpha=1,beta=1,gamma=8,n=0,k=2300.0,dt=0.0333.mat');
 % noise_strength=-2; % use -1 for segmented data
 % if noise_strength==0.05
 %     threshold=-1;
@@ -30,17 +32,17 @@ x_skip=1;
 N=prod(ceil(size(noisy_data)./[t_skip,x_skip])); % number of data pts
 
 true_params=params;
-fixed_param_val=[1300, 0.3, 1, 1, 1, 0.00, 2600];
+fixed_param_val=[2500, 0.14, 1, 1, 0, 0, 2300];
 %fixed_param_val=[500,0.05,1,1,1,0];
 %lb=fixed_param_val.*[0.8,0.8,0.9,0.9,0.9,0.9];
 %ub=fixed_param_val.*[1.2,1.2,1.1,1.1,1.1,1.1];
-lb=[1150, 0.18, 0.80, 0.80, 0.50, 0.000, 2580];
-ub=[1700, 0.80, 1.20, 1.60, 4.00, 0.150, 2625];
+lb=[2700, 0.10, 0.70, 0.70, 0.60, 0.000, 2500];
+ub=[3300, 0.50, 1.30, 1.30, 2.00, 2.000, 2700];
 param_names={'D_0','r','\alpha','\beta','\gamma','\eta','K'};
 %leave sigma out
 num_params=size(fixed_param_val,2);
 %if fixed(i)==1, then the ith param is set to the true value and not optimized over
-fixed=[0,0,0,0,0,0,0];
+fixed=[0,0,0,0,1,1,0];
 num_free_params=sum(1-fixed);
 %numeric_params=[T, dt/100, 100, NaN, NaN, 1];
 
@@ -48,13 +50,13 @@ num_free_params=sum(1-fixed);
 lb_opt=[ 100, 0.01,  0.01,  0.01,  0.01, 0,   500]; %[0,0,0,0,0,0,0]
 ub_opt=[5000, 5.00,  99.0,  99.0,  99.0, 4, 20000]; %[20000,5,10,10,10,10,10000]
 
-figtitle=sprintf(['noise=%g,fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],threshold=%g,tskip=%d,xskip=%d',',2'],noise_strength,fixed,fixed_param_val,threshold,t_skip,x_skip);
+figtitle=sprintf(['noise=%g,fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],threshold=%g,tskip=%d,xskip=%d',',1'],noise_strength,fixed,fixed_param_val,threshold,t_skip,x_skip);
 logfile = [prefix,'_',figtitle,'_log.txt'];
 diary(logfile);
 fprintf('start run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
 
 %% overall max likelihood
-[overall_minimizer,sigma,max_l,param_str,grad,hessian] = optimize_likelihood(fixed,fixed_param_val,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,nan,nan);
+[overall_minimizer,sigma,max_l,param_str,grad,hessian] = optimize_likelihood(fixed,fixed_param_val,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,2,nan,nan);
 fprintf(['Overall max likelihood param is: ',repmat('%.3f,',size(overall_minimizer)),'sigma=%.3f,maxLikelihood=%.3f\n'],overall_minimizer,sigma,max_l);
 optimal_param_vals=fixed_param_val';
 optimal_param_vals(fixed==0)=overall_minimizer;

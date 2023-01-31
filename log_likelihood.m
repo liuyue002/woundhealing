@@ -8,7 +8,7 @@ if err==0
     l=Inf;
 else
     %l = -N*log(sqrt(2*pi*sigma2)) - (1/(2*sigma2))*err;
-    l = -(N/2)*(log(2*pi*sigma2)+1)
+    l = -(N/2)*(log(2*pi*sigma2)+1);
 end
 end
 

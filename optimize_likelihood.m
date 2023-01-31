@@ -91,9 +91,11 @@ else
     problem.lb=lb(fixed_params==0);
     problem.ub=ub(fixed_params==0);
     problem.options=options;
-    [minimizer,min_sq_err] = run(gs,problem);
+    [minimizer,min_sq_err,exitflag,gs_output] = run(gs,problem);
     grad=NaN;
     hessian=NaN;
+    fprintf(['gs exitflag: %d\n',exitflag);
+    get(gs_output); % full display
 end
 if ~iscell(noisy_data)
     % just 1 pde variable

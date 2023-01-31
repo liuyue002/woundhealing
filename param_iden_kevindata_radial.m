@@ -26,7 +26,7 @@ lb_opt=[ 100, 0.01,  0.01,  0.01,  0.01, 0,   500]; %[0,0,0,0,0,0,0]
 ub_opt=[5000, 5.00,  99.0,  99.0,  99.0, 4, 20000]; %[20000,5,10,10,10,10,10000]
 noiseweight = max(num_pts_in_bins,1)';
 
-figtitle=sprintf(['radial1D,weighted,fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',5'],fixed,fixed_param_val,threshold,t_skip,x_skip);
+figtitle=sprintf(['radial1D,weighted,fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',7'],fixed,fixed_param_val,threshold,t_skip,x_skip);
 logfile = [prefix,'_',figtitle,'_log.txt'];
 diary(logfile);
 fprintf('start run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
@@ -55,11 +55,11 @@ for param=1:num_params
     end
     param_vals(param,1:numpts)=linspace(lb(param),ub(param),numpts);
     param_vals(param,:)=sort(param_vals(param,:));
-    [~,mle_idx]=min(abs(param_vals(param,:)-overall_minimizer(param)));
+    [~,mle_idx]=min(abs(param_vals(param,:)-optimal_param_vals(param)));
     fixed_params=fixed;
     fixed_params(param)=1;
     initial=fixed_param_val;
-    minimizers{param,mle_idx}=overall_minimizer([1:param-1,param+1:end]);
+    minimizers{param,mle_idx}=optimal_param_vals([1:param-1,param+1:end]);
     max_ls(param,mle_idx)=max_l;
     for i=mle_idx+1:numpts+1
         fprintf('Optimizing for %s=%.3f\n',param_names{param},param_vals(param,i));

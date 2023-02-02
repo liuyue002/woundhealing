@@ -108,6 +108,7 @@ elseif alg==2
 elseif alg==3
     %scaling=[1000,1,1,1,1,1,1000]';
     opts=cmaes('defaults');
+    opts.SaveVariables = 'off';
     opts.LBounds=lb(fixed_params==0)' ./ scaling(fixed_params==0);
     opts.UBounds=ub(fixed_params==0)' ./ scaling(fixed_params==0);
     sigma_cmaes=0.3; % initial search radius for CMAES

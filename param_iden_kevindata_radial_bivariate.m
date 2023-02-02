@@ -29,7 +29,7 @@ lb_opt=[ 100, 0.01,  0.01,  0.01,  0.01, 0,   500]; %[0,0,0,0,0,0,0]
 ub_opt=[5000, 5.00,  99.0,  99.0,  99.0, 4, 20000]; %[20000,5,10,10,10,10,10000]
 noiseweight = max(num_pts_in_bins,1)';
 
-figtitle=sprintf(['radial1D,bivariate,fixed=[',repmat('%d,',size(fixed)),'],%s,%s_1'],fixed,param_names{param1},param_names{param2});
+figtitle=sprintf(['radial1D,bivariate,fixed=[',repmat('%d,',size(fixed)),'],%s,%s_2'],fixed,param_names{param1},param_names{param2});
 logfile = [prefix,'_',figtitle,'_log.txt'];
 diary(logfile);
 fprintf('start run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
@@ -44,7 +44,7 @@ fixed(param2)=1;
 num_free_params=sum(1-fixed);
 
 %% r vs D
-numpts=21;
+numpts=41;
 p1s=linspace(lb(param1),ub(param1),numpts);
 p2s=linspace(lb(param2),ub(param2),numpts);
 ls=zeros(numpts,numpts);

@@ -9,10 +9,12 @@ x_skip=1;
 N=prod(ceil(size(noisy_data)./[t_skip,x_skip])); % number of data pts
 threshold=-1;
 
-fixed_param_val=[1725,0.195,1.02,0.593,1,0,2545]; % a 'good guess' for param values
+fixed_param_val=[1150,0.234,1.05,1.10,1,0,2540]; % a 'good guess' for param values
 % range of param values to scan over for profile likelihood
-lb=[1650, 0.170, 0.97, 0.53, 1.50, 0.00, 2535]; 
-ub=[1800, 0.220, 1.06, 0.65, 9.00, 0.10, 2555];
+lb=[1050, 0.210, 0.95, 0.90, 1.50, 0.00, 2500]; 
+ub=[1250, 0.250, 1.15, 1.20, 9.00, 0.10, 2600];
+%scaling = [1000, 1, 1, 1, 1, 1, 1000];
+scaling = nan;
 param_names={'D0','r','alpha','beta','gamma','n','k'};
 %leave sigma out
 num_params=size(fixed_param_val,2);
@@ -23,21 +25,22 @@ numeric_params=[T, dt/100, 100, NaN, NaN, 1];
 
 % feasible range for the optimization algorithm
 lb_opt=[ 100, 0.01,  0.01,  0.01,  0.01, 0,   500]; %[0,0,0,0,0,0,0]
-ub_opt=[5000, 5.00,  99.0,  99.0,  99.0, 4, 20000]; %[20000,5,10,10,10,10,10000]
+ub_opt=[5000, 5.00,   9.0,   9.0,   9.0, 4, 20000]; %[20000,5,10,10,10,10,10000]
 noiseweight = max(num_pts_in_bins,1)';
-
-figtitle=sprintf(['radial1D,weighted,fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',7'],fixed,fixed_param_val,threshold,t_skip,x_skip);
+starttime=string(datetime,'yyyyMMddHHmm');
+figtitle=sprintf(['radial1D,weighted,fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',%s'],fixed,fixed_param_val,threshold,t_skip,x_skip,starttime);
 logfile = [prefix,'_',figtitle,'_log.txt'];
 diary(logfile);
-fprintf('start run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
+fprintf('start run on: %s\n',string(datetime('now'), 'yyyy/MM/dd HH:mm:ss'));
 %% overall minimizer
 
-[overall_minimizer,sigma,max_l,param_str,~,~] = optimize_likelihood(fixed,fixed_param_val,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,2,rs,noiseweight);
+[overall_minimizer,sigma,max_l,param_str,~,~] = optimize_likelihood(fixed,fixed_param_val,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,2,rs,noiseweight,scaling);
 fprintf(['Overall max likelihood param is: ',repmat('%.3f,',size(overall_minimizer)),'sigma=%.3f,maxLikelihood=%.3f\n'],overall_minimizer,sigma,max_l);
 
 aic = -2*max_l + 2*num_free_params;
 bic = -2*max_l + log(N)*num_free_params;
 fprintf('AIC=%.3f,BIC=%.3f\n',aic,bic);
+save([prefix,'_',figtitle,'.mat'],'-mat');
 
 %% profile likelihood
 
@@ -59,7 +62,7 @@ for param=1:num_params
     fixed_params=fixed;
     fixed_params(param)=1;
     initial=fixed_param_val;
-    minimizers{param,mle_idx}=optimal_param_vals([1:param-1,param+1:end]);
+    minimizers{param,mle_idx}=optimal_param_vals(fixed_params==0);
     max_ls(param,mle_idx)=max_l;
     for i=mle_idx+1:numpts+1
         fprintf('Optimizing for %s=%.3f\n',param_names{param},param_vals(param,i));
@@ -145,5 +148,5 @@ fim = sigma^2 * (dXdtheta'*dXdtheta);
 
 saveas(fig,[prefix,'_',figtitle,'.png']);
 save([prefix,'_',figtitle,'.mat'],'-mat');
-fprintf('finish run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
+fprintf('finish run on: %s\n',string(datetime('now'), 'yyyy/MM/dd HH:mm:ss'));
 diary off;

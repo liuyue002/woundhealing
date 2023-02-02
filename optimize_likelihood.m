@@ -1,4 +1,4 @@
-function [minimizer,sigma,max_l,param_str,grad,hessian] = optimize_likelihood(fixed_params,initial,lb,ub,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,alg,xs,noiseweight)
+function [minimizer,sigma,max_l,param_str,grad,hessian] = optimize_likelihood(fixed_params,initial,lb,ub,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,alg,xs,noiseweight,scaling)
 %Build a string that defines the likelihood function in terms of the right
 %parameters
 %  fixed_params: which parameters are fixed at their initial value (1: fixed, 0: free)
@@ -7,18 +7,26 @@ function [minimizer,sigma,max_l,param_str,grad,hessian] = optimize_likelihood(fi
 %  noisy_data,T,t_skip,x_skip: to be fed to f
 %  threshold: -1 for full density data, otherwise threshold the data
 %  ic: initial condition, set to NaN if using default
-%  alg: algorithm (1: interior-point, default; 0: pattern search for nonsmooth; 2: global search)
+%  alg: algorithm (1: interior-point, default; 0: pattern search for nonsmooth; 2: global search; 3: CMAES)
 %  (should be smooth with full density data, nonsmooth with thresholded data)
 %  xs: for 1D only, provide spatial grid points (nan for default)
 %  noiseweight: weight for contribution to the error/residual from each
 %  point as function of x (leave as NaN for uniform)
+%  scaling: scale for each parameter, so their sensitivity is approximately
+%  the same (for the cell invasion model, [1000,1,1,1,1,1,1000] works),
+%  leave as nan for automatic scaling by initial value (or no scaling for CMAES)
 
 
 param_str='[';
 paramcount=1;
+auto_scale=true;
+if isnan(scaling)
+    scaling=ones(size(initial));
+    auto_scale=false;
+end
 for i=1:size(fixed_params,2)
     if ~fixed_params(i)
-        param_str=strcat(param_str,'x(',num2str(paramcount),'),');
+        param_str=strcat(param_str,'x(',num2str(paramcount),')*scaling(',num2str(i),'),');
         paramcount = paramcount+1;
     else
         param_str=strcat(param_str,num2str(initial(i)),',');
@@ -55,14 +63,16 @@ if alg==1
     options.MaxFunctionEvaluations=6000;
     %options.OptimalityTolerance=1e-6;
     %options.StepTolerance=1e-4;
-    options.ScaleProblem=true;
+    options.ScaleProblem=auto_scale;
     problem.objective=f;
     problem.x0=initial(fixed_params==0);
     problem.solver='fmincon';
     problem.lb=lb(fixed_params==0);
     problem.ub=ub(fixed_params==0);
     problem.options=options;
-    [minimizer,min_sq_err,~,~,~,grad,hessian] = fmincon(problem);
+    [minimizer,min_sq_err,exitflag,fmincon_output,~,grad,hessian] = fmincon(problem);
+    fprintf('fmincon exitflag: %d\n',exitflag);
+    disp(fmincon_output); % full display
 elseif alg==0
     options=optimoptions('patternsearch');
     options.Display='iter';
@@ -75,8 +85,7 @@ elseif alg==0
     [minimizer,min_sq_err] = patternsearch(problem);
     grad=NaN;
     hessian=NaN;
-else
-    %alg==2
+elseif alg==2
     gs = GlobalSearch;
     options=optimoptions('fmincon','Algorithm','interior-point');
     %options=optimoptions('fmincon','Algorithm','sqp');
@@ -86,7 +95,7 @@ else
     options.MaxFunctionEvaluations=6000;
     %options.OptimalityTolerance=1e-6;
     %options.StepTolerance=1e-4;
-    options.ScaleProblem=true;
+    options.ScaleProblem=auto_scale;
     problem.objective=f;
     problem.x0=initial(fixed_params==0);
     problem.solver='fmincon';
@@ -97,7 +106,20 @@ else
     grad=NaN;
     hessian=NaN;
     fprintf('gs exitflag: %d\n',exitflag);
-    get(gs_output); % full display
+    disp(gs_output); % full display
+elseif alg==3
+    %scaling=[1000,1,1,1,1,1,1000]';
+    opts=cmaes('defaults');
+    opts.SaveVariables = 'off';
+    opts.LBounds=lb(fixed_params==0)' ./ scaling(fixed_params==0);
+    opts.UBounds=ub(fixed_params==0)' ./ scaling(fixed_params==0);
+    sigma_cmaes=0.3; % initial search radius for CMAES
+    [minimizer,min_sq_err,counteval,stopflag,out,bestever] = cmaes(f,initial(fixed_params==0)'./scale(fixed_params==0),sigma_cmaes,opts);
+    fprintf('CMAES counteval: %d, stopflag: %s\n',counteval,string(stopflag));
+    disp(out);
+    disp(bestever);
+else
+    error("Unknown optimization algorithm");
 end
 if ~iscell(noisy_data)
     % just 1 pde variable
@@ -116,8 +138,7 @@ else
         N=prod(ceil(size(noisy_data{1})./[t_skip,x_skip,x_skip]));
     end
 end
-[max_l,sigma2]= log_likelihood(min_sq_err,N);
-sigma=sqrt(sigma2);
+[max_l,sigma]= log_likelihood(min_sq_err,N);
 fprintf(['optimization outcome: ',repmat('%.3f,',size(minimizer)),'sigma=%.3f\n'],minimizer,sigma);
 
 end

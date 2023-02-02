@@ -120,6 +120,7 @@ fig=figure('Position',[100 100 1400 400],'color','w');
 sgtitle(figtitle);
 free_param_count=0;
 zs = cell(num_params,1);
+conf_interval=nan(num_params,1);
 for param=1:num_params
     if fixed(param)
         continue;
@@ -130,7 +131,7 @@ for param=1:num_params
     xx=param_vals(param,:);
     yy=max_ls(param,:)-max(max_ls(param,:));
     plot(xx,yy);
-    plot([min(param_vals(param,:)),max(param_vals(param,:))],[-1.96,-1.96]);
+    plot([min(param_vals(param,:)),max(param_vals(param,:))],[-1.92,-1.92]);
     xlabel(param_names{param});
     ylabel('log(L)');
     axis('square');
@@ -138,10 +139,44 @@ for param=1:num_params
     ylim([-2.5,0]);
     hold off;
     
-    zs{param}=interp_zero(xx,yy+1.96);
-    fprintf('Intercept at -2 for param %s are:\n',param_names{param});
+    zs{param}=interp_zero(xx,yy+1.92);
+    if size(zs{param},2) == 2
+        conf_interval(param)=zs{param}(2)-zs{param}(1);
+        fprintf('95%% Confidence interval for param %s is: (intercept at -1.92)\n',param_names{param});
+        fprintf('width=%.4f: [%.4f,%.4f]\n',conf_interval(param),zs{param}(1),zs{param}(2));
+    elseif size(zs{param},2) == 1 && strcmp(param_names{param},'n')
+        conf_interval(param)=zs{param}(1);
+        fprintf('95%% Confidence interval for param %s is: (intercept at -1.92)\n',param_names{param});
+        fprintf('width=%.4f: [0,%.4f]\n',conf_interval(param),zs{param}(1));
+    elseif size(zs{param},2) == 1 && strcmp(param_names{param},'gamma')
+        conf_interval(param)=Inf;
+        fprintf('95%% Confidence interval for param %s is: (intercept at -1.92)\n',param_names{param});
+        fprintf('width=Inf: [%.4f,Inf]\n',zs{param}(1));
+    else
+        fprintf('Do not have 2 intercepts for param %s, they are:\n',param_names{param});
+        disp(zs{param});
+    end
+
     disp(zs{param});
 end
+%% fisher info
+ff_str=strcat('ff=@(x) get_reduced_model_data(',param_str,',numeric_params,t_skip,x_skip,2,ic,nan);');
+N=prod(ceil(size(noisy_data)./[t_skip,x_skip,x_skip])); % number of data pts
+eval(ff_str);
+dXdtheta=zeros(N,num_free_params);
+model_data0=ff(overall_minimizer);
+for i=1:num_free_params
+    dtheta=0.00001;
+    param_vals2=overall_minimizer;
+    param_vals2(i)=param_vals2(i)+dtheta;
+    model_data_plus=ff(param_vals2);
+    param_vals2(i)=param_vals2(i)-2*dtheta;
+    model_data_minus=ff(param_vals2);
+    dXdtheta(:,i)=(model_data_plus-model_data_minus)/(2*dtheta);
+end
+fim = sigma^2 * (dXdtheta'*dXdtheta);
+
+%% save
 saveas(fig,[prefix,'_',figtitle,'.png']);
 save([prefix,'_',figtitle,'.mat'],'-mat');
 fprintf('finish run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));

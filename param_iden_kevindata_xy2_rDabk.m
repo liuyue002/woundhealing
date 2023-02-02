@@ -14,9 +14,9 @@ t_skip=1;
 x_skip=1;
 threshold=-1;
 
-fixed_param_val=[1527,0.28,1,1,1,0,2561];
-lb=[1505, 0.2775, 0.8, 0.8, 1.16, 0.105, 2559];
-ub=[1550, 0.2800, 1.3, 1.3, 1.24, 0.115, 2564];
+fixed_param_val=[826.96,0.2383,1.1091,2.1168,1,0,2893.542];
+lb=[ 500, 0.1700, 0.8, 1.6, 1.16, 0.105, 2800];
+ub=[1200, 0.3000, 1.3, 2.6, 1.24, 0.115, 3000];
 param_names={'D0','r','alpha','beta','gamma','n','k'};
 %leave sigma out
 num_params=size(fixed_param_val,2);
@@ -28,7 +28,7 @@ numeric_params=[T, dt/10, 10, 4380, 4380, 150, 150];
 lb_opt=[ 100, 0.01, 0.1, 0.1, 0.1, 0,  500]; %[0,0,0,0,0,0,0]
 ub_opt=[5000, 1.00, 9.0, 9.0, 9.0, 4, 5000]; %[20000,5,10,10,10,10,10000]
 
-figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',2'],fixed,fixed_param_val,threshold,t_skip,x_skip);
+figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',3'],fixed,fixed_param_val,threshold,t_skip,x_skip);
 logfile = [prefix,'_',figtitle,'_log.txt'];
 diary(logfile);
 fprintf('start run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
@@ -68,7 +68,7 @@ fprintf('%s\n',matlab.unittest.diagnostics.ConstraintDiagnostic.getDisplayableSt
 % % exit;%%%%%%%%%%%%%%
 
 %% overall minimizer
-[overall_minimizer,sigma,max_l,param_str,~,~] = optimize_likelihood(fixed,fixed_param_val,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,2,NaN,NaN);
+[overall_minimizer,sigma,max_l,param_str,~,~] = optimize_likelihood(fixed,fixed_param_val,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,NaN,NaN,NaN);
 fprintf(['Overall max likelihood param is: ',repmat('%.3f,',size(overall_minimizer)),'sigma=%.3f,\n'],overall_minimizer,sigma);
 %figure(fig);
 %hold on
@@ -82,7 +82,7 @@ fprintf('AIC=%.3f,BIC=%.3f\n',aic,bic);
 
 save([prefix,'_',figtitle,'.mat'],'-mat');
 
-exit; %%%%%%%%%%%%%%%
+%exit; %%%%%%%%%%%%%%%
 
 %% profile likelihood
 
@@ -111,7 +111,7 @@ for param=6
 %         end
         initial(fixed_params==0)=optimal_param_vals(fixed_params==0);
         initial(param)=param_vals(param,i);
-        [minimizer,~,max_ls(param,i),~,~,~] = optimize_likelihood(fixed_params,initial,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,NaN,NaN);
+        [minimizer,~,max_ls(param,i),~,~,~] = optimize_likelihood(fixed_params,initial,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,NaN,NaN,NaN);
         minimizers{param,i}=minimizer;
     end
 end

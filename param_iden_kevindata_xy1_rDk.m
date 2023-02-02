@@ -14,21 +14,21 @@ t_skip=1;
 x_skip=1;
 threshold=-1;
 
-fixed_param_val=[1423.474,0.101,1.173,1.355,1,0,2701.403];
-lb=[1390, 0.09, 1.12, 1.3, 1.16, 0.00, 2690];
-ub=[1455, 0.12, 1.22, 1.4, 1.24, 1.00, 2710];
+fixed_param_val=[1287,0.2775,1,1,1,0,2621];
+lb=[1275, 0.276, 1.12, 1.3, 1.16, 0.00, 2619];
+ub=[1300, 0.279, 1.22, 1.4, 1.24, 1.00, 2624];
 param_names={'D0','r','alpha','beta','gamma','n','k'};
 %leave sigma out
 num_params=size(fixed_param_val,2);
 %if fixed(i)==1, then the ith param is set to the true value and not optimized over
-fixed=[0,0,0,0,1,1,0];
+fixed=[0,0,1,1,1,1,0];
 num_free_params=sum(1-fixed);
 numeric_params=[T, dt/10, 10, 4380, 4380, 150, 150];
 % feasible range for the optimization algorithm
 lb_opt=[ 100, 0.01, 0.1, 0.1, 0.1, 0,  500]; %[0,0,0,0,0,0,0]
 ub_opt=[5000, 1.00, 9.0, 9.0, 9.0, 4, 5000]; %[20000,5,10,10,10,10,10000]
 
-figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',11_cmaes'],fixed,fixed_param_val,threshold,t_skip,x_skip);
+figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',8_cmaes'],fixed,fixed_param_val,threshold,t_skip,x_skip);
 logfile = [prefix,'_',figtitle,'_log.txt'];
 diary(logfile);
 fprintf('start run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));

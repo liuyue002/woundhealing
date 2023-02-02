@@ -109,10 +109,10 @@ elseif alg==3
     %scaling=[1000,1,1,1,1,1,1000]';
     opts=cmaes('defaults');
     opts.SaveVariables = 'off';
-    opts.LBounds=lb(fixed_params==0)' ./ scaling(fixed_params==0);
-    opts.UBounds=ub(fixed_params==0)' ./ scaling(fixed_params==0);
+    opts.LBounds=lb(fixed_params==0)' ./ scaling(fixed_params==0)';
+    opts.UBounds=ub(fixed_params==0)' ./ scaling(fixed_params==0)';
     sigma_cmaes=0.3; % initial search radius for CMAES
-    [minimizer,min_sq_err,counteval,stopflag,out,bestever] = cmaes(f,initial(fixed_params==0)'./scale(fixed_params==0),sigma_cmaes,opts);
+    [minimizer,min_sq_err,counteval,stopflag,out,bestever] = cmaes(f,initial(fixed_params==0)'./scaling(fixed_params==0),sigma_cmaes,opts);
     fprintf('CMAES counteval: %d, stopflag: %s\n',counteval,string(stopflag));
     disp(out);
     disp(bestever);

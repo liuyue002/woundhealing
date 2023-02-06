@@ -5,3 +5,5 @@ simulations
 *.m~
 *.asv
 *.fig
+*.out
+tmp

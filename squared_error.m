@@ -37,15 +37,16 @@ if ~iscell(noisy_data)
         end
     end
     data_diff=noisy_data-model_data;
+    data_diff2=data_diff.^2;
     if ndims(noisy_data)==2
-        data_diff=data_diff.*noiseweight;
+        data_diff2=data_diff2.*noiseweight;
     else
-        % todo
+        % nothing need to be done for 2D
     end
     % there could be rounding here, matlab keep 16 digits precision
     % err can be 1e14 to 1e16
     % but it should be fine
-    err=sum(data_diff.^2,'all');
+    err=sum(data_diff2,'all');
 else
     % simulation with cell cycle model
     if ndims(noisy_data{1})==2

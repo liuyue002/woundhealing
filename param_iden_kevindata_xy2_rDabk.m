@@ -15,8 +15,8 @@ x_skip=1;
 threshold=-1;
 
 fixed_param_val=[826.96,0.2383,1.1091,2.1168,1,0,2893.542];
-lb=[ 500, 0.1700, 0.8, 1.6, 1.16, 0.105, 2800];
-ub=[1200, 0.3000, 1.3, 2.6, 1.24, 0.115, 3000];
+lb=[780, 0.2200, 1.108, 2.0, 1.16, 0.105, 2875];
+ub=[860, 0.2600, 1.114, 2.2, 1.24, 0.115, 2915];
 param_names={'D0','r','alpha','beta','gamma','n','k'};
 %leave sigma out
 num_params=size(fixed_param_val,2);
@@ -28,7 +28,7 @@ numeric_params=[T, dt/10, 10, 4380, 4380, 150, 150];
 lb_opt=[ 100, 0.01, 0.1, 0.1, 0.1, 0,  500]; %[0,0,0,0,0,0,0]
 ub_opt=[5000, 1.00, 9.0, 9.0, 9.0, 4, 5000]; %[20000,5,10,10,10,10,10000]
 
-figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',3'],fixed,fixed_param_val,threshold,t_skip,x_skip);
+figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',4'],fixed,fixed_param_val,threshold,t_skip,x_skip);
 logfile = [prefix,'_',figtitle,'_log.txt'];
 diary(logfile);
 fprintf('start run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
@@ -86,7 +86,7 @@ save([prefix,'_',figtitle,'.mat'],'-mat');
 
 %% profile likelihood
 
-numpts=11;
+numpts=41;
 param_vals=zeros(num_params,numpts);
 max_ls=zeros(num_params,numpts);
 minimizers=cell(num_params,numpts);
@@ -94,8 +94,7 @@ minimizers=cell(num_params,numpts);
 optimal_param_vals=fixed_param_val';
 optimal_param_vals(fixed==0)=overall_minimizer;
 param_vals=[param_vals,optimal_param_vals];
-%for param=1:num_params
-for param=6
+for param=1:num_params
     if fixed(param)
         continue;
     end

@@ -115,6 +115,7 @@ elseif alg==3
     opts.UBounds=ub(fixed_params==0)' ./ scaling(fixed_params==0)';
     sigma_cmaes=0.3; % initial search radius for CMAES
     [minimizer,min_sq_err,counteval,stopflag,out,bestever] = cmaes(f,initial(fixed_params==0)'./scaling(fixed_params==0),sigma_cmaes,opts);
+    minimizer=minimizer';
     fprintf('CMAES counteval: %d, stopflag: %s\n',counteval,string(stopflag));
     disp(out);
     disp(bestever);

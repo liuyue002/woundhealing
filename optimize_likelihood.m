@@ -23,6 +23,8 @@ auto_scale=true;
 if isnan(scaling)
     scaling=ones(size(initial));
     auto_scale=false;
+elseif size(scaling,1)>1
+    scaling=scaling';
 end
 for i=1:size(fixed_params,2)
     if ~fixed_params(i)
@@ -112,7 +114,8 @@ elseif alg==3
     opts.LBounds=lb(fixed_params==0)' ./ scaling(fixed_params==0)';
     opts.UBounds=ub(fixed_params==0)' ./ scaling(fixed_params==0)';
     sigma_cmaes=0.3; % initial search radius for CMAES
-    [minimizer,min_sq_err,counteval,stopflag,out,bestever] = cmaes(f,initial(fixed_params==0)'./scaling(fixed_params==0),sigma_cmaes,opts);
+    [minimizer,min_sq_err,counteval,stopflag,out,bestever] = cmaes(f,initial(fixed_params==0)'./scaling(fixed_params==0)',sigma_cmaes,opts);
+    minimizer=minimizer';
     fprintf('CMAES counteval: %d, stopflag: %s\n',counteval,string(stopflag));
     disp(out);
     disp(bestever);

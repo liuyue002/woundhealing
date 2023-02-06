@@ -1,4 +1,4 @@
-load('simulations/kevindata_circle_xy5_20220405_raw.mat');
+load('simulations/kevindata_circle_xy1_20220405_raw.mat');
 noisy_data=C_radial_avg;
 nFrame=size(noisy_data,1);
 ic=noisy_data(1,:)';
@@ -9,10 +9,10 @@ x_skip=1;
 N=prod(ceil(size(noisy_data)./[t_skip,x_skip])); % number of data pts
 threshold=-1;
 
-fixed_param_val=[1150,0.234,1.05,1.10,1,0,2540]; % a 'good guess' for param values
+fixed_param_val=[1692,0.1844,1.0196,0.6993,1,0,2587]; % a 'good guess' for param values
 % range of param values to scan over for profile likelihood
-lb=[1050, 0.210, 0.95, 0.90, 1.50, 0.00, 2500]; 
-ub=[1250, 0.250, 1.15, 1.20, 9.00, 0.10, 2600];
+lb=[1550, 0.12, 0.80, 0.50, 0.80, 0.00, 2570]; 
+ub=[1850, 0.25, 1.10, 0.90, 1.70, 0.06, 2600];
 %scaling = [1000, 1, 1, 1, 1, 1, 1000];
 scaling = nan;
 param_names={'D0','r','alpha','beta','gamma','n','k'};
@@ -34,7 +34,7 @@ diary(logfile);
 fprintf('start run on: %s\n',string(datetime('now'), 'yyyy/MM/dd HH:mm:ss'));
 %% overall minimizer
 
-[overall_minimizer,sigma,max_l,param_str,~,~] = optimize_likelihood(fixed,fixed_param_val,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,2,rs,noiseweight,scaling);
+[overall_minimizer,sigma,max_l,param_str,~,~] = optimize_likelihood(fixed,fixed_param_val,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,rs,noiseweight,scaling);
 fprintf(['Overall max likelihood param is: ',repmat('%.3f,',size(overall_minimizer)),'sigma=%.3f,maxLikelihood=%.3f\n'],overall_minimizer,sigma,max_l);
 
 aic = -2*max_l + 2*num_free_params;
@@ -72,14 +72,14 @@ for param=1:num_params
         %initial(fixed_params==0)=optimal_param_vals(fixed_params==0);
         initial(fixed_params==0)=minimizers{param,i-1};
         initial(param)=param_vals(param,i);
-        [minimizer,~,max_ls(param,i),~,~,~] = optimize_likelihood(fixed_params,initial,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,rs,noiseweight);
+        [minimizer,~,max_ls(param,i),~,~,~] = optimize_likelihood(fixed_params,initial,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,rs,noiseweight,scaling);
         minimizers{param,i}=minimizer;
     end
     for i=mle_idx-1:-1:1
         fprintf('Optimizing for %s=%.3f\n',param_names{param},param_vals(param,i));
         initial(fixed_params==0)=minimizers{param,i+1};
         initial(param)=param_vals(param,i);
-        [minimizer,~,max_ls(param,i),~,~,~] = optimize_likelihood(fixed_params,initial,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,rs,noiseweight);
+        [minimizer,~,max_ls(param,i),~,~,~] = optimize_likelihood(fixed_params,initial,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,rs,noiseweight,scaling);
         minimizers{param,i}=minimizer;
     end
 end

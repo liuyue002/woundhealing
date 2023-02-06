@@ -23,6 +23,8 @@ auto_scale=true;
 if isnan(scaling)
     scaling=ones(size(initial));
     auto_scale=false;
+elseif size(scaling,1)>1
+    scaling=scaling';
 end
 for i=1:size(fixed_params,2)
     if ~fixed_params(i)
@@ -65,10 +67,10 @@ if alg==1
     %options.StepTolerance=1e-4;
     options.ScaleProblem=auto_scale;
     problem.objective=f;
-    problem.x0=initial(fixed_params==0);
+    problem.x0=initial(fixed_params==0)./ scaling(fixed_params==0);
     problem.solver='fmincon';
-    problem.lb=lb(fixed_params==0);
-    problem.ub=ub(fixed_params==0);
+    problem.lb=lb(fixed_params==0)./ scaling(fixed_params==0);
+    problem.ub=ub(fixed_params==0)./ scaling(fixed_params==0);
     problem.options=options;
     [minimizer,min_sq_err,exitflag,fmincon_output,~,grad,hessian] = fmincon(problem);
     fprintf('fmincon exitflag: %d\n',exitflag);
@@ -77,10 +79,10 @@ elseif alg==0
     options=optimoptions('patternsearch');
     options.Display='iter';
     problem.objective=f;
-    problem.x0=initial(fixed_params==0);
+    problem.x0=initial(fixed_params==0)./ scaling(fixed_params==0);
     problem.solver='patternsearch';
-    problem.lb=lb(fixed_params==0);
-    problem.ub=ub(fixed_params==0);
+    problem.lb=lb(fixed_params==0)./ scaling(fixed_params==0);
+    problem.ub=ub(fixed_params==0)./ scaling(fixed_params==0);
     problem.options=options;
     [minimizer,min_sq_err] = patternsearch(problem);
     grad=NaN;
@@ -97,10 +99,10 @@ elseif alg==2
     %options.StepTolerance=1e-4;
     options.ScaleProblem=auto_scale;
     problem.objective=f;
-    problem.x0=initial(fixed_params==0);
+    problem.x0=initial(fixed_params==0)./ scaling(fixed_params==0);
     problem.solver='fmincon';
-    problem.lb=lb(fixed_params==0);
-    problem.ub=ub(fixed_params==0);
+    problem.lb=lb(fixed_params==0)./ scaling(fixed_params==0);
+    problem.ub=ub(fixed_params==0)./ scaling(fixed_params==0);
     problem.options=options;
     [minimizer,min_sq_err,exitflag,gs_output] = run(gs,problem);
     grad=NaN;
@@ -114,7 +116,7 @@ elseif alg==3
     opts.LBounds=lb(fixed_params==0)' ./ scaling(fixed_params==0)';
     opts.UBounds=ub(fixed_params==0)' ./ scaling(fixed_params==0)';
     sigma_cmaes=0.3; % initial search radius for CMAES
-    [minimizer,min_sq_err,counteval,stopflag,out,bestever] = cmaes(f,initial(fixed_params==0)'./scaling(fixed_params==0),sigma_cmaes,opts);
+    [minimizer,min_sq_err,counteval,stopflag,out,bestever] = cmaes(f,initial(fixed_params==0)'./scaling(fixed_params==0)',sigma_cmaes,opts);
     minimizer=minimizer';
     fprintf('CMAES counteval: %d, stopflag: %s\n',counteval,string(stopflag));
     disp(out);

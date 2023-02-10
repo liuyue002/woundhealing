@@ -121,6 +121,8 @@ elseif alg==3
     fprintf('CMAES counteval: %d, stopflag: %s\n',counteval,string(stopflag));
     disp(out);
     disp(bestever);
+    grad=NaN;
+    hessian=NaN;
 else
     error("Unknown optimization algorithm");
 end

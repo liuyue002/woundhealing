@@ -150,13 +150,13 @@ end
 axs=t.Children;
 for i=1:length(axs)
     ax=axs(i);
-    set(ax,'FontSize', 18);
+    set(ax,'FontSize', 16);
     set(findall(ax, 'Type', 'Line'),'LineWidth',2);
 end
 
-t.TileSpacing = 'none';
+t.TileSpacing = 'tight';
 t.Padding = 'none';
 
 %%
-saveas(figg,'figure/syndata_figtable2.fig');
-saveas(figg,'figure/syndata_figtable2.png');
+%saveas(figg,'figure/syndata_figtable2.fig');
+%saveas(figg,'figure/syndata_figtable2.png');

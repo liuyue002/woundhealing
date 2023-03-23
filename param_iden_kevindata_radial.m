@@ -4,15 +4,15 @@ nFrame=size(noisy_data,1);
 ic=noisy_data(1,:)';
 dt=1/3;
 T=(nFrame-1)*dt+0.001;% helps with off-by-1 rounding
-t_skip=1;
+t_skip=36;
 x_skip=1;
 N=prod(ceil(size(noisy_data)./[t_skip,x_skip])); % number of data pts
 threshold=-1;
 
-fixed_param_val=[1692,0.1844,1.0196,0.6993,1,0,2587]; % a 'good guess' for param values
+fixed_param_val=[2020,0.129,1.04,0.50,1,0,2651]; % a 'good guess' for param values
 % range of param values to scan over for profile likelihood
-lb=[1550, 0.12, 0.80, 0.50, 0.80, 0.00, 2570]; 
-ub=[1850, 0.25, 1.10, 0.90, 1.70, 0.06, 2600];
+lb=[1700, 0.005, 0.80, 0.30, 0.70, 0.00, 2550]; 
+ub=[2500, 0.300, 1.60, 1.80, 1.50, 0.13, 2900];
 %scaling = [1000, 1, 1, 1, 1, 1, 1000];
 scaling = nan;
 param_names={'D0','r','alpha','beta','gamma','n','k'};
@@ -24,17 +24,17 @@ num_free_params=sum(1-fixed);
 numeric_params=[T, dt/100, 100, NaN, NaN, 1];
 
 % feasible range for the optimization algorithm
-lb_opt=[ 100, 0.01,  0.01,  0.01,  0.01, 0,   500]; %[0,0,0,0,0,0,0]
-ub_opt=[5000, 5.00,   9.0,   9.0,   9.0, 4, 20000]; %[20000,5,10,10,10,10,10000]
+lb_opt=[ 100, 0.001,  0.01,  0.01,  0.01, 0,   500]; %[0,0,0,0,0,0,0]
+ub_opt=[5000, 3.000,   9.0,   9.0,   9.0, 3, 20000]; %[20000,5,10,10,10,10,10000]
 noiseweight = max(num_pts_in_bins,1)';
 starttime=string(datetime,'yyyyMMddHHmm');
-figtitle=sprintf(['radial1D,weighted,fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',%s'],fixed,fixed_param_val,threshold,t_skip,x_skip,starttime);
+figtitle=sprintf(['radial1D,weighted,lowdata,fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',%s'],fixed,fixed_param_val,threshold,t_skip,x_skip,starttime);
 logfile = [prefix,'_',figtitle,'_log.txt'];
 diary(logfile);
 fprintf('start run on: %s\n',string(datetime('now'), 'yyyy/MM/dd HH:mm:ss'));
 %% overall minimizer
 
-[overall_minimizer,sigma,max_l,param_str,~,~] = optimize_likelihood(fixed,fixed_param_val,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,rs,noiseweight,scaling);
+[overall_minimizer,sigma,max_l,param_str,~,~] = optimize_likelihood(fixed,fixed_param_val,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,3,rs,noiseweight,scaling);
 fprintf(['Overall max likelihood param is: ',repmat('%.3f,',size(overall_minimizer)),'sigma=%.3f,maxLikelihood=%.3f\n'],overall_minimizer,sigma,max_l);
 
 aic = -2*max_l + 2*num_free_params;
@@ -72,15 +72,17 @@ for param=1:num_params
         %initial(fixed_params==0)=optimal_param_vals(fixed_params==0);
         initial(fixed_params==0)=minimizers{param,i-1};
         initial(param)=param_vals(param,i);
-        [minimizer,~,max_ls(param,i),~,~,~] = optimize_likelihood(fixed_params,initial,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,rs,noiseweight,scaling);
+        [minimizer,~,max_ls(param,i),~,~,~] = optimize_likelihood(fixed_params,initial,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,3,rs,noiseweight,scaling);
         minimizers{param,i}=minimizer;
+        save([prefix,'_',figtitle,'.mat'],'-mat');
     end
     for i=mle_idx-1:-1:1
         fprintf('Optimizing for %s=%.3f\n',param_names{param},param_vals(param,i));
         initial(fixed_params==0)=minimizers{param,i+1};
         initial(param)=param_vals(param,i);
-        [minimizer,~,max_ls(param,i),~,~,~] = optimize_likelihood(fixed_params,initial,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,rs,noiseweight,scaling);
+        [minimizer,~,max_ls(param,i),~,~,~] = optimize_likelihood(fixed_params,initial,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,3,rs,noiseweight,scaling);
         minimizers{param,i}=minimizer;
+        save([prefix,'_',figtitle,'.mat'],'-mat');
     end
 end
 
@@ -129,6 +131,9 @@ end
 
 %% fisher info
 ff_str=strcat('ff=@(x) get_reduced_model_data(',param_str,',numeric_params,t_skip,x_skip,1,ic,rs);');
+if isnan(scaling)
+    scaling=ones(size(fixed_param_val));
+end
 N=prod(ceil(size(noisy_data)./[t_skip,x_skip])); % number of data pts
 eval(ff_str);
 dXdtheta=zeros(N,num_free_params);

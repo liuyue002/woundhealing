@@ -27,7 +27,7 @@ elseif size(scaling,1)>1
     scaling=scaling';
 end
 for i=1:size(fixed_params,2)
-    if ~fixed_params(i)
+    if ~fixed_params(i) 
         param_str=strcat(param_str,'x(',num2str(paramcount),')*scaling(',num2str(i),'),');
         paramcount = paramcount+1;
     else
@@ -116,9 +116,12 @@ elseif alg==3
     sigma_cmaes=0.3; % initial search radius for CMAES
     [minimizer,min_sq_err,counteval,stopflag,out,bestever] = cmaes(f,initial(fixed_params==0)'./scaling(fixed_params==0)',sigma_cmaes,opts);
     minimizer=minimizer';
-    fprintf('CMAES counteval: %d, stopflag: %s\n',counteval,string(stopflag));
+    fprintf('CMAES counteval: %d, stopflag: \n',counteval);
+    disp(stopflag);
     disp(out);
     disp(bestever);
+    grad=NaN;
+    hessian=NaN;
 else
     error("Unknown optimization algorithm");
 end

@@ -3,7 +3,7 @@ nx=150;
 ic=zeros(nx,1);
 k=2600;
 ic(1:60)=k;
-[prefix,~,~] = woundhealing_1d([2500,0.14,1,1,8,0,2300],[25,1/30,10,2190,nx,0],1,ic,nan);
+[prefix,~,~] = woundhealing_1d([1800,0.17,1,1,2,0,2600],[25,1/30,10,2190,nx,0],1,ic,nan);
 %[prefix,~,~] = woundhealing_1d([500,0.12,1.5,1.4,1,0],200,1);
 load([prefix,'.mat']);
 

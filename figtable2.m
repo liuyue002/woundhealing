@@ -1,7 +1,7 @@
 figg=figure('Position',[50,50,1200,900],'color','w');
 %sgtitle('xy1, 1D');
 num_params=7;
-ranges={[1270,1570],[0.09,0.28],[1.1,1.4],[1.1,1.4],[1.1,1.3],[0,0.1],[2610,2710]};
+ranges={[1240,1590],[0.08,0.30],[1.1,1.4],[1.0,1.4],[1.1,1.5],[0,0.1],[2600,2720]};
 range_width=[80,0.04,1,1,0.1,0.02,20];
 t = tiledlayout(4,5);
 %%
@@ -26,12 +26,14 @@ for i=1:3
     xlabel(['$',param_names{param},'$'],'Interpreter','latex');
     ylabel('$\log(L)$','Interpreter','latex');
     axis('square');
-    xrange=[round(optimal_param_vals(param)-range_width(param)/2,4,'significant'),round(optimal_param_vals(param)+range_width(param)/2,4,'significant')];
+    %xrange=[round(optimal_param_vals(param)-range_width(param)/2,4,'significant'),round(optimal_param_vals(param)+range_width(param)/2,4,'significant')];
+    xrange=ranges{param};
     xlim(xrange);
     xticks(xrange);
     ylim([-2.5,0]);
     hold off;
     yticks([-2,0]);
+    xtickangle(0);
 end
 nexttile;set(gca,'visible','off');
 %%
@@ -56,13 +58,15 @@ for i=1:4
     xlabel(['$',param_names{param},'$'],'Interpreter','latex');
     ylabel('$\log(L)$','Interpreter','latex');
     axis('square');
-    xrange=[round(optimal_param_vals(param)-range_width(param)/2,4,'significant'),round(optimal_param_vals(param)+range_width(param)/2,4,'significant')];
+    %xrange=[round(optimal_param_vals(param)-range_width(param)/2,4,'significant'),round(optimal_param_vals(param)+range_width(param)/2,4,'significant')];
+    xrange=ranges{param};
     xlim(xrange);
     xticks(xrange);
     xtickformat('%.4g');
     ylim([-2.5,0]);
     hold off;
     yticks([-2,0]);
+    xtickangle(0);
 end
 
 %%
@@ -71,7 +75,7 @@ param_names={'D_0','r','\alpha','\beta','\gamma','\eta','K'};
 figure(figg);
 param_inds=[1,2,7,5];
 nexttile;
-text(-1,0,{'Porous','Fisher'},'Interpreter','latex','FontSize',20);
+text(-1,0,{'Richards'},'Interpreter','latex','FontSize',20);
 axis([-1,1,-1,1]);
 axis off;
 for i=1:4
@@ -87,13 +91,15 @@ for i=1:4
     xlabel(['$',param_names{param},'$'],'Interpreter','latex');
     ylabel('$\log(L)$','Interpreter','latex');
     axis('square');
-    xrange=[round(optimal_param_vals(param)-range_width(param)/2,4,'significant'),round(optimal_param_vals(param)+range_width(param)/2,4,'significant')];
+    %xrange=[round(optimal_param_vals(param)-range_width(param)/2,4,'significant'),round(optimal_param_vals(param)+range_width(param)/2,4,'significant')];
+    xrange=ranges{param};
     xlim(xrange);
     xticks(xrange);
     xtickformat('%.4g');
     ylim([-2.5,0]);
     hold off;
     yticks([-2,0]);
+    xtickangle(0);
 end
 
 %%
@@ -119,13 +125,15 @@ for i=1:4
     xlabel(['$',param_names{param},'$'],'Interpreter','latex');
     ylabel('$\log(L)$','Interpreter','latex');
     axis('square');
-    xrange=[round(optimal_param_vals(param)-range_width(param)/2,4,'significant'),round(optimal_param_vals(param)+range_width(param)/2,4,'significant')];
+    %xrange=[round(optimal_param_vals(param)-range_width(param)/2,4,'significant'),round(optimal_param_vals(param)+range_width(param)/2,4,'significant')];
+    xrange=ranges{param};
     xlim(xrange);
     xticks(xrange);
     xtickformat('%.4g');
     ylim([-2.5,0]);
     hold off;
     yticks([-2,0]);
+    xtickangle(0);
     else
     nexttile;
     hold on
@@ -144,6 +152,7 @@ for i=1:4
     xlim(ranges{param});
     xticks([ranges{param}(1),ranges{param}(2)]);
     yticks([-2,0]);
+    xtickangle(0);
     
     %xlabel('$\alpha, \beta$','Interpreter','latex');
     legend('Location','eastoutside');
@@ -154,13 +163,14 @@ end
 axs=t.Children;
 for i=1:length(axs)
     ax=axs(i);
-    set(ax,'FontSize', 18);
+    set(ax,'FontSize', 16);
     set(findall(ax, 'Type', 'Line'),'LineWidth',2);
 end
 
-t.TileSpacing = 'none';
+%t.TileSpacing = 'none';
+t.TileSpacing = 'tight';
 t.Padding = 'none';
 
 %%
-saveas(figg,'figure/xy1_2d_figtable2.fig');
-saveas(figg,'figure/xy1_2d_figtable2.png');
+saveas(figg,'figure/xy1_2d_figtable3.fig');
+saveas(figg,'figure/xy1_2d_figtable3.png');

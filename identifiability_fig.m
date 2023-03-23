@@ -1,0 +1,10 @@
+figure('Color','w');
+x=linspace(0,2,100);
+plot(x,-30*(x-0.7).^2);
+xlabel('r');
+ylabel('Quality of fit');
+xlim([0,2]);
+ylim([-2.5,0]);
+yticks([]);
+xticks([0.7]);
+box off;

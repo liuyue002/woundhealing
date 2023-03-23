@@ -26,7 +26,11 @@ gamma=params(5);
 n=params(6);
 k=params(7);
 D = @(c) D0*(c./k).^n;
-f = @(c) r*c.^alpha .* (abs(1-(c./k).^gamma)).^beta .*sign(1-c./k);
+if gamma ~= Inf
+    f = @(c) r*c.^alpha .* (abs(1-(c./k).^gamma)).^beta .*sign(1-c./k);
+else
+    f = @(c) r*c.^alpha;
+end
 %noisestrength = 0; % default 0 - 0.01
 %fisherspeed = 2*sqrt(r*D0);
 %fprintf('Fisher speed: %.3f\n', fisherspeed);
@@ -151,6 +155,9 @@ for ti=1:1:nt
     crhs = cvec + dt*(fvec + (1-th)*A*cvec);
     cnew = Tc\crhs;
     c = reshape(cnew,[nx,nx]);
+    if gamma == Inf
+        c = min(c,k);
+    end
     %c = c + normrnd(0,noisestrength,size(c));
     
     c = max(c,0);

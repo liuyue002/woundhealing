@@ -73,6 +73,7 @@ if alg==1
     problem.ub=ub(fixed_params==0)./ scaling(fixed_params==0);
     problem.options=options;
     [minimizer,min_sq_err,exitflag,fmincon_output,~,grad,hessian] = fmincon(problem);
+    minimizer=minimizer.*scaling(fixed_params==0);
     fprintf('fmincon exitflag: %d\n',exitflag);
     disp(fmincon_output); % full display
 elseif alg==0
@@ -85,6 +86,7 @@ elseif alg==0
     problem.ub=ub(fixed_params==0)./ scaling(fixed_params==0);
     problem.options=options;
     [minimizer,min_sq_err] = patternsearch(problem);
+    minimizer=minimizer.*scaling(fixed_params==0);
     grad=NaN;
     hessian=NaN;
 elseif alg==2
@@ -107,6 +109,7 @@ elseif alg==2
     [minimizer,min_sq_err,exitflag,gs_output] = run(gs,problem);
     grad=NaN;
     hessian=NaN;
+    minimizer=minimizer.*scaling(fixed_params==0);
     fprintf('gs exitflag: %d\n',exitflag);
     disp(gs_output); % full display
 elseif alg==3
@@ -117,7 +120,7 @@ elseif alg==3
     opts.UBounds=ub(fixed_params==0)' ./ scaling(fixed_params==0)';
     sigma_cmaes=0.3; % initial search radius for CMAES
     [minimizer,min_sq_err,counteval,stopflag,out,bestever] = cmaes(f,initial(fixed_params==0)'./scaling(fixed_params==0)',sigma_cmaes,opts);
-    minimizer=minimizer';
+    minimizer=minimizer'.*scaling(fixed_params==0);
     fprintf('CMAES counteval: %d, stopflag: %s\n',counteval,string(stopflag));
     disp(out);
     disp(bestever);

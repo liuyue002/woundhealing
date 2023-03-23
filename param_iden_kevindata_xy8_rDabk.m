@@ -14,9 +14,10 @@ t_skip=1;
 x_skip=1;
 threshold=-1;
 
-fixed_param_val=[3391.5085,0.017592,1.64596,0.41965,1,0,2222.5736];
-lb=[3250, 0.010, 1.3, 0.25, 0.60, 0.00, 2100];
-ub=[3550, 0.030, 1.9, 0.65, 1.60, 1.00, 2300];
+fixed_param_val=[3184,0.024,1.234,0.135,1,0,2217];
+lb=[3000, 0.015, 1.1, 0.08, 0.60, 0.00, 2200];
+ub=[3350, 0.030, 1.3, 0.18, 1.60, 1.00, 2230];
+scaling=[1000,1,1,1,1,1,1000];
 param_names={'D0','r','alpha','beta','gamma','n','k'};
 %leave sigma out
 num_params=size(fixed_param_val,2);
@@ -25,10 +26,10 @@ fixed=[0,0,0,0,1,1,0];
 num_free_params=sum(1-fixed);
 numeric_params=[T, dt/10, 10, 4380, 4380, 150, 150];
 % feasible range for the optimization algorithm
-lb_opt=[ 100, 0.001, 0.1, 0.01, 0.1, 0,  500]; %[0,0,0,0,0,0,0]
-ub_opt=[5000, 1.000, 9.0, 9.00, 9.0, 4, 5000]; %[20000,5,10,10,10,10,10000]
+lb_opt=[ 100, 0.01, 0.1, 0.01, 0.1, 0,  500]; %[0,0,0,0,0,0,0]
+ub_opt=[5000, 1.00, 2.0, 9.00, 9.0, 4, 5000]; %[20000,5,10,10,10,10,10000]
 
-figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',2'],fixed,fixed_param_val,threshold,t_skip,x_skip);
+figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',4_cmaes'],fixed,fixed_param_val,threshold,t_skip,x_skip);
 logfile = [prefix,'_',figtitle,'_log.txt'];
 diary(logfile);
 fprintf('start run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
@@ -68,7 +69,7 @@ fprintf('%s\n',matlab.unittest.diagnostics.ConstraintDiagnostic.getDisplayableSt
 % % exit;%%%%%%%%%%%%%%
 
 %% overall minimizer
-[overall_minimizer,sigma,max_l,param_str,~,~] = optimize_likelihood(fixed,fixed_param_val,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,NaN,NaN,NaN);
+[overall_minimizer,sigma,max_l,param_str,~,~] = optimize_likelihood(fixed,fixed_param_val,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,NaN,NaN,scaling);
 fprintf(['Overall max likelihood param is: ',repmat('%.3f,',size(overall_minimizer)),'sigma=%.3f,\n'],overall_minimizer,sigma);
 %figure(fig);
 %hold on
@@ -86,7 +87,7 @@ save([prefix,'_',figtitle,'.mat'],'-mat');
 
 %% profile likelihood
 
-numpts=21;
+numpts=11;
 param_vals=zeros(num_params,numpts);
 max_ls=zeros(num_params,numpts);
 minimizers=cell(num_params,numpts);
@@ -110,7 +111,7 @@ for param=1:num_params
 %         end
         initial(fixed_params==0)=optimal_param_vals(fixed_params==0);
         initial(param)=param_vals(param,i);
-        [minimizer,~,max_ls(param,i),~,~,~] = optimize_likelihood(fixed_params,initial,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,NaN,NaN,NaN);
+        [minimizer,~,max_ls(param,i),~,~,~] = optimize_likelihood(fixed_params,initial,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,3,NaN,NaN,scaling);
         minimizers{param,i}=minimizer;
     end
 end

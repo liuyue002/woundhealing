@@ -30,7 +30,7 @@ numeric_params=[T, dt/10, 10, 4380, 4380, 150, 150];
 lb_opt=[ 100, 0.01, 0.1, 0.1, 0.1, 0,  500]; %[0,0,0,0,0,0,0]
 ub_opt=[5000, 1.00, 9.0, 9.0, 9.0, 4, 5000]; %[20000,5,10,10,10,10,10000]
 
-figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',12'],fixed,fixed_param_val,threshold,t_skip,x_skip);
+figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',13'],fixed,fixed_param_val,threshold,t_skip,x_skip);
 logfile = [prefix,'_',figtitle,'_log.txt'];
 diary(logfile);
 fprintf('start run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
@@ -112,7 +112,7 @@ for param=1:num_params
 %         end
         initial(fixed_params==0)=optimal_param_vals(fixed_params==0);
         initial(param)=param_vals(param,i);
-        [minimizer,~,max_ls(param,i),~,~,~] = optimize_likelihood(fixed_params,initial,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,3,NaN,NaN,scaling);
+        [minimizer,~,max_ls(param,i),~,~,~] = optimize_likelihood(fixed_params,initial,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,NaN,NaN,scaling);
         minimizers{param,i}=minimizer;
         save([prefix,'_',figtitle,'.mat'],'-mat');
     end

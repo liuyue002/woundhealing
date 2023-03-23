@@ -2,7 +2,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=10
 #SBATCH --clusters=htc
-#SBATCH --time=144:00:00
+#SBATCH --time=400:00:00
 #SBATCH --job-name=4rDabk
 #SBATCH --partition=long
 #SBATCH --mail-user=yue.liu@maths.ox.ac.uk

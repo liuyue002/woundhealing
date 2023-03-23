@@ -14,9 +14,9 @@ t_skip=1;
 x_skip=1;
 threshold=-1;
 
-fixed_param_val=[3041,0.013,1.348,0.17,1,0,2288];
-lb=[3000, 0.010, 1.2, 0.07, 7.70, 0.00, 2250];
-ub=[3100, 0.016, 1.5, 0.17, 8.00, 1.00, 2300];
+fixed_param_val=[3414,0.041,1.147,0.010,1,0,2305];
+lb=[3000, 0.03, 1.0, 0.01, 7.70, 0.00, 2290];
+ub=[3800, 0.05, 1.3, 0.02, 8.00, 1.00, 2320];
 param_names={'D0','r','alpha','beta','gamma','n','k'};
 %leave sigma out
 num_params=size(fixed_param_val,2);
@@ -29,7 +29,7 @@ scaling=[1000, 1, 1, 1, 1, 1, 1000];
 lb_opt=[ 100, 0.001, 0.01, 0.01, 0.1, 0,  500]; %[0,0,0,0,0,0,0]
 ub_opt=[5000, 1.000, 9.00, 9.00, 9.0, 4, 5000]; %[20000,5,10,10,10,10,10000]
 
-figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',17'],fixed,fixed_param_val,threshold,t_skip,x_skip);
+figtitle=sprintf(['fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',19_cmaes'],fixed,fixed_param_val,threshold,t_skip,x_skip);
 logfile = [prefix,'_',figtitle,'_log.txt'];
 diary(logfile);
 fprintf('start run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));

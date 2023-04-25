@@ -1,7 +1,7 @@
 xx=linspace(0,10,100);
 
-figg=figure('position',[200,200,1440,250],'color','w');
-t = tiledlayout(1,5);
+figg=figure('position',[200,200,1000,600],'color','w');
+t = tiledlayout(2,3);
 
 
 %%
@@ -14,7 +14,6 @@ xlabel('$\theta$','interpreter','latex');
 ylabel('$\log(L)$','interpreter','latex');
 xlim([0,10]);
 ylim([-2.5,0]);
-text(-5,0.0,'(a)','interpreter','latex','FontSize',20);
 %% flat top
 nexttile;
 
@@ -26,7 +25,8 @@ xlabel('$\theta$','interpreter','latex');
 ylabel('$\log(L)$','interpreter','latex');
 xlim([0,10]);
 ylim([-2.5,0]);
-text(-5,0.0,'(b)','interpreter','latex','FontSize',20);
+nexttile;
+axis off;
 %% 
 nexttile;
 
@@ -40,7 +40,6 @@ xlabel('$\theta$','interpreter','latex');
 ylabel('$\log(L)$','interpreter','latex');
 xlim([0,10]);
 ylim([-2.5,0]);
-text(-5,0.0,'(c)','interpreter','latex','FontSize',20);
 %% infinite range
 nexttile;
 
@@ -52,7 +51,6 @@ xlabel('$\theta$','interpreter','latex');
 ylabel('$\log(L)$','interpreter','latex');
 xlim([0,10]);
 ylim([-2.5,0]);
-text(-5,0.0,'(d)','interpreter','latex','FontSize',20);
 %% bimodal
 nexttile;
 yy = -0.3*(xx-2).*(xx-3).*(xx-6).*(xx-7.1)-1.5;
@@ -63,7 +61,6 @@ xlabel('$\theta$','interpreter','latex');
 ylabel('$\log(L)$','interpreter','latex');
 xlim([0,10]);
 ylim([-2.5,0]);
-text(-5,0.0,'(e)','interpreter','latex','FontSize',20);
 %% 
 axs=t.Children;
 for i=1:length(axs)
@@ -77,5 +74,5 @@ t.TileSpacing = 'tight';
 t.Padding = 'none';
 
 %%
-saveas(figg,'figure/identifiability.fig');
-saveas(figg,'figure/identifiability.eps','epsc');
+saveas(figg,'figure/identifiability2.fig');
+saveas(figg,'figure/identifiability2.eps','epsc');

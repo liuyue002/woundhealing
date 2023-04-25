@@ -191,6 +191,7 @@ nplot.FaceColor='flat';
 nplot.CData=[1,1,0,0,1,1,0,0]*permutation;
 ylim([0,1.2]);
 yticks([0,0.4,0.8,1.2]);
+yticklabels({'0.0','0.4','0.8','1.2'});
 xlabel('Experiment','Interpreter','latex');
 title('$\eta$','Interpreter','latex');
 
@@ -400,6 +401,7 @@ aplot.FaceColor='yellow';
 %aplot.CData=[1,1,1,1];
 ylim([1,1.3]);
 yticks([1,1.1,1.2,1.3]);
+yticklabels({'1.0','1.1','1.2','1.3'});
 xlabel('Experiment','Interpreter','latex');
 title('$\alpha$','Interpreter','latex');
 nexttile;

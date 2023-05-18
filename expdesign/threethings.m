@@ -125,23 +125,34 @@ lb_opt=-10*ones(size(params));
 ub_opt=10*ones(size(params));
 opt.lb=lb_opt;
 opt.ub=ub_opt;
+opt.logging=true;
 fixed_param_val=params;
-[mle,mle_sigma,max_l]=optimize_likelihood_general(@threethings_solnf,params,fixed,noisy_data,numeric_params,x0,opt);
+[mle,mle_sigma,max_l]=optimize_likelihood_general(@threethings_sq_err,params,fixed,noisy_data,numeric_params,x0,opt);
 
 optimal_param_vals=fixed_param_val';
 optimal_param_vals(fixed==0)=mle;
 
-%% profile likelihood for the c parameters, all params free
+disp(optimal_param_vals);
+mle_soln=threethings_solnf(optimal_param_vals,numeric_params,x0);
+figure;
+hold on;
+plot(tt,mle_soln(1,:));
+plot(tt,mle_soln(2,:));
+plot(tt,mle_soln(3,:));
+ylim([0,15]);
+legend('A','B','C');
+
+%% profile likelihood for the c parameters
 
 %fixed=[1,1,1,1,1,0,0,0,0];
 num_free_params=sum(1-fixed);
 true_params=params;
-fixed_param_val= [1.00, 0.10, 0.10, 0.20, 0.21, 0.00, 0.25, 0.25, 1.00];
+fixed_param_val= [1.00, 0.10, 0.10, 0.40, 0.50,  0.00,  0.25,  0.25, 1.00];
 lb=              [0.00, 0.00, 0.10, 0.00, 0.00, -0.80, -1.50, -1.50, 0.50];
 ub=              [2.00, 2.00, 2.00, 2.00, 2.00,  0.80,  1.50,  1.50, 1.50];
 % diagonal params (2, 5, 9) must be nonzero
 scaling = ones(size(fixed_param_val));
-opt.logging=false;
+%opt.logging=false;
 opt.scaling=scaling;
 num_params=size(params,2);
 starttime=string(datetime,'yyyyMMddHHmm');
@@ -170,7 +181,7 @@ for param=[6,7,8,9] %[6,7,8,9]
         fprintf('Optimizing for %s=%.3f\n',param_names{param},param_vals(param,i));
         initial(fixed_params==0)=minimizers{param,i-1};
         initial(param)=param_vals(param,i);
-        [minimizer,~,max_ls(param,i)] = optimize_likelihood_general(@threethings_solnf,initial,fixed_params,noisy_data,numeric_params,x0,opt);
+        [minimizer,~,max_ls(param,i)] = optimize_likelihood_general(@threethings_sq_err,initial,fixed_params,noisy_data,numeric_params,x0,opt);
         minimizers{param,i}=minimizer;
         %save([prefix,'_',figtitle,'.mat'],'-mat');
     end
@@ -178,7 +189,7 @@ for param=[6,7,8,9] %[6,7,8,9]
         fprintf('Optimizing for %s=%.3f\n',param_names{param},param_vals(param,i));
         initial(fixed_params==0)=minimizers{param,i+1};
         initial(param)=param_vals(param,i);
-        [minimizer,~,max_ls(param,i)] = optimize_likelihood_general(@threethings_solnf,initial,fixed_params,noisy_data,numeric_params,x0,opt);
+        [minimizer,~,max_ls(param,i)] = optimize_likelihood_general(@threethings_sq_err,initial,fixed_params,noisy_data,numeric_params,x0,opt);
         minimizers{param,i}=minimizer;
         %save([prefix,'_',figtitle,'.mat'],'-mat');
     end

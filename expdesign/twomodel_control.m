@@ -1,8 +1,7 @@
 %% set up
-f = @(C,t,r,d,gamma,K,uk) r*C.*(1-(C./(K-uk(t))).^gamma)-d*C;
-ff = @(C,r,d,gamma,K,u) r*C.*(1-(C./(K-u)).^gamma)-d*C;
-dfdC= @(C,t,r,d,gamma,K,uk) r*(1-(1+gamma)*(C./(K-uk(t))).^gamma)-d;
-dfduk= @(C,t,r,d,gamma,K,uk) -r*gamma*(C./(K-uk)).^(gamma+1);
+f = @(C,r,d,gamma,K,uk) r*C.*(1-(C./(K-uk)).^gamma)-d*C;
+dfdC= @(C,r,d,gamma,K,uk) r*(1-(1+gamma)*(C./(K-uk)).^gamma)-d;
+%dfduk= @(C,r,d,gamma,K,uk) -r*gamma*(C./(K-uk)).^(gamma+1);
 
 r1=0.45;
 d1=0.15;
@@ -17,13 +16,23 @@ K2=2600;
 C0=100;
 T=25;
 opts = odeset('RelTol',1e-4,'AbsTol',1e-4);
-alpha=0.01; % weight of control cost
-omega=0.95; % control update rate
+alpha=0.03; % weight of control cost
+omega=0.05; % control update rate
+uklim = 1200; %upper bound for uk
 
-H = @(C1,C2,lambda1,lambda2,t,u) (C1-C2).^2-alpha*u.^2 + lambda1*ff(C1,r1,d1,gamma1,K1,u) + lambda2*ff(C2,r2,d2,gamma2,K2,u);
+H = @(C1,C2,lambda1,lambda2,u) (C1-C2).^2-alpha*u.^2 + lambda1*f(C1,r1,d1,gamma1,K1,u) + lambda2*f(C2,r2,d2,gamma2,K2,u);
 fminconopts=optimoptions('fmincon');
 fminconopts.Display='none';
-%% forward-backward sweep
+filename=sprintf('simulations/twomodel_control_%s_alpha=%.2f,omega=%.2f',string(datetime,'yyyyMMdd_HHmmss'),alpha,omega);
+makeplot=true;
+giffile=[filename,'.gif'];
+logfile=[filename,'.txt'];
+matfile=[filename,'.mat'];
+if makeplot
+    diary(logfile);
+end
+fprintf('start run on: %s\n',string(datetime,'yyyyMMdd_HHmmss'));
+%% figure and initializations
 % initial guess
 %uk=@(t) ((t>5)&(t<(10)))*800;
 %uk=@(t) ((t>5)&(t<(15)))*1200;
@@ -32,56 +41,62 @@ uk=@(t) 1000;
 tfine=linspace(0,T,500);
 uknum=uk(tfine);
 Lambinit=[0;0];
-
-makeplot=true;
 Jold=nan;
 
 if makeplot
-    fig=figure('visible','on','Position',[0,0,2000,800]);
-    ax1=subplot(1,2,1);
+    fig=figure('visible','on','Position',[50,200,1700,600]);
+    tiles=tiledlayout(1,3);
+    ax1=nexttile;
     hold on
     c1plot=plot(ax1,[0],[0]);
     c2plot=plot(ax1,[0],[0]);
     cdiffplot=plot(ax1,[0],[0]);
     uplot=plot(ax1,[0],[0]);
     hold off
+    xlabel('t');
     legend('C_1','C_2','|C_1-C_2|','u');
     xlim([0,T]);
-    ylim([0,3000]);
+    ylim([0,2600]);
     xtitle=title('Forward');
     %set(ax1,'FontSize', 20);
     %set(findall(ax1, 'Type', 'Line'),'LineWidth',4);
-    ax2=subplot(1,2,2);
+    ax2=nexttile;
     hold on
     l1plot=plot(ax2,[0],[0]);
     l2plot=plot(ax2,[0],[0]);
     hold off
+    xlabel('t');
     legend('\lambda_1','\lambda_2');
     xlim([0,T]);
     %ylim([0,3]);
     ltitle=title('Backward');
+    ax3=nexttile;
+    uknewplot=plot(ax3,[0],[0]);
+    xlabel('t');
+    ylabel('uknew');
+    xlim([0,T]);
+    ylim([0,uklim+100]);
+    title('u update');
     %set(ax2,'FontSize', 20);
     %set(findall(ax2, 'Type', 'Line'),'LineWidth',4);
     figtitle=sgtitle('title');
-    filename='twomodel_control_2.gif';
-
-    fig2=figure;
-    uknewplot=plot([0],[0]);
-    xlabel('t');
-    ylabel('uknew');
+    tiles.Padding="tight";
+    tiles.TileSpacing="tight";
 end
+
+%% forward-backward sweep
 
 for iter=1:1000
     %forward
-    odefunC=@(t,C) [f(C(1),t,r1,d1,gamma1,K1,uk);
-                 f(C(2),t,r2,d2,gamma2,K2,uk)];
+    odefunC=@(t,C) [f(C(1),r1,d1,gamma1,K1,uk(t));
+                    f(C(2),r2,d2,gamma2,K2,uk(t))];
     [t,X]=ode45(odefunC,[0,T],[C0;C0],opts);
     
     %backward
     C1fun=@(tt)interp1q(t,X(:,1),tt)';
     C2fun=@(tt)interp1q(t,X(:,2),tt)';
-    odefunLamb=@(t,lambdas) [-2*(C1fun(t)-C2fun(t))-lambdas(1)*dfdC(C1fun(t),t,r1,d1,gamma1,K1,uk);
-                              2*(C1fun(t)-C2fun(t))-lambdas(2)*dfdC(C2fun(t),t,r2,d2,gamma2,K2,uk);];
+    odefunLamb=@(t,lambdas) [-2*(C1fun(t)-C2fun(t))-lambdas(1)*dfdC(C1fun(t),r1,d1,gamma1,K1,uk(t));
+                              2*(C1fun(t)-C2fun(t))-lambdas(2)*dfdC(C2fun(t),r2,d2,gamma2,K2,uk(t));];
     [t2,Lamb]=ode45(odefunLamb,[T,0],Lambinit,opts);
     %reverse the time
     t2=flipud(t2);
@@ -99,7 +114,7 @@ for iter=1:1000
     Jold=Jnew;
     
     if makeplot
-        figure(fig);
+        %figure(fig);
         %cla(ax1);
         c1plot.XData=t;
         c1plot.YData=X(:,1);
@@ -115,16 +130,7 @@ for iter=1:1000
         l2plot.XData=t2;
         l2plot.YData=Lamb(:,2);
         figtitle.String=['Iteration=',num2str(iter),', Jcontrol=',num2str(Jcontrol,'%.02f'),', Jmodel=',num2str(Jmodel,'%.02f'),', Jtotal=',num2str(Jnew,'%.02f'),];
-        drawnow;
-        % saveas(fig,['alm_iter_',num2str(iter,'%03d'),'.png']);
-        frame = getframe(fig);
-        im = frame2im(frame);
-        [imind,cm] = rgb2ind(im,256);
-        if iter == 1
-            imwrite(imind,cm,filename,'gif','DelayTime',0.5, 'Loopcount',inf);
-        else
-            imwrite(imind,cm,filename,'gif','DelayTime',0.5,'WriteMode','append');
-        end
+        
     end
     
     
@@ -136,15 +142,31 @@ for iter=1:1000
     % update control
     Lambdafun=@(tt)interp1q(t2,Lamb,tt)';
     %uknew=@(t) min((Lambda1fun(t).*dfduk(C1fun(t),t,r1,d1,gamma1,K1,uk) + Lambda2fun(t).*dfduk(C2fun(t),t,r2,d2,gamma2,K2,uk))/(2*alpha),1200);
-    uknew=@(t) fmincon(@(u) -H(C1fun(t),C2fun(t),Lambda1fun(t),Lambda2fun(t),t,u), 400, [],[],[],[],0,1200,[],fminconopts);
-    uk=@(t) uk(t)*omega + uknew(t)*(1-omega);
+    uknew=@(t) fmincon(@(u) -H(C1fun(t),C2fun(t),Lambda1fun(t),Lambda2fun(t),u), 400, [],[],[],[],0,uklim,[],fminconopts);
+    uk=@(t) uk(t)*(1-omega) + uknew(t)*omega;
     uknum=arrayfun(uk,tfine);
     uk=@(tt) interp1(tfine,uknum,tt)';
 
     if makeplot
-        figure(fig2);
         uknewplot.XData=t;
         uknewplot.YData=arrayfun(uknew,t);
+        drawnow;
+        % saveas(fig,['alm_iter_',num2str(iter,'%03d'),'.png']);
+        frame = getframe(fig);
+        im = frame2im(frame);
+        [imind,cm] = rgb2ind(im,256);
+        if iter == 1
+            imwrite(imind,cm,giffile,'gif','DelayTime',0.5, 'Loopcount',inf);
+        else
+            imwrite(imind,cm,giffile,'gif','DelayTime',0.5,'WriteMode','append');
+        end
     end
     
+end
+
+%% save
+fprintf('finish run on: %s\n',string(datetime,'yyyyMMdd_HHmmss'));
+if makeplot
+    save(matfile,'-mat');
+    diary off;
 end

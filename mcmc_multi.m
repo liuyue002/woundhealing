@@ -28,7 +28,7 @@ lb_opt=[ 100, 0.01,  0.01,  0.01,  0.01, 0,   500];
 ub_opt=[5000, 5.00,  99.0,  99.0,  99.0, 4, 20000];
 noiseweight = max(num_pts_in_bins,1)';
 
-figtitle=sprintf(['radial1D,mcmc_multi,fixed=[',repmat('%d,',size(fixed)),'],2'],fixed);
+figtitle=sprintf(['radial1D,mcmc_multi,fixed=[',repmat('%d,',size(fixed)),'],3'],fixed);
 logfile = [prefix,'_',figtitle,'_log.txt'];
 diary(logfile);
 fprintf('start run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
@@ -90,7 +90,7 @@ for iter=10001:maxiter
             elseif accept_rate > 0.6
                 stepsize(j)=stepsize(j)*1.1;
             end
-            fprintf('Updated chain %d Stepsize = %.3f\n',j,stepsize);
+            fprintf('Updated chain %d Stepsize = %.3f\n',j,stepsize(j));
             acceptance_count(j)=0;
             
             if iter>burnin

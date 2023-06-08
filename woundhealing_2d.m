@@ -74,7 +74,7 @@ else % is linux
     folder='/home/liuy1/Documents/woundhealing/simulations/';
 end
 %prefix = sprintf('woundhealing_2d_%s_%s_D0=%g,r=%g,alpha=%g,beta=%g,gamma=%g,n=%g,k=%.1f,dt=%.3f',datestr(datetime('now'), 'yyyymmdd_HHMMSS'),ictext,params,dt);
-prefix = sprintf('woundhealing_2d_numerics_test_%s_%s_D0=%g,r=%g,alpha=%g,beta=%g,gamma=%g,n=%g,k=%.1f,dt=%.3f,dx=%.3f,',datestr(datetime('now'), 'yyyymmdd_HHMMSS'),ictext,params,dt,dx);
+prefix = sprintf('woundhealing_2d_%s_%s_D0=%g,r=%g,alpha=%g,beta=%g,gamma=%g,n=%g,k=%.1f,dt=%.3f,dx=%.3f,',datestr(datetime('now'), 'yyyymmdd_HHMMSS'),ictext,params,dt,dx);
 prefix = strcat(folder, prefix);
 if makegif
     cinit=c;

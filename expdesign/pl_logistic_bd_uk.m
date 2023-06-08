@@ -1,12 +1,13 @@
 %% generate data
-rng(0);
+seed=0;
+rng(seed);
 C0=100;
 nt=100;
 T=25;
 t=linspace(0,T,nt);
 params=[0.45,0.15,1,3900];
 u_K0=200;
-tau0=23.75;
+tau0=5;
 tau=5;
 u_d=@(t)0;
 u_K=@(t) ((t>tau0)&(t<(tau0+tau)))*u_K0;
@@ -23,7 +24,7 @@ plot(t,noisy_data);
 plot(t,u_K(t));
 %plot(t,data2);
 
-figtitle=sprintf('pl_logistic_bd_uk_%s_sigma=%g,tau0=%g,tau=%g,uK0=%g',string(datetime,'yyyyMMdd_HHmmss'),sigma,tau0,tau,u_K0);
+figtitle=sprintf('pl_logistic_bd_uk_%s_sigma=%g,tau0=%g,tau=%g,uK0=%g,rng=%g',string(datetime,'yyyyMMdd_HHmmss'),sigma,tau0,tau,u_K0,seed);
 %% MLE for logistic
 fixed=[0,0,1,0];
 fixed_param_val=params;
@@ -49,7 +50,7 @@ fixed=[0,0,1,0];
 num_params=size(fixed_param_val,2);
 num_free_params=sum(1-fixed);
 lb=[ 0.10, 0.00, 0,  1000];
-ub=[ 1.00, 1.00, 2,  8000];
+ub=[ 1.30, 1.00, 2,  8000];
 opt.ub=[10,10,10,99000];
 opt.alg=1;
 param_names={'r','\delta','\gamma','K'};
@@ -61,7 +62,7 @@ minimizers=cell(num_params,numpts);
 % add the global optimum to the list of param vals
 param_vals=[param_vals,optimal_param_vals];
 
-for param=1:1%num_params
+for param=1%:num_params
     if fixed(param)
         continue;
     end
@@ -159,6 +160,7 @@ end
 r_conf_range=r_upper-r_lower;
 fprintf('r_conf_range=%.4f\n',r_conf_range);
 %% save
+return
 prefix='/home/liuy1/Documents/woundhealing/expdesign/simulations/';
 save([prefix,figtitle,'.mat'],'-mat');
 biggerFont(fig);

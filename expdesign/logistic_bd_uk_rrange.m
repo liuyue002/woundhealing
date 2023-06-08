@@ -3,7 +3,8 @@ function r_conf_range = logistic_bd_uk_rrange(u_K0,tau0,tau)
 % logistic model with birth/death and u_K control
 
 %% generate data
-rng(1);
+seed=0;
+rng(seed);
 C0=100;
 nt=100;
 T=25;
@@ -23,7 +24,7 @@ fixed=[0,0,1,0];
 fixed_param_val=params;
 numeric_params={T,nt,u_d,u_K};
 lb_opt=[0,0,0,u_K0+1];
-ub_opt=[2,2,2,10000];
+ub_opt=[5,5,2,50000];
 opt.lb=lb_opt;
 opt.ub=ub_opt;
 opt.logging=false;
@@ -35,7 +36,7 @@ optimal_param_vals(fixed==0)=mle;
 %% search for confidence interval edge
 
 r_eff=params(1)-params(2);
-opt.alg=1;
+opt.alg=1; % using 1 for local search, 2 global
 plr=@(r) plr_helper(r,params,noisy_data,numeric_params,C0,opt,max_l) + 1.92;
 if plr(r_eff-0.05)>0
     % somehow r_eff is within the confidence interval

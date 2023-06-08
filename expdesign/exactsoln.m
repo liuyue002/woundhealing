@@ -16,7 +16,8 @@ noisy_data=sol_richards(tt,[0.25,0,3,2600],100);
 % r=0.18, gamma=2, K=2600
 C0=100;
 N=100;
-t=linspace(0,25,N);
+T=10;
+t=linspace(0,T,N);
 params=[0.18,0,2,2600];
 clean_data=sol_richards(t,params,C0);
 sigma=20;
@@ -82,7 +83,7 @@ hold on;
 plot(t,noisy_data);
 plot(t,sol_richards(t,mle_richards,C0));
 plot(t,sol_richards(t,mle_logistic,C0));
-
+legend('noisy data','MLE richards','MLE logistic');
 %% now we want to distinguish between the two models by picking a C0
 
 neg_model_diff=@(C0) -sum((sol_richards(t,mle_richards,C0)-sol_richards(t,mle_logistic,C0)).^2);
@@ -98,7 +99,7 @@ problem.solver='fmincon';
 problem.lb=[0];
 % if ub is above K, then will pick very large C0 (probably at ub)
 % if set below K, will pick small C0
-problem.ub=[10000]; 
+problem.ub=[4000]; 
 problem.options=options;
 [best_C0,best_model_diff,~,~,~,~,~] = fmincon(problem);
 best_model_diff= -best_model_diff;
@@ -108,9 +109,20 @@ hold on;
 plot(sol_richards(t,mle_richards,best_C0));
 plot(sol_richards(t,mle_logistic,best_C0));
 
+disp(best_C0);
+
 % it tends to pick a very large C0, since the carrying capacity MLE is
 % different, so the model difference is maximized if we reach carrying
 % capacity early
+
+%% plot model difference wrt C0
+C0s=linspace(0,5000,251);
+modeldiffs = -arrayfun(neg_model_diff,C0s);
+figure;
+plot(C0s,modeldiffs);
+xlim([0,1000]);
+xlabel('C_0');
+ylabel('model diff');
 
 %% MLE for logistic growth, with K fixed to be exact
 sq_err=@(x) sum((sol_richards(t,[x(1),0,1,params(4)],C0)-noisy_data).^2);
@@ -188,6 +200,16 @@ plot(sol_richards(t,mle_logistic,best_C0));
 % small C0 just give linear growth which looks the same to both models
 % T long enough for both model to reach K: want to pick low C0 to observe
 % more transient behaviour
+
+%% plot model diff vs C0
+C0s=linspace(0,5000,251);
+modeldiffs = -arrayfun(neg_model_diff,C0s);
+figure;
+plot(C0s,modeldiffs);
+xlim([-50,4500]);
+ylim([0,4e6]);
+xlabel('C_0');
+ylabel('model diff');
 
 %% split into birth/death, make it structurally non-identifiable
 % params=[r,d,gamma,K]

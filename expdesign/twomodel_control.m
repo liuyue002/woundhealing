@@ -15,14 +15,19 @@ K2=2600;
 
 C0=100;
 T=25;
-opts = odeset('RelTol',1e-4,'AbsTol',1e-4);
-alpha=0.03; % weight of control cost
-omega=0.05; % control update rate
+upts=100;
+odeopts = odeset('RelTol',1e-4,'AbsTol',1e-4,'MaxStep',T/100);
+alpha=0.05; % weight of control cost
+omega=0.1; % control update rate
 uklim = 1200; %upper bound for uk
 
 H = @(C1,C2,lambda1,lambda2,u) (C1-C2).^2-alpha*u.^2 + lambda1*f(C1,r1,d1,gamma1,K1,u) + lambda2*f(C2,r2,d2,gamma2,K2,u);
-fminconopts=optimoptions('fmincon');
-fminconopts.Display='none';
+%fminconopts=optimoptions('fmincon');
+%fminconopts.Display='none';
+fminconopts=optimoptions(@fmincon,'Algorithm','interior-point','Display','none');
+optiminits=[0,uklim/3,uklim*2/3,uklim];
+ukvar=optimvar("uk",LowerBound=0,UpperBound=uklim);
+ms=MultiStart("Display","off");
 filename=sprintf('simulations/twomodel_control_%s_alpha=%.2f,omega=%.2f',string(datetime,'yyyyMMdd_HHmmss'),alpha,omega);
 makeplot=true;
 giffile=[filename,'.gif'];
@@ -37,8 +42,8 @@ fprintf('start run on: %s\n',string(datetime,'yyyyMMdd_HHmmss'));
 %uk=@(t) ((t>5)&(t<(10)))*800;
 %uk=@(t) ((t>5)&(t<(15)))*1200;
 %uk=@(t) -10*t.*(t-T);
-uk=@(t) 1000;
-tfine=linspace(0,T,500);
+uk=@(t) 100;
+tfine=linspace(0,T,upts);
 uknum=uk(tfine);
 Lambinit=[0;0];
 Jold=nan;
@@ -90,14 +95,14 @@ for iter=1:1000
     %forward
     odefunC=@(t,C) [f(C(1),r1,d1,gamma1,K1,uk(t));
                     f(C(2),r2,d2,gamma2,K2,uk(t))];
-    [t,X]=ode45(odefunC,[0,T],[C0;C0],opts);
+    [t,X]=ode45(odefunC,[0,T],[C0;C0],odeopts);
     
     %backward
     C1fun=@(tt)interp1q(t,X(:,1),tt)';
     C2fun=@(tt)interp1q(t,X(:,2),tt)';
     odefunLamb=@(t,lambdas) [-2*(C1fun(t)-C2fun(t))-lambdas(1)*dfdC(C1fun(t),r1,d1,gamma1,K1,uk(t));
                               2*(C1fun(t)-C2fun(t))-lambdas(2)*dfdC(C2fun(t),r2,d2,gamma2,K2,uk(t));];
-    [t2,Lamb]=ode45(odefunLamb,[T,0],Lambinit,opts);
+    [t2,Lamb]=ode45(odefunLamb,[T,0],Lambinit,odeopts);
     %reverse the time
     t2=flipud(t2);
     Lamb=flipud(Lamb);
@@ -134,7 +139,7 @@ for iter=1:1000
     end
     
     
-    if abs(Jgain)<0.0001
+    if abs(Jgain)<0.01
         fprintf('Converged.\n');
         break;
     end
@@ -142,14 +147,26 @@ for iter=1:1000
     % update control
     Lambdafun=@(tt)interp1q(t2,Lamb,tt)';
     %uknew=@(t) min((Lambda1fun(t).*dfduk(C1fun(t),t,r1,d1,gamma1,K1,uk) + Lambda2fun(t).*dfduk(C2fun(t),t,r2,d2,gamma2,K2,uk))/(2*alpha),1200);
-    uknew=@(t) fmincon(@(u) -H(C1fun(t),C2fun(t),Lambda1fun(t),Lambda2fun(t),u), 400, [],[],[],[],0,uklim,[],fminconopts);
-    uk=@(t) uk(t)*(1-omega) + uknew(t)*omega;
-    uknum=arrayfun(uk,tfine);
+    %uknew=@(tt) fmincon(@(u) -H(C1fun(tt),C2fun(tt),Lambda1fun(tt),Lambda2fun(tt),u), 400, [],[],[],[],0,uklim,[],fminconopts);
+    uknumnew=zeros(size(uknum));
+    for i=1:upts
+        tt=tfine(i);
+        objective=@(u) H(C1fun(tt),C2fun(tt),Lambda1fun(tt),Lambda2fun(tt),u);
+        prob = optimproblem(Objective=objective(ukvar), ObjectiveSense='maximize');
+        optiminits2 = optimvalues(prob,uk=optiminits);
+        sol = solve(prob,optiminits2,ms,Options=fminconopts);
+        uknumnew(i)=sol.uk;
+    end
+    % tt=24;fff=@(u) -H(C1fun(tt),C2fun(tt),Lambda1fun(tt),Lambda2fun(tt),u);
+    % us=linspace(0,1200);
+    % Hs=arrayfun(fff,us);
+    % figure;plot(us,Hs);title(tt);
+    uknum= uknum*(1-omega) +uknumnew*omega;
     uk=@(tt) interp1(tfine,uknum,tt)';
 
     if makeplot
-        uknewplot.XData=t;
-        uknewplot.YData=arrayfun(uknew,t);
+        uknewplot.XData=tfine;
+        uknewplot.YData=uknumnew;
         drawnow;
         % saveas(fig,['alm_iter_',num2str(iter,'%03d'),'.png']);
         frame = getframe(fig);

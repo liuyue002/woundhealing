@@ -17,18 +17,23 @@ C0=100;
 T=25;
 upts=100;
 odeopts = odeset('RelTol',1e-4,'AbsTol',1e-4,'MaxStep',T/100);
-alpha=0.05; % weight of control cost
-omega=0.1; % control update rate
+alpha=100; % weight of control cost
+omega=0.05; % control update rate
 uklim = 1200; %upper bound for uk
+bangbang=true;
 
-H = @(C1,C2,lambda1,lambda2,u) (C1-C2).^2-alpha*u.^2 + lambda1*f(C1,r1,d1,gamma1,K1,u) + lambda2*f(C2,r2,d2,gamma2,K2,u);
+if bangbang
+    H = @(C1,C2,lambda1,lambda2,u) (C1-C2).^2-alpha*u + lambda1*f(C1,r1,d1,gamma1,K1,u) + lambda2*f(C2,r2,d2,gamma2,K2,u);
+else
+    H = @(C1,C2,lambda1,lambda2,u) (C1-C2).^2-alpha*u.^2 + lambda1*f(C1,r1,d1,gamma1,K1,u) + lambda2*f(C2,r2,d2,gamma2,K2,u);
+end
 %fminconopts=optimoptions('fmincon');
 %fminconopts.Display='none';
 fminconopts=optimoptions(@fmincon,'Algorithm','interior-point','Display','none');
 optiminits=[0,uklim/3,uklim*2/3,uklim];
 ukvar=optimvar("uk",LowerBound=0,UpperBound=uklim);
 ms=MultiStart("Display","off");
-filename=sprintf('simulations/twomodel_control_%s_alpha=%.2f,omega=%.2f',string(datetime,'yyyyMMdd_HHmmss'),alpha,omega);
+filename=sprintf('simulations/twomodel_control_bangbang_%s_alpha=%.2f,omega=%.2f',string(datetime,'yyyyMMdd_HHmmss'),alpha,omega);
 makeplot=true;
 giffile=[filename,'.gif'];
 logfile=[filename,'.txt'];
@@ -40,9 +45,10 @@ fprintf('start run on: %s\n',string(datetime,'yyyyMMdd_HHmmss'));
 %% figure and initializations
 % initial guess
 %uk=@(t) ((t>5)&(t<(10)))*800;
-%uk=@(t) ((t>5)&(t<(15)))*1200;
+uk=@(t) ((t>15)&(t<(20)))*uklim;
 %uk=@(t) -10*t.*(t-T);
-uk=@(t) 100;
+%uk=@(t) 100;
+%uk=@(t) uklim;
 tfine=linspace(0,T,upts);
 uknum=uk(tfine);
 Lambinit=[0;0];
@@ -111,7 +117,11 @@ for iter=1:1000
     
     %calculate J
     ts=linspace(0,T,200); %uniform spacing for trapezoid rule u
+    if bangbang 
+    Jcontrol=alpha*trapz(ts,arrayfun(uk,ts));
+    else
     Jcontrol=alpha*trapz(ts,arrayfun(uk,ts).^2);
+    end
     Jmodel=trapz(t,-(X(:,1)-X(:,2)).^2);
     Jnew=Jmodel + Jcontrol;
     Jgain=Jold-Jnew;
@@ -152,10 +162,18 @@ for iter=1:1000
     for i=1:upts
         tt=tfine(i);
         objective=@(u) H(C1fun(tt),C2fun(tt),Lambda1fun(tt),Lambda2fun(tt),u);
-        prob = optimproblem(Objective=objective(ukvar), ObjectiveSense='maximize');
-        optiminits2 = optimvalues(prob,uk=optiminits);
-        sol = solve(prob,optiminits2,ms,Options=fminconopts);
-        uknumnew(i)=sol.uk;
+        if bangbang
+            if objective(uklim)>objective(0)
+                uknumnew(i)=uklim;
+            else
+                uknumnew(i)=0;
+            end
+        else
+            prob = optimproblem(Objective=objective(ukvar), ObjectiveSense='maximize');
+            optiminits2 = optimvalues(prob,uk=optiminits);
+            sol = solve(prob,optiminits2,ms,Options=fminconopts);
+            uknumnew(i)=sol.uk;
+        end
     end
     % tt=24;fff=@(u) -H(C1fun(tt),C2fun(tt),Lambda1fun(tt),Lambda2fun(tt),u);
     % us=linspace(0,1200);

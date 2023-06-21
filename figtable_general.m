@@ -117,7 +117,7 @@ for i=1:3
     plot([-1e6,1e6],[-1.92,-1.92],'k-');
     plot([optimal_param_vals(param),optimal_param_vals(param)],[-10,10],'--g'); % MLE
     xlabel(['$',param_names{param},'$'],'Interpreter','latex');
-    ylabel('$\log(L)$','Interpreter','latex');
+    ylabel('$l$','Interpreter','latex');
     axis('square');
     xrange=[min(xx),max(xx)];
     %xrange=[round(optimal_param_vals(param)-range_width(param)/2,4,'significant'),round(optimal_param_vals(param)+range_width(param)/2,4,'significant')];
@@ -150,7 +150,7 @@ for i=1:4
     plot([optimal_param_vals(param),optimal_param_vals(param)],[-10,10],'--g'); % MLE
     plot([-1e6,1e6],[-1.92,-1.92],'k-');
     xlabel(['$',param_names{param},'$'],'Interpreter','latex');
-    ylabel('$\log(L)$','Interpreter','latex');
+    ylabel('$l$','Interpreter','latex');
     axis('square');
     xrange=[min(xx),max(xx)];
     %xrange=[round(optimal_param_vals(param)-range_width(param)/2,4,'significant'),round(optimal_param_vals(param)+range_width(param)/2,4,'significant')];
@@ -184,7 +184,7 @@ for i=1:4
     plot([optimal_param_vals(param),optimal_param_vals(param)],[-10,10],'--g'); % MLE
     plot([-1e6,1e6],[-1.92,-1.92],'k-');
     xlabel(['$',param_names{param},'$'],'Interpreter','latex');
-    ylabel('$\log(L)$','Interpreter','latex');
+    ylabel('$l$','Interpreter','latex');
     axis('square');
     xrange=[min(xx),max(xx)];
     %xrange=[round(optimal_param_vals(param)-range_width(param)/2,4,'significant'),round(optimal_param_vals(param)+range_width(param)/2,4,'significant')];
@@ -219,7 +219,7 @@ for i=1:4
     plot([optimal_param_vals(param),optimal_param_vals(param)],[-10,10],'--g'); % MLE
     plot([-1e6,1e6],[-1.92,-1.92],'k-');
     xlabel(['$',param_names{param},'$'],'Interpreter','latex');
-    ylabel('$\log(L)$','Interpreter','latex');
+    ylabel('$l$','Interpreter','latex');
     axis('square');
     xrange=[min(xx),max(xx)];
     %xrange=[round(optimal_param_vals(param)-range_width(param)/2,4,'significant'),round(optimal_param_vals(param)+range_width(param)/2,4,'significant')];
@@ -237,7 +237,7 @@ for i=1:4
     plot(xx,yy,'b-','DisplayName',param_names{param});
     h=plot([-1e6,1e6],[-1.92,-1.92],'k-');
     h.Annotation.LegendInformation.IconDisplayStyle='off';
-    ylabel('$\log(L)$','Interpreter','latex');
+    ylabel('$l$','Interpreter','latex');
     axis('square');
     ylim([-2.5,0]);
     i=5;

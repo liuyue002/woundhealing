@@ -4,8 +4,9 @@ num_params=7;
 ranges={[1240,1590],[0.08,0.30],[1.1,1.4],[1.1,1.4],[1.1,1.5],[0,0.1],[2600,2720]};
 range_width=[80,0.04,1,1,0.1,0.02,20];
 t = tiledlayout(4,5);
-
+%t = tiledlayout(3,5);
 %%
+experiment=8;dim=2;
 
 % files={
 % 'kevindata_circle_xy1_20220405_raw_radial1D,weighted,fixed=[0,0,1,1,1,1,0,],fixedparamval=[1287,0.271,1,1,1,0,2620,],kevindata,threshold=-1,tskip=1,xskip=1,202302061140.mat',...
@@ -55,7 +56,7 @@ t = tiledlayout(4,5);
 % 'kevindata_circle_xy5_20220405_raw_radial1D,weighted,fixed=[0,0,1,1,0,1,0,],fixedparamval=[1200,0.3,1,1,1.16,0,2514,],kevindata,threshold=-1,tskip=1,xskip=1,202302221117.mat',
 % 'kevindata_circle_xy5_20220405_raw_radial1D,weighted,fixed=[0,0,0,0,1,1,0,],fixedparamval=[1146,0.239,1.05,1.1,1,0,2534,],kevindata,threshold=-1,tskip=1,xskip=1,202302161447.mat',
 % };
-
+% 
 % files={
 % 'kevindata_circle_xy5_20220405_raw_fixed=[0,0,1,1,1,1,0,],fixedparamval=[1117,0.3,1,1,1,0,2521,],kevindata,threshold=-1,tskip=1,xskip=1,4.mat',
 % 'kevindata_circle_xy5_20220405_raw_fixed=[0,0,1,1,1,0,0,],fixedparamval=[1300,0.31,1,1,1,0.05,2524,],kevindata,threshold=-1,tskip=1,xskip=1,4.mat',
@@ -204,14 +205,14 @@ param_names={'D_0','r','\alpha','\beta','\gamma','\eta','K'};
 figure(figg);
 param_inds=[1,2,7,3,4];
 nexttile;
-text(-1,0,{'Generalized','Fisher'},'Interpreter','latex','FontSize',20);
+text(-1,0,{'Generalised','Fisher'},'Interpreter','latex','FontSize',20);
 axis([-1,1,-1,1]);
 axis off;
 for i=1:4
     param=param_inds(i);
     xx=param_vals(param,:);
     yy=max_ls(param,:)-max(max_ls(param,:));
-    
+
     if i<=3
     nexttile;
     hold on
@@ -241,18 +242,19 @@ for i=1:4
     axis('square');
     ylim([-2.5,0]);
     i=5;
-    
+
     param=param_inds(i);
     xx=param_vals(param,:);
     yy=max_ls(param,:)-max(max_ls(param,:));
     plot(xx,yy,'m-','DisplayName',param_names{param});
     %xrange=[1.0,1.4];
-    xrange=[0.5,3.0];
+    %xrange=[0.5,2.0];
+    xrange=[0.8,1.3];
     xlim(xrange);
     xticks(xrange);
     yticks([-2,0]);
     xtickangle(0);
-    
+
     %xlabel('$\alpha, \beta$','Interpreter','latex');
     legend('Location','eastoutside');
     end
@@ -271,5 +273,7 @@ t.TileSpacing = 'tight';
 t.Padding = 'none';
 
 %%
-saveas(figg,'figure/xy8_2d_figtable_1.fig');
-saveas(figg,'figure/xy8_2d_figtable_1.png');
+
+saveas(figg,sprintf('figure/xy%d_%dd_figtable_1.fig',experiment,dim));
+saveas(figg,sprintf('figure/xy%d_%dd_figtable_1.png',experiment,dim));
+saveas(figg,sprintf('figure/xy%d_%dd_figtable_1.eps',experiment,dim),'epsc');

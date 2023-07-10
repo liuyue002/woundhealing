@@ -2,7 +2,7 @@
 f = @(C,r,d,gamma,K,uk) r*C.*(1-(C./(K-uk)).^gamma)-d*C;
 dfdC= @(C,r,d,gamma,K,uk) r*(1-(1+gamma)*(C./(K-uk)).^gamma)-d;
 %dfduk= @(C,r,d,gamma,K,uk) -r*gamma*(C./(K-uk)).^(gamma+1);
-global T
+global T filename;
 
 r1=0.45;
 d1=0.15;
@@ -16,7 +16,7 @@ K2=2600;
 
 C0=100;
 T=25;
-upts=100;
+upts=200;
 alpha=0.03; % weight of control cost
 omega=0.1; % control update rate
 uklim = 1200; %upper bound for uk
@@ -25,7 +25,7 @@ bangbang=false;
 filename=sprintf('simulations/twomodel_control_fmincon_%s_alpha=%.2f,omega=%.2f',string(datetime,'yyyyMMdd_HHmmss'),alpha,omega);
 
 %% result from fw-bw sweep
-uk=@(t) uklim;
+uk=@(t) 100;
 tfine=linspace(0,T,upts);
 uknum=arrayfun(uk,tfine);
 %load('simulations/twomodel_control_20230627_174137_alpha=0.03,omega=0.10.mat','uknum');
@@ -55,7 +55,7 @@ plot(tfine,uknum_best);
 %plot(tfine2,uknum_best2);
 xlabel('t');
 ylabel('u');
-legend('FW-BW sweep','fmincon coarse','fmincon fine');
+legend('FW-BW sweep','fmincon fine');
 
 %% save
 save([filename,'.mat']);
@@ -65,15 +65,23 @@ save([filename,'.mat']);
 
 function stop = optimplotu(u,optimValues,state,varargin)
 stop = false;
-global T
+global T filename
+fig=gcf;
+giffile=[filename,'.gif'];
+frame = getframe(fig);
+im = frame2im(frame);
+[imind,cm] = rgb2ind(im,256);
 if optimValues.iteration == 0
     plotu = plot(linspace(0,T,length(u)),u);
     xlabel('t');
     set(plotu,'Tag','optimplotu');
     ylabel('u');
+
+    imwrite(imind,cm,giffile,'gif','DelayTime',0.5, 'Loopcount',inf);
 else
     plotu = findobj(get(gca,'Children'),'Tag','optimplotu');
     set(plotu,'Ydata',u);
+    imwrite(imind,cm,giffile,'gif','DelayTime',0.5,'WriteMode','append');
 end
 end
 

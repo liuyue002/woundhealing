@@ -10,8 +10,8 @@ N=prod(ceil(size(noisy_data)./[t_skip,x_skip,x_skip]));
 threshold=-1;
 
 fixed_param_val=[1300,0.3,1,1,1,0,2600];
-lb=[3300, 0.01, 1.0, 0.01, 7.70, 0.555, 2295];
-ub=[4300, 0.06, 1.4, 0.30, 8.00, 0.580, 2325];
+lb=[2600, 0.01, 1.5, 0.20, 7.70, 0.555, 2200];
+ub=[3500, 0.03, 3.5, 1.00, 8.00, 0.580, 2700];
 param_names={'D0','r','alpha','beta','gamma','n','k'};
 %leave sigma out
 num_params=size(fixed_param_val,2);
@@ -33,7 +33,7 @@ fprintf('%s\n',matlab.unittest.diagnostics.ConstraintDiagnostic.getDisplayableSt
 %% prepare
 
 % an optimizer from previous runs, added to the mix of param values to try
-prev_overall_minimizer = [3413.704,0.041,1.147,0.01,2305.488];
+prev_overall_minimizer = [3418,0.001,2.772,0.823,2268];
 prev_optimal_param_vals=fixed_param_val;
 prev_optimal_param_vals(fixed==0)=prev_overall_minimizer;
 %max_l=squared_error(noisy_data,optimal_param_vals,numeric_params,t_skip,x_skip,threshold,ic,nan,nan);

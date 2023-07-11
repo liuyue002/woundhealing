@@ -1,5 +1,6 @@
 load('simulations/kevindata_triangle_xy3_20220405_raw.mat');
-
+k=strfind(prefix,'/');
+prefix=strcat('./simulations/',prefix(k(end)+1:end));
 nFrame=size(noisy_data,1);
 ic=squeeze(noisy_data(1,:,:));
 dt=1/3;

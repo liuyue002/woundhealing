@@ -1,6 +1,6 @@
-function [J,Jcontrol,Jmodel,C,Lambda] = J_uk(C0,T,tfine,uknum,r1,d1,gamma1,K1,r2,d2,gamma2,K2,alpha,bangbang)
-f = @(C,r,d,gamma,K,uk) r*C.*(1-(C./(K-uk)).^gamma)-d*C;
-dfdC= @(C,r,d,gamma,K,uk) r*(1-(1+gamma)*(C./(K-uk)).^gamma)-d;
+function [J,Jcontrol,Jmodel,C,Lambda] = J_ukr(C0,T,tfine,uknum,r1,d1,gamma1,K1,r2,d2,gamma2,K2,alpha,bangbang)
+f = @(C,r,d,gamma,K,uk) (r+1e-5*uk)*C.*(1-(C./(K-uk)).^gamma)-d*C;
+dfdC= @(C,r,d,gamma,K,uk) (r+1e-5*uk)*(1-(1+gamma)*(C./(K-uk)).^gamma)-d;
 uk=@(tt) interp1(tfine,uknum,tt)';
 odeopts = odeset('RelTol',1e-4,'AbsTol',1e-4,'MaxStep',T/100);
 Lambinit=[0;0];

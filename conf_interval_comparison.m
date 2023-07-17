@@ -74,9 +74,9 @@ K_ranges(:,6)=[2786.81428519868,2789.83554244494];
 D_mles=permutation*(D_mles');
 r_mles=permutation*(r_mles');
 K_mles=permutation*(K_mles');
-[h,p,ks2stat] = kstest2(D_mles(1:4),D_mles(5:8));
-[h,p,ks2stat] = kstest2(r_mles(1:4),r_mles(5:8));
-[h,p,ks2stat] = kstest2(K_mles(1:4),K_mles(5:8));
+[h,p,ks2stat] = kstest2(D_mles(1:4),D_mles(5:8))
+[h,p,ks2stat] = kstest2(r_mles(1:4),r_mles(5:8))
+[h,p,ks2stat] = kstest2(K_mles(1:4),K_mles(5:8))
 %%
 addpath('/home/liuy1/Documents/woundhealing/rangebar');
 barwidth=0.4;
@@ -163,7 +163,15 @@ end
 close all;
 
 D_ranges(:,7)=[9896.02467981219,10230.8298624504];
-
+%% do the initial conditions give significantly different params?
+D_mles=permutation*(D_mles');
+r_mles=permutation*(r_mles');
+K_mles=permutation*(K_mles');
+n_mles=permutation*(n_mles');
+[h,p,ks2stat] = kstest2(D_mles(1:4),D_mles(5:8))
+[h,p,ks2stat] = kstest2(r_mles(1:4),r_mles(5:8))
+[h,p,ks2stat] = kstest2(K_mles(1:4),K_mles(5:8))
+[h,p,ks2stat] = kstest2(n_mles(1:4),n_mles(5:8))
 %%
 addpath('/home/liuy1/Documents/woundhealing/rangebar');
 barwidth=0.4;

@@ -21,7 +21,7 @@ for i=1:3
     yy=max_ls(param,:)-max(max_ls(param,:));
     plot(xx,yy,'b-','DisplayName',param_names{param});
     plot([-1e6,1e6],[-1.92,-1.92],'k-');
-    plot([true_params(param),true_params(param)],[-10,10],'--r'); % true max
+    plot([true_params(param),true_params(param)],[-10,10],':g'); % true max
     plot([optimal_param_vals(param),optimal_param_vals(param)],[-10,10],'--g'); % MLE
     xlabel(['$',param_names{param},'$'],'Interpreter','latex');
     ylabel('$\log(L)$','Interpreter','latex');
@@ -50,7 +50,7 @@ for i=1:4
     xx=param_vals(param,:);
     yy=max_ls(param,:)-max(max_ls(param,:));
     plot(xx,yy,'b-','DisplayName',param_names{param});
-    plot([true_params(param),true_params(param)],[-10,10],'--r'); % true max
+    plot([true_params(param),true_params(param)],[-10,10],':g'); % true max
     plot([optimal_param_vals(param),optimal_param_vals(param)],[-10,10],'--g'); % MLE
     plot([-1e6,1e6],[-1.92,-1.92],'k-');
     xlabel(['$',param_names{param},'$'],'Interpreter','latex');
@@ -80,7 +80,7 @@ for i=1:4
     xx=param_vals(param,:);
     yy=max_ls(param,:)-max(max_ls(param,:));
     plot(xx,yy,'b-','DisplayName',param_names{param});
-    plot([true_params(param),true_params(param)],[-10,10],'--r'); % true max
+    plot([true_params(param),true_params(param)],[-10,10],':g'); % true max
     plot([optimal_param_vals(param),optimal_param_vals(param)],[-10,10],'--g'); % MLE
     plot([-1e6,1e6],[-1.92,-1.92],'k-');
     xlabel(['$',param_names{param},'$'],'Interpreter','latex');
@@ -111,7 +111,7 @@ for i=1:4
     nexttile;
     hold on
     plot(xx,yy,'b-','DisplayName',param_names{param});
-    plot([true_params(param),true_params(param)],[-10,10],'--r'); % true max
+    plot([true_params(param),true_params(param)],[-10,10],':g'); % true max
     plot([optimal_param_vals(param),optimal_param_vals(param)],[-10,10],'--g'); % MLE
     plot([-1e6,1e6],[-1.92,-1.92],'k-');
     xlabel(['$',param_names{param},'$'],'Interpreter','latex');
@@ -126,6 +126,10 @@ for i=1:4
     nexttile;
     hold on
     plot(xx,yy,'b-','DisplayName',param_names{param});
+    h=plot([true_params(param),true_params(param)],[-10,10],':b'); % true max
+    h.Annotation.LegendInformation.IconDisplayStyle='off';
+    h=plot([optimal_param_vals(param),optimal_param_vals(param)],[-10,10],'--b'); % MLE
+    h.Annotation.LegendInformation.IconDisplayStyle='off';
     h=plot([-1e6,1e6],[-1.92,-1.92],'k-');
     h.Annotation.LegendInformation.IconDisplayStyle='off';
     ylabel('$\log(L)$','Interpreter','latex');
@@ -137,6 +141,10 @@ for i=1:4
     xx=param_vals(param,:);
     yy=max_ls(param,:)-max(max_ls(param,:));
     plot(xx,yy,'m-','DisplayName',param_names{param});
+    h=plot([true_params(param),true_params(param)],[-10,10],':m'); % true max
+    h.Annotation.LegendInformation.IconDisplayStyle='off';
+    h=plot([optimal_param_vals(param),optimal_param_vals(param)],[-10,10],'--m'); % MLE
+    h.Annotation.LegendInformation.IconDisplayStyle='off';
     xlim(ranges{param});
     xticks([ranges{param}(1),ranges{param}(2)]);
     yticks([-2,0]);
@@ -158,5 +166,6 @@ t.TileSpacing = 'tight';
 t.Padding = 'none';
 
 %%
-%saveas(figg,'figure/syndata_figtable2.fig');
-%saveas(figg,'figure/syndata_figtable2.png');
+saveas(figg,'figure/syndata_figtable3.fig');
+saveas(figg,'figure/syndata_figtable3.eps','epsc');
+saveas(figg,'figure/syndata_figtable3.png');

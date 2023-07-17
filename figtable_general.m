@@ -6,7 +6,7 @@ range_width=[80,0.04,1,1,0.1,0.02,20];
 t = tiledlayout(4,5);
 %t = tiledlayout(3,5);
 %%
-experiment=8;dim=2;
+experiment=1;dim=2;
 
 % files={
 % 'kevindata_circle_xy1_20220405_raw_radial1D,weighted,fixed=[0,0,1,1,1,1,0,],fixedparamval=[1287,0.271,1,1,1,0,2620,],kevindata,threshold=-1,tskip=1,xskip=1,202302061140.mat',...
@@ -15,12 +15,12 @@ experiment=8;dim=2;
 % 'kevindata_circle_xy1_20220405_raw_radial1D,weighted,fixed=[0,0,0,0,1,1,0,],fixedparamval=[1391,0.1429,1.1,1.2,1,0,2664,],kevindata,threshold=-1,tskip=1,xskip=1,202302161453.mat',...
 % };
 
-% files={
-% 'kevindata_circle_xy1_20220405_raw_fixed=[0,0,1,1,1,1,0,],fixedparamval=[1200,0.3,1,1,1,0,2600,],kevindata,threshold=-1,tskip=1,xskip=1,7.mat',...
-% 'kevindata_circle_xy1_20220405_raw_fixed=[0,0,1,1,1,0,0,],fixedparamval=[1546,0.27,1,1,1,0.07,2628,],kevindata,threshold=-1,tskip=1,xskip=1,11.mat',...
-% 'kevindata_circle_xy1_20220405_raw_fixed=[0,0,1,1,0,1,0,],fixedparamval=[1400,0.246,1,1,1,0,2616,],kevindata,threshold=-1,tskip=1,xskip=1,10.mat',...
-% 'kevindata_circle_xy1_20220405_raw_fixed=[0,0,0,0,1,1,0,],fixedparamval=[1423.47,0.101,1.173,1.355,1,0,2701.4,],kevindata,threshold=-1,tskip=1,xskip=1,10.mat',...
-% };
+files={
+'kevindata_circle_xy1_20220405_raw_fixed=[0,0,1,1,1,1,0,],fixedparamval=[1200,0.3,1,1,1,0,2600,],kevindata,threshold=-1,tskip=1,xskip=1,7.mat',...
+'kevindata_circle_xy1_20220405_raw_fixed=[0,0,1,1,1,0,0,],fixedparamval=[1546,0.27,1,1,1,0.07,2628,],kevindata,threshold=-1,tskip=1,xskip=1,11.mat',...
+'kevindata_circle_xy1_20220405_raw_fixed=[0,0,1,1,0,1,0,],fixedparamval=[1400,0.246,1,1,1,0,2616,],kevindata,threshold=-1,tskip=1,xskip=1,10.mat',...
+'kevindata_circle_xy1_20220405_raw_fixed=[0,0,0,0,1,1,0,],fixedparamval=[1423.47,0.101,1.173,1.355,1,0,2701.4,],kevindata,threshold=-1,tskip=1,xskip=1,10.mat',...
+};
 
 % files={
 % 'kevindata_circle_xy2_20220405_raw_radial1D,weighted,fixed=[0,0,1,1,1,1,0,],fixedparamval=[1211,0.278,1,1,1,0,2551,],kevindata,threshold=-1,tskip=1,xskip=1,202302171425.mat',...
@@ -56,7 +56,7 @@ experiment=8;dim=2;
 % 'kevindata_circle_xy5_20220405_raw_radial1D,weighted,fixed=[0,0,1,1,0,1,0,],fixedparamval=[1200,0.3,1,1,1.16,0,2514,],kevindata,threshold=-1,tskip=1,xskip=1,202302221117.mat',
 % 'kevindata_circle_xy5_20220405_raw_radial1D,weighted,fixed=[0,0,0,0,1,1,0,],fixedparamval=[1146,0.239,1.05,1.1,1,0,2534,],kevindata,threshold=-1,tskip=1,xskip=1,202302161447.mat',
 % };
-% 
+
 % files={
 % 'kevindata_circle_xy5_20220405_raw_fixed=[0,0,1,1,1,1,0,],fixedparamval=[1117,0.3,1,1,1,0,2521,],kevindata,threshold=-1,tskip=1,xskip=1,4.mat',
 % 'kevindata_circle_xy5_20220405_raw_fixed=[0,0,1,1,1,0,0,],fixedparamval=[1300,0.31,1,1,1,0.05,2524,],kevindata,threshold=-1,tskip=1,xskip=1,4.mat',
@@ -85,12 +85,12 @@ experiment=8;dim=2;
 % '',
 % };
 
-files={
-'kevindata_triangle_xy8_20220405_raw_fixed=[0,0,1,1,1,1,0,],fixedparamval=[1448,0.26,1,1,1,0,2294,],kevindata,threshold=-1,tskip=1,xskip=1,4.mat',
-'kevindata_triangle_xy8_20220405_raw_fixed=[0,0,1,1,1,0,0,],fixedparamval=[3504,0.24,1,1,1,0.45,2336,],kevindata,threshold=-1,tskip=1,xskip=1,4.mat',
-'kevindata_triangle_xy8_20220405_raw_fixed=[0,0,1,1,0,1,0,],fixedparamval=[2666,0.12,1,1,8.9,0,2240,],kevindata,threshold=-1,tskip=1,xskip=1,3.mat',
-'',
-};
+% files={
+% 'kevindata_triangle_xy8_20220405_raw_fixed=[0,0,1,1,1,1,0,],fixedparamval=[1448,0.26,1,1,1,0,2294,],kevindata,threshold=-1,tskip=1,xskip=1,4.mat',
+% 'kevindata_triangle_xy8_20220405_raw_fixed=[0,0,1,1,1,0,0,],fixedparamval=[3504,0.24,1,1,1,0.45,2336,],kevindata,threshold=-1,tskip=1,xskip=1,4.mat',
+% 'kevindata_triangle_xy8_20220405_raw_fixed=[0,0,1,1,0,1,0,],fixedparamval=[2666,0.12,1,1,8.9,0,2240,],kevindata,threshold=-1,tskip=1,xskip=1,3.mat',
+% '',
+% };
 
 % files={
 % '',
@@ -114,15 +114,20 @@ for i=1:3
     hold on
     xx=param_vals(param,:);
     yy=max_ls(param,:)-max(max_ls(param,:));
+
+    if i==3 && experiment==6 && dim==2
+        load('simulations/kevindata_circle_xy6_20220405_raw_fixed=[0,0,1,1,1,1,0,],fixedparamval=[1252,0.28,1,1,1,0,2788,],kevindata,threshold=-1,tskip=1,xskip=1,4.mat','xx','yy');
+    end
+
     plot(xx,yy,'b-','DisplayName',param_names{param});
     plot([-1e6,1e6],[-1.92,-1.92],'k-');
     plot([optimal_param_vals(param),optimal_param_vals(param)],[-10,10],'--g'); % MLE
     xlabel(['$',param_names{param},'$'],'Interpreter','latex');
     ylabel('$l$','Interpreter','latex');
     axis('square');
-    xrange=[min(xx),max(xx)];
+    %xrange=[min(xx),max(xx)];
     %xrange=[round(optimal_param_vals(param)-range_width(param)/2,4,'significant'),round(optimal_param_vals(param)+range_width(param)/2,4,'significant')];
-    %xrange=ranges{param};
+    xrange=ranges{param};
     xlim(xrange);
     xticks(xrange);
     ylim([-2.5,0]);
@@ -147,15 +152,21 @@ for i=1:4
     hold on
     xx=param_vals(param,:);
     yy=max_ls(param,:)-max(max_ls(param,:));
+
+    if i==3 && experiment==5 && dim== 2
+        xx=[xx,2526.3];
+        yy=[yy,-4];
+    end
+
     plot(xx,yy,'b-','DisplayName',param_names{param});
     plot([optimal_param_vals(param),optimal_param_vals(param)],[-10,10],'--g'); % MLE
     plot([-1e6,1e6],[-1.92,-1.92],'k-');
     xlabel(['$',param_names{param},'$'],'Interpreter','latex');
     ylabel('$l$','Interpreter','latex');
     axis('square');
-    xrange=[min(xx),max(xx)];
+    %xrange=[min(xx),max(xx)];
     %xrange=[round(optimal_param_vals(param)-range_width(param)/2,4,'significant'),round(optimal_param_vals(param)+range_width(param)/2,4,'significant')];
-    %xrange=ranges{param};
+    xrange=ranges{param};
     xlim(xrange);
     xticks(xrange);
     xtickformat('%.4g');
@@ -181,15 +192,20 @@ for i=1:4
     hold on
     xx=param_vals(param,:);
     yy=max_ls(param,:)-max(max_ls(param,:));
+
+    if i==3 && experiment==6 && dim==2
+        load('simulations/kevindata_circle_xy6_20220405_raw_fixed=[0,0,1,1,0,1,0,],fixedparamval=[1565,0.21,1,1,1.64,0,2774,],kevindata,threshold=-1,tskip=1,xskip=1,5.mat','xx','yy');
+    end
+
     plot(xx,yy,'b-','DisplayName',param_names{param});
     plot([optimal_param_vals(param),optimal_param_vals(param)],[-10,10],'--g'); % MLE
     plot([-1e6,1e6],[-1.92,-1.92],'k-');
     xlabel(['$',param_names{param},'$'],'Interpreter','latex');
     ylabel('$l$','Interpreter','latex');
     axis('square');
-    xrange=[min(xx),max(xx)];
+    %xrange=[min(xx),max(xx)];
     %xrange=[round(optimal_param_vals(param)-range_width(param)/2,4,'significant'),round(optimal_param_vals(param)+range_width(param)/2,4,'significant')];
-    %xrange=ranges{param};
+    xrange=ranges{param};
     xlim(xrange);
     xticks(xrange);
     xtickformat('%.4g');
@@ -213,6 +229,11 @@ for i=1:4
     xx=param_vals(param,:);
     yy=max_ls(param,:)-max(max_ls(param,:));
 
+    if i==3 && experiment==5 && dim== 2
+        xx=xx([1:15,17:32,34:end]);
+        yy=yy([1:15,17:32,34:end]);
+    end
+
     if i<=3
     nexttile;
     hold on
@@ -222,9 +243,9 @@ for i=1:4
     xlabel(['$',param_names{param},'$'],'Interpreter','latex');
     ylabel('$l$','Interpreter','latex');
     axis('square');
-    xrange=[min(xx),max(xx)];
+    %xrange=[min(xx),max(xx)];
     %xrange=[round(optimal_param_vals(param)-range_width(param)/2,4,'significant'),round(optimal_param_vals(param)+range_width(param)/2,4,'significant')];
-    %xrange=ranges{param};
+    xrange=ranges{param};
     xlim(xrange);
     xticks(xrange);
     xtickformat('%.4g');
@@ -236,6 +257,8 @@ for i=1:4
     nexttile;
     hold on
     plot(xx,yy,'b-','DisplayName',param_names{param});
+    h=plot([optimal_param_vals(param),optimal_param_vals(param)],[-10,10],'--b');
+    h.Annotation.LegendInformation.IconDisplayStyle='off';
     h=plot([-1e6,1e6],[-1.92,-1.92],'k-');
     h.Annotation.LegendInformation.IconDisplayStyle='off';
     ylabel('$l$','Interpreter','latex');
@@ -247,9 +270,11 @@ for i=1:4
     xx=param_vals(param,:);
     yy=max_ls(param,:)-max(max_ls(param,:));
     plot(xx,yy,'m-','DisplayName',param_names{param});
+    h=plot([optimal_param_vals(param),optimal_param_vals(param)],[-10,10],'--m');
+    h.Annotation.LegendInformation.IconDisplayStyle='off';
     %xrange=[1.0,1.4];
     %xrange=[0.5,2.0];
-    xrange=[0.8,1.3];
+    xrange=[1.0,1.4];
     xlim(xrange);
     xticks(xrange);
     yticks([-2,0]);
@@ -274,6 +299,6 @@ t.Padding = 'none';
 
 %%
 
-saveas(figg,sprintf('figure/xy%d_%dd_figtable_1.fig',experiment,dim));
-saveas(figg,sprintf('figure/xy%d_%dd_figtable_1.png',experiment,dim));
-saveas(figg,sprintf('figure/xy%d_%dd_figtable_1.eps',experiment,dim),'epsc');
+saveas(figg,sprintf('figure/xy%d_%dd_figtable_2_manualxlim.fig',experiment,dim));
+saveas(figg,sprintf('figure/xy%d_%dd_figtable_2_manualxlim.png',experiment,dim));
+saveas(figg,sprintf('figure/xy%d_%dd_figtable_2_manualxlim.eps',experiment,dim),'epsc');

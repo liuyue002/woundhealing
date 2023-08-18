@@ -6,21 +6,21 @@ range_width=[80,0.04,1,1,0.1,0.02,20];
 t = tiledlayout(4,5);
 %t = tiledlayout(3,5);
 %%
-experiment=1;dim=2;
-
-% files={
-% 'kevindata_circle_xy1_20220405_raw_radial1D,weighted,fixed=[0,0,1,1,1,1,0,],fixedparamval=[1287,0.271,1,1,1,0,2620,],kevindata,threshold=-1,tskip=1,xskip=1,202302061140.mat',...
-% 'kevindata_circle_xy1_20220405_raw_radial1D,weighted,fixed=[0,0,1,1,1,0,0,],fixedparamval=[1361,0.268,1,1,1,0.0218,2622,],kevindata,threshold=-1,tskip=1,xskip=1,202302061142.mat',...
-% 'kevindata_circle_xy1_20220405_raw_radial1D,weighted,fixed=[0,0,1,1,0,1,0,],fixedparamval=[1467,0.227,1,1,1.312,0,2612,],kevindata,threshold=-1,tskip=1,xskip=1,202302061146.mat',...
-% 'kevindata_circle_xy1_20220405_raw_radial1D,weighted,fixed=[0,0,0,0,1,1,0,],fixedparamval=[1391,0.1429,1.1,1.2,1,0,2664,],kevindata,threshold=-1,tskip=1,xskip=1,202302161453.mat',...
-% };
+experiment=1;dim=1;
 
 files={
-'kevindata_circle_xy1_20220405_raw_fixed=[0,0,1,1,1,1,0,],fixedparamval=[1200,0.3,1,1,1,0,2600,],kevindata,threshold=-1,tskip=1,xskip=1,7.mat',...
-'kevindata_circle_xy1_20220405_raw_fixed=[0,0,1,1,1,0,0,],fixedparamval=[1546,0.27,1,1,1,0.07,2628,],kevindata,threshold=-1,tskip=1,xskip=1,11.mat',...
-'kevindata_circle_xy1_20220405_raw_fixed=[0,0,1,1,0,1,0,],fixedparamval=[1400,0.246,1,1,1,0,2616,],kevindata,threshold=-1,tskip=1,xskip=1,10.mat',...
-'kevindata_circle_xy1_20220405_raw_fixed=[0,0,0,0,1,1,0,],fixedparamval=[1423.47,0.101,1.173,1.355,1,0,2701.4,],kevindata,threshold=-1,tskip=1,xskip=1,10.mat',...
+'kevindata_circle_xy1_20220405_raw_radial1D,weighted,fixed=[0,0,1,1,1,1,0,],fixedparamval=[1287,0.271,1,1,1,0,2620,],kevindata,threshold=-1,tskip=1,xskip=1,202302061140.mat',...
+'kevindata_circle_xy1_20220405_raw_radial1D,weighted,fixed=[0,0,1,1,1,0,0,],fixedparamval=[1361,0.268,1,1,1,0.0218,2622,],kevindata,threshold=-1,tskip=1,xskip=1,202302061142.mat',...
+'kevindata_circle_xy1_20220405_raw_radial1D,weighted,fixed=[0,0,1,1,0,1,0,],fixedparamval=[1467,0.227,1,1,1.312,0,2612,],kevindata,threshold=-1,tskip=1,xskip=1,202302061146.mat',...
+'kevindata_circle_xy1_20220405_raw_radial1D,weighted,fixed=[0,0,0,0,1,1,0,],fixedparamval=[1391,0.1429,1.1,1.2,1,0,2664,],kevindata,threshold=-1,tskip=1,xskip=1,202302161453.mat',...
 };
+
+% files={
+% 'kevindata_circle_xy1_20220405_raw_fixed=[0,0,1,1,1,1,0,],fixedparamval=[1200,0.3,1,1,1,0,2600,],kevindata,threshold=-1,tskip=1,xskip=1,7.mat',...
+% 'kevindata_circle_xy1_20220405_raw_fixed=[0,0,1,1,1,0,0,],fixedparamval=[1546,0.27,1,1,1,0.07,2628,],kevindata,threshold=-1,tskip=1,xskip=1,11.mat',...
+% 'kevindata_circle_xy1_20220405_raw_fixed=[0,0,1,1,0,1,0,],fixedparamval=[1400,0.246,1,1,1,0,2616,],kevindata,threshold=-1,tskip=1,xskip=1,10.mat',...
+% 'kevindata_circle_xy1_20220405_raw_fixed=[0,0,0,0,1,1,0,],fixedparamval=[1423.47,0.101,1.173,1.355,1,0,2701.4,],kevindata,threshold=-1,tskip=1,xskip=1,10.mat',...
+% };
 
 % files={
 % 'kevindata_circle_xy2_20220405_raw_radial1D,weighted,fixed=[0,0,1,1,1,1,0,],fixedparamval=[1211,0.278,1,1,1,0,2551,],kevindata,threshold=-1,tskip=1,xskip=1,202302171425.mat',...
@@ -125,11 +125,12 @@ for i=1:3
     xlabel(['$',param_names{param},'$'],'Interpreter','latex');
     ylabel('$l$','Interpreter','latex');
     axis('square');
-    %xrange=[min(xx),max(xx)];
+    xrange=[min(xx),max(xx)];
     %xrange=[round(optimal_param_vals(param)-range_width(param)/2,4,'significant'),round(optimal_param_vals(param)+range_width(param)/2,4,'significant')];
-    xrange=ranges{param};
+    %xrange=ranges{param};
     xlim(xrange);
     xticks(xrange);
+    xtickformat(getxticklabelFormat(xticklabels));
     ylim([-2.5,0]);
     hold off;
     yticks([-2,0]);
@@ -164,12 +165,13 @@ for i=1:4
     xlabel(['$',param_names{param},'$'],'Interpreter','latex');
     ylabel('$l$','Interpreter','latex');
     axis('square');
-    %xrange=[min(xx),max(xx)];
+    xrange=[min(xx),max(xx)];
     %xrange=[round(optimal_param_vals(param)-range_width(param)/2,4,'significant'),round(optimal_param_vals(param)+range_width(param)/2,4,'significant')];
-    xrange=ranges{param};
+    %xrange=ranges{param};
     xlim(xrange);
     xticks(xrange);
-    xtickformat('%.4g');
+    xtickformat(getxticklabelFormat(xticklabels));
+    %xtickformat('%.4g');
     ylim([-2.5,0]);
     hold off;
     yticks([-2,0]);
@@ -203,12 +205,13 @@ for i=1:4
     xlabel(['$',param_names{param},'$'],'Interpreter','latex');
     ylabel('$l$','Interpreter','latex');
     axis('square');
-    %xrange=[min(xx),max(xx)];
+    xrange=[min(xx),max(xx)];
     %xrange=[round(optimal_param_vals(param)-range_width(param)/2,4,'significant'),round(optimal_param_vals(param)+range_width(param)/2,4,'significant')];
-    xrange=ranges{param};
+    %xrange=ranges{param};
     xlim(xrange);
     xticks(xrange);
-    xtickformat('%.4g');
+    xtickformat(getxticklabelFormat(xticklabels));
+    %xtickformat('%.4g');
     ylim([-2.5,0]);
     hold off;
     yticks([-2,0]);
@@ -243,12 +246,12 @@ for i=1:4
     xlabel(['$',param_names{param},'$'],'Interpreter','latex');
     ylabel('$l$','Interpreter','latex');
     axis('square');
-    %xrange=[min(xx),max(xx)];
+    xrange=[min(xx),max(xx)];
     %xrange=[round(optimal_param_vals(param)-range_width(param)/2,4,'significant'),round(optimal_param_vals(param)+range_width(param)/2,4,'significant')];
-    xrange=ranges{param};
+    %xrange=ranges{param};
     xlim(xrange);
     xticks(xrange);
-    xtickformat('%.4g');
+    %xtickformat('%.4g');
     ylim([-2.5,0]);
     hold off;
     yticks([-2,0]);
@@ -274,11 +277,12 @@ for i=1:4
     h.Annotation.LegendInformation.IconDisplayStyle='off';
     %xrange=[1.0,1.4];
     %xrange=[0.5,2.0];
-    xrange=[1.0,1.4];
+    xrange=[1.0,1.2];
     xlim(xrange);
     xticks(xrange);
     yticks([-2,0]);
     xtickangle(0);
+    xtickformat(getxticklabelFormat(xticklabels));
 
     %xlabel('$\alpha, \beta$','Interpreter','latex');
     legend('Location','eastoutside');
@@ -299,6 +303,22 @@ t.Padding = 'none';
 
 %%
 
-saveas(figg,sprintf('figure/xy%d_%dd_figtable_2_manualxlim.fig',experiment,dim));
-saveas(figg,sprintf('figure/xy%d_%dd_figtable_2_manualxlim.png',experiment,dim));
-saveas(figg,sprintf('figure/xy%d_%dd_figtable_2_manualxlim.eps',experiment,dim),'epsc');
+saveas(figg,sprintf('figure/xy%d_%dd_figtable_2.fig',experiment,dim));
+saveas(figg,sprintf('figure/xy%d_%dd_figtable_2.png',experiment,dim));
+saveas(figg,sprintf('figure/xy%d_%dd_figtable_2.eps',experiment,dim),'epsc');
+
+function fmt = getxticklabelFormat(strs)
+% given the current xticklabels, find the right format so all numbers have
+% consistent number of sigfigs
+mostsigfig=0;
+for i=1:length(strs)
+    decimalpt=strfind(strs{i},'.');
+    if isempty(decimalpt)
+        sigfig=0;
+    else
+        sigfig=length(strs{i})-decimalpt;
+    end
+    mostsigfig = max(mostsigfig,sigfig);
+end
+fmt=['%.',num2str(mostsigfig),'f'];
+end

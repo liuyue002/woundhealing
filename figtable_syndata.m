@@ -61,6 +61,9 @@ for i=1:4
     hold off;
     xticks([ranges{param}(1),ranges{param}(2)]);
     yticks([-2,0]);
+    if i==4
+        xtickformat('%.2f');
+    end
 end
 
 %%

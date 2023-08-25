@@ -10,9 +10,9 @@ x_skip=1;
 N=prod(ceil(size(noisy_data)./[t_skip,x_skip,x_skip]));
 threshold=-1;
 
-fixed_param_val=[1300,0.3,1,1,1,0,2600];
-lb=[3300, 0.01, 1.0, 0.01, 7.70, 0.555, 2295];
-ub=[4300, 0.06, 1.4, 0.30, 8.00, 0.580, 2325];
+fixed_param_val=[4000,0.003,1.511,0.002,1,0,2305];
+lb=[3900, 0.001, 1.3, 0.001, 7.70, 0.555, 2300];
+ub=[4100, 0.005, 1.7, 0.003, 8.00, 0.580, 2310];
 param_names={'D0','r','alpha','beta','gamma','n','k'};
 %leave sigma out
 num_params=size(fixed_param_val,2);
@@ -21,7 +21,7 @@ fixed=[0,0,0,0,1,1,0];
 num_free_params=sum(1-fixed);
 numeric_params=[T, dt/10, 10, 4380, 4380, 150, 150];
 
-figtitle=sprintf(['sweep_fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',1'],fixed,fixed_param_val,threshold,t_skip,x_skip);
+figtitle=sprintf(['sweep_fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],kevindata,threshold=%g,tskip=%d,xskip=%d',',2'],fixed,fixed_param_val,threshold,t_skip,x_skip);
 logfile = [prefix,'_',figtitle,'_log.txt'];
 diary(logfile);
 fprintf('start run on: %s\n',string(datetime,'yyyyMMdd_HHmmss'));
@@ -34,12 +34,12 @@ fprintf('%s\n',matlab.unittest.diagnostics.ConstraintDiagnostic.getDisplayableSt
 %% prepare
 
 % an optimizer from previous runs, added to the mix of param values to try
-prev_overall_minimizer = [3413.704,0.041,1.147,0.01,2305.488];
+prev_overall_minimizer = [4000,0.003,1.511,0.002,2305];
 prev_optimal_param_vals=fixed_param_val;
 prev_optimal_param_vals(fixed==0)=prev_overall_minimizer;
 %max_l=squared_error(noisy_data,optimal_param_vals,numeric_params,t_skip,x_skip,threshold,ic,nan,nan);
 
-numpts=20;
+numpts=10;
 param_vals=zeros(num_params,numpts);
 param_vals=[param_vals,prev_optimal_param_vals'];
 for param=1:num_params
@@ -77,7 +77,7 @@ end
 save([prefix,'_',figtitle,'.mat'],'-mat');
 
 %% analyze
-[M,I] = max(likelihoods,[],"all");
+[M,I] = max(likelihoods,[],1:5);
 [I1,I2,I3,I4,I5]=ind2sub([numpts,numpts,numpts,numpts,numpts],I);
 best_found=param_vals2{I1,I2,I3,I4,I5};
 fprintf(['best param found by sweep: ',repmat('%.3f,',size(best_found)),'\n'],best_found);

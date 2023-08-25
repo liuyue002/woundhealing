@@ -1,4 +1,4 @@
-load('simulations/kevindata_triangle_xy3_20220405_raw.mat');
+load('simulations/kevindata_triangle_xy8_20220405_raw.mat');
 k=strfind(prefix,'/');
 prefix=strcat('./simulations/',prefix(k(end)+1:end));
 nFrame=size(noisy_data,1);
@@ -39,7 +39,7 @@ prev_optimal_param_vals=fixed_param_val;
 prev_optimal_param_vals(fixed==0)=prev_overall_minimizer;
 %max_l=squared_error(noisy_data,optimal_param_vals,numeric_params,t_skip,x_skip,threshold,ic,nan,nan);
 
-numpts=20;
+numpts=10;
 param_vals=zeros(num_params,numpts);
 param_vals=[param_vals,prev_optimal_param_vals'];
 for param=1:num_params
@@ -77,7 +77,7 @@ end
 save([prefix,'_',figtitle,'.mat'],'-mat');
 
 %% analyze
-[M,I] = max(likelihoods,[],"all");
+[M,I] = max(likelihoods,[],1:5);
 [I1,I2,I3,I4,I5]=ind2sub([numpts,numpts,numpts,numpts,numpts],I);
 best_found=param_vals2{I1,I2,I3,I4,I5};
 fprintf(['best param found by sweep: ',repmat('%.3f,',size(best_found)),'\n'],best_found);

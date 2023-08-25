@@ -252,6 +252,8 @@ end
 fprintf('finish run on: %s\n',string(datetime,'yyyyMMdd_HHmmss'));
 if makeplot
     save(matfile,'-mat');
+    saveas(fig,[filename,'_final.png']);
+    saveas(fig,[filename,'_final.eps'],'epsc');
     diary off;
 end
 

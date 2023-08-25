@@ -17,9 +17,9 @@ C0=100;
 T=25;
 upts=100;
 %odeopts = odeset('RelTol',1e-4,'AbsTol',1e-4,'MaxStep',T/upts);
-alphak=0.2; % weight of control cost
-alphar=2e6;
-alphad=5e5;
+alphak=0.1; % weight of control cost
+alphar=5e6;
+alphad=1e5;
 omega=0.1; % control update rate
 uklim = 1200; %upper bound for uk
 urlim = 1;
@@ -318,6 +318,8 @@ ylabel('J');
 fprintf('finish run on: %s\n',string(datetime,'yyyyMMdd_HHmmss'));
 if makeplot
     save(matfile,'-mat');
+    saveas(fig,[filename,'_final.png']);
+    saveas(fig,[filename,'_final.eps'],'epsc');
     diary off;
 end
 

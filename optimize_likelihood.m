@@ -22,14 +22,19 @@ paramcount=1;
 auto_scale=true;
 if isnan(scaling)
     scaling=ones(size(initial));
-    auto_scale=false;
 elseif size(scaling,1)>1
     scaling=scaling';
+    auto_scale=false;
 end
 for i=1:size(fixed_params,2)
-    if ~fixed_params(i) 
-        param_str=strcat(param_str,'x(',num2str(paramcount),')*scaling(',num2str(i),'),');
-        paramcount = paramcount+1;
+    if ~fixed_params(i)
+        if auto_scale
+            param_str=strcat(param_str,'x(',num2str(paramcount),'),');
+            paramcount = paramcount+1;
+        else
+            param_str=strcat(param_str,'x(',num2str(paramcount),')*scaling(',num2str(i),'),');
+            paramcount = paramcount+1;
+        end
     else
         param_str=strcat(param_str,num2str(initial(i)),',');
     end

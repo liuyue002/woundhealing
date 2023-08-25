@@ -36,6 +36,8 @@ fprintf('start run on: %s\n',string(datetime('now'), 'yyyy/MM/dd HH:mm:ss'));
 
 [overall_minimizer,sigma,max_l,param_str,~,~] = optimize_likelihood(fixed,fixed_param_val,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,3,rs,noiseweight,scaling);
 fprintf(['Overall max likelihood param is: ',repmat('%.3f,',size(overall_minimizer)),'sigma=%.3f,maxLikelihood=%.3f\n'],overall_minimizer,sigma,max_l);
+optimal_param_vals=fixed_param_val';
+optimal_param_vals(fixed==0)=overall_minimizer;
 
 aic = -2*max_l + 2*num_free_params;
 bic = -2*max_l + log(N)*num_free_params;
@@ -49,8 +51,6 @@ param_vals=zeros(num_params,numpts);
 max_ls=zeros(num_params,numpts);
 minimizers=cell(num_params,numpts);
 % add the global optimum to the list of param vals
-optimal_param_vals=fixed_param_val';
-optimal_param_vals(fixed==0)=overall_minimizer;
 param_vals=[param_vals,optimal_param_vals];
 for param=1:num_params
     if fixed(param)

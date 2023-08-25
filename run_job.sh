@@ -8,8 +8,8 @@
 
 #matlab -nodisplay -nosplash -r "param_iden_kevindata_radial_bivariate;exit"
 #matlab -nodisplay -nosplash -r "mcmc;exit"
-matlab -nodisplay -nosplash -r "param_iden_kevindata_radial;exit"
-#matlab -nodisplay -nosplash -r "param_iden3;exit"
+#matlab -nodisplay -nosplash -r "param_iden_kevindata_radial;exit"
+matlab -nodisplay -nosplash -r "param_iden3;exit"
 
 #mail -s "[param] param est ${1} done" yue.liu@maths.ox.ac.uk <${tempfile}
 mail -s "[param] param est ${1} done" yue.liu@maths.ox.ac.uk </dev/null

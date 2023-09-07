@@ -4,7 +4,7 @@
 u_K0=200;
 tau0=5;
 tau=10;
-filename='logistic_bd_uk_minimize_conf_int_width_4';
+filename='logistic_bd_uk_minimize_conf_int_width_5';
 diary([filename,'_log.txt']);
 warning('off','MATLAB:ode45:IntegrationTolNotMet');
 %% do some plot first
@@ -49,8 +49,10 @@ surf(X,Y,Z,'LineStyle','none');
 xlabel('tau0');
 ylabel('tau');
 zlabel('r range');
+clim([0,2]);
 view(0,90);
 colorbar;
+title('rrange vs tau,tau0');
 
 %% do a 2D plot for model difference
 C0=100;

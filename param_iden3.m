@@ -32,17 +32,17 @@ x_skip=1;
 N=prod(ceil(size(noisy_data)./[t_skip,x_skip])); % number of data pts
 
 true_params=params;
-fixed_param_val=[3126, 0.023, 1.36,0.6125, 1, 0, 2287];
+fixed_param_val=[3144, 0.024, 1.315,0.5, 1, 0, 2288];
 %fixed_param_val=[500,0.05,1,1,1,0];
 %lb=fixed_param_val.*[0.8,0.8,0.9,0.9,0.9,0.9];
 %ub=fixed_param_val.*[1.2,1.2,1.1,1.1,1.1,1.1];
-lb=[2600, 0.01, 0.90, 0.50,  1.00, 0.080, 2250];
-ub=[3400, 0.10, 1.50, 0.80, 20.00, 0.300, 2330];
+lb=[2700, 0.01, 1.00, 0.10,  1.00, 0.080, 2240];
+ub=[3700, 0.15, 1.60, 0.70, 20.00, 0.300, 2330];
 param_names={'D_0','r','\alpha','\beta','\gamma','\eta','K'};
 %leave sigma out
 num_params=size(fixed_param_val,2);
 %if fixed(i)==1, then the ith param is set to the true value and not optimized over
-fixed=[0,0,1,1,0,1,0];
+fixed=[0,0,0,0,1,1,0];
 num_free_params=sum(1-fixed);
 %numeric_params=[T, dt/100, 100, NaN, NaN, 1];
 
@@ -50,13 +50,13 @@ num_free_params=sum(1-fixed);
 lb_opt=[ 100, 0.01,  0.1,  0.1,   0.1, 0,   500]; %[0,0,0,0,0,0,0]
 ub_opt=[5000, 5.00,  3.0,  4.0,   9.0, 4, 20000]; %[20000,5,10,10,10,10,10000]
 
-figtitle=sprintf(['noise=%g,fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],threshold=%g,tskip=%d,xskip=%d',',4'],noise_strength,fixed,fixed_param_val,threshold,t_skip,x_skip);
+figtitle=sprintf(['noise=%g,fixed=[',repmat('%d,',size(fixed)),'],fixedparamval=[',repmat('%g,',size(fixed)),'],threshold=%g,tskip=%d,xskip=%d',',5'],noise_strength,fixed,fixed_param_val,threshold,t_skip,x_skip);
 logfile = [prefix,'_',figtitle,'_log.txt'];
 diary(logfile);
 fprintf('start run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
 
 %% overall max likelihood
-[overall_minimizer,sigma,max_l,param_str,grad,hessian] = optimize_likelihood(fixed,fixed_param_val,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,1,nan,nan,nan);
+[overall_minimizer,sigma,max_l,param_str,grad,hessian] = optimize_likelihood(fixed,fixed_param_val,lb_opt,ub_opt,noisy_data,numeric_params,t_skip,x_skip,threshold,ic,2,nan,nan,nan);
 fprintf(['Overall max likelihood param is: ',repmat('%.3f,',size(overall_minimizer)),'sigma=%.3f,maxLikelihood=%.3f\n'],overall_minimizer,sigma,max_l);
 optimal_param_vals=fixed_param_val';
 optimal_param_vals(fixed==0)=overall_minimizer;

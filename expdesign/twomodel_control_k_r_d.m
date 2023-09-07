@@ -225,7 +225,7 @@ for iter=1:maxiter
 
     if abs(Jgain)<1
         fprintf('Converged.\n');
-        %break;
+        break;
     end
 
     % tt=24;fff=@(u) -H(C1fun(tt),C2fun(tt),Lambda1fun(tt),Lambda2fun(tt),u);

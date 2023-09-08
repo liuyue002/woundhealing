@@ -1,5 +1,5 @@
 function sol = sol_richards_control(t,params,C0,u_d,u_K)
-%exact solution for Richards model with death term
+%numeric solution for Richards model with death term
 % (includes logistic growth as special case with gamma=1)
 % with control function for death and carrying capacity
 % u_d, u_k should be function handles

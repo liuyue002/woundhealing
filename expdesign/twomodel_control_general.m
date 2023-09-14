@@ -10,11 +10,11 @@ if absolute
     dfdCgen= @(C,r,d,gamma,K,uall) (r+uall(1))*(1-(1+gamma)*(C./(K-uall(3))).^gamma)-(d+uall(2));
     % lower/upper bound for control variables
     lb = [0,0,0];
-    ub = [0.4, 0.2, 1200];
+    ub = [0.5, 0.5, 1200];
     % weight of control cost
-    alpha = [3e4, 5e5, 0.03];
+    alpha = [3e4, 3e4, 0.03];
     plotting_scale=[1000,1000,1];
-    default_u = [0.1, 0, 700]; %starting point of optimisation
+    default_u = [0.1, 0.3, 700]; %starting point of optimisation
 else
     % effects of u's are multiplicative
     fgen = @(C,r,d,gamma,K,uall) r*(1+uall(1))*C.*(1-(C./(K*(1-uall(3)))).^gamma)-d*(1+uall(2))*C;
@@ -23,9 +23,9 @@ else
     lb = [0,0,0];
     ub = [0.5, 0.5, 0.5];
     % weight of control cost
-    alpha = [1.3e5, 1.3e5, 3e4];
+    alpha = [1.3e5, 3e4, 3e4];
     plotting_scale=[1000,1000,1000];
-    default_u = [0, 0.1, 0.1]; %starting point of optimisation
+    default_u = [0, 0.3, 0]; %starting point of optimisation
 end
 
 r1=0.225;
@@ -38,11 +38,11 @@ d2=0;
 gamma2=3;
 K2=2433;
 
-active_u=logical([false, false, true]); % ud, ud, uk
+active_u=logical([false, true, false]); % ud, ud, uk
 % initial guess
 ur=@(t) 0;
-ud=@(t) 0;
-uk=@(t) 0.4;
+ud=@(t) 0.3;
+uk=@(t) 0;
 
 C0=100;
 T=25;

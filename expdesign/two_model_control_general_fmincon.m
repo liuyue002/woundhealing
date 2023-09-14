@@ -10,11 +10,11 @@ if absolute
     dfdCgen= @(C,r,d,gamma,K,uall) (r+uall(1))*(1-(1+gamma)*(C./(K-uall(3))).^gamma)-(d+uall(2));
     % lower/upper bound for control variables
     lb = [0,0,0];
-    ub = [0.4, 0.2, 1200];
+    ub = [0.5, 0.5, 1200];
     % weight of control cost
-    alpha = [5e5, 5e5, 0.03];
+    alpha = [3e4, 3e4, 0.03];
     plotting_scale=[1000,1000,1];
-    default_u = [0.1, 0, 700]; %starting point of optimisation
+    default_u = [0.1, 0.05, 700]; %starting point of optimisation
 else
     % effects of u's are multiplicative
     fgen = @(C,r,d,gamma,K,uall) r*(1+uall(1))*C.*(1-(C./(K*(1-uall(3)))).^gamma)-d*(1+uall(2))*C;
@@ -43,7 +43,7 @@ active_u=logical([false, false, true]); % ud, ud, uk
 % initial guess
 ur=@(t) 0;
 ud=@(t) 0;
-uk=@(t) 700;
+uk=@(t) 0.4;
 
 C0=100;
 T=25;
@@ -51,7 +51,7 @@ upts=100;
 odeopts = odeset('RelTol',1e-4,'AbsTol',1e-4,'MaxStep',T/upts);
 omega=0.1;
 
-filename=sprintf('simulations/twomodel_control_gen_fmincon_richard_%s_active=[%d,%d,%d],alpha=[%.2f,%.2f,%.2f],omega=%.2f',string(datetime,'yyyyMMdd_HHmmss'),active_u,alpha,omega);
+filename=sprintf('simulations/twomodel_control_gen_fmincon_richard_%s_absolute=%d_active=[%d,%d,%d],alpha=[%.2f,%.2f,%.2f],omega=%.2f',string(datetime,'yyyyMMdd_HHmmss'),absolute,active_u,alpha,omega);
 makeplot=true;
 giffile=[filename,'.gif'];
 logfile=[filename,'.txt'];
@@ -62,11 +62,10 @@ end
 fprintf('start run on: %s\n',string(datetime,'yyyyMMdd_HHmmss'));
 
 %% initialise
-uk=@(t) 0.4;
 ts=linspace(0,T,upts);
-unum=arrayfun(uk,ts);
-%load('simulations/twomodel_control_gen_richard_20230914_005907_active=[0,0,1],absolute=0,alpha=[130000.00,130000.00,30000.00],omega=0.10.mat','unum');
-%unum=unum(active_u,1:end);
+%unum=arrayfun(ud,ts);
+load('simulations/twomodel_control_gen_richard_20230914_005907_active=[0,0,1],absolute=0,alpha=[130000.00,130000.00,30000.00],omega=0.10.mat','unum');
+unum=unum(active_u,1:end);
 
 J = @(unum) Jgen(C0,T,ts,unum,fgen,dfdCgen,r1,d1,gamma1,K1,r2,d2,gamma2,K2,alpha);
 
@@ -87,6 +86,7 @@ ylabel('u');
 legend('FW-BW sweep','fmincon');
 
 %% save
+saveas(figg,[filename,'.png']);
 save([filename,'.mat']);
 
 %% helper functions

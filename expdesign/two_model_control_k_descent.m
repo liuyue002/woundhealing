@@ -24,7 +24,7 @@ bangbang=false;
 
 filename=sprintf('simulations/twomodel_control_fmincon_%s_alpha=%.2f,omega=%.2f',string(datetime,'yyyyMMdd_HHmmss'),alpha,omega);
 
-%% result from fw-bw sweep
+%% initialise
 uk=@(t) 100;
 tfine=linspace(0,T,upts);
 uknum=arrayfun(uk,tfine);

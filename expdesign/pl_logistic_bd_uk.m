@@ -5,9 +5,10 @@ C0=100;
 nt=100;
 T=25;
 t=linspace(0,T,nt);
-params=[0.45,0.15,1,3900];
+%params=[0.45,0.15,1,3900];
+params=[0.225,0,8,2381];
 u_K0=200;
-tau0=5;
+tau0=15;
 tau=5;
 u_d=@(t)0;
 u_K=@(t) ((t>tau0)&(t<(tau0+tau)))*u_K0;
@@ -17,24 +18,25 @@ noisy_data=clean_data+randn(size(clean_data))*sigma;
 
 %data2=sol_richards_control(t,[0.2302,0.0803,1,2000],C0,u_d,u_K);
 
-figure;
+solfig=figure;
 hold on
 plot(t,clean_data);
 plot(t,noisy_data);
 plot(t,u_K(t));
 %plot(t,data2);
 
-figtitle=sprintf('pl_logistic_bd_uk_%s_sigma=%g,tau0=%g,tau=%g,uK0=%g,rng=%g',string(datetime,'yyyyMMdd_HHmmss'),sigma,tau0,tau,u_K0,seed);
-%% MLE for logistic
-fixed=[0,0,1,0];
+%figtitle=sprintf('pl_logistic_bd_uk_%s_sigma=%g,tau0=%g,tau=%g,uK0=%g,rng=%g',string(datetime,'yyyyMMdd_HHmmss'),sigma,tau0,tau,u_K0,seed);
+figtitle=sprintf('pl_richards_bd_uk_%s_params=[%g,%g,%g,%g],sigma=%g,tau0=%g,tau=%g,uK0=%g,rng=%g',string(datetime,'yyyyMMdd_HHmmss'),params,sigma,tau0,tau,u_K0,seed);
+%% MLE
+fixed=[0,0,0,0];
 fixed_param_val=params;
 numeric_params={T,nt,u_d,u_K};
 lb_opt=[0,0,0,0];
-ub_opt=[5,5,5,50000];
+ub_opt=[5,5,9,50000];
 opt.lb=lb_opt;
 opt.ub=ub_opt;
 opt.logging=true;
-opt.alg=2;
+opt.alg=1;
 [mle,mle_sigma,max_l] = optimize_likelihood_general(@richards_ctrl_sq_err,fixed_param_val,fixed,noisy_data,numeric_params,C0,opt);
 optimal_param_vals=fixed_param_val';
 optimal_param_vals(fixed==0)=mle;
@@ -46,23 +48,23 @@ mle_soln=sol_richards_control(t,optimal_param_vals,C0,u_d,u_K);
 %% profile likelihood for logistic, with birth/death, and u_K
 
 fixed_param_val=params;
-fixed=[0,0,1,0];
+fixed=[0,0,0,0];
 num_params=size(fixed_param_val,2);
 num_free_params=sum(1-fixed);
-lb=[ 0.10, 0.00, 0,  1000];
-ub=[ 1.30, 1.00, 2,  8000];
+lb=[ 0.10, 0.00, 7,   2000];
+ub=[ 0.50, 0.40, 9,   3000];
 opt.ub=[10,10,10,99000];
 opt.alg=1;
 param_names={'r','\delta','\gamma','K'};
 
-numpts=41;
+numpts=11;
 param_vals=zeros(num_params,numpts);
 max_ls=zeros(num_params,numpts);
 minimizers=cell(num_params,numpts);
 % add the global optimum to the list of param vals
 param_vals=[param_vals,optimal_param_vals];
 
-for param=1%:num_params
+for param=1:num_params
     if fixed(param)
         continue;
     end
@@ -141,7 +143,7 @@ end
 %% find lower edge of conf int of r (accurately with bisection)
 % so this is a more accurate version of zs{1}
 r_eff=params(1)-params(2);
-bd_rlow=[r_eff,optimal_param_vals(1)];
+bd_rlow=[r_eff-0.001,optimal_param_vals(1)];
 opt.logging=false;
 plr=@(r) plr_helper(r,params,noisy_data,numeric_params,C0,opt,max_l) + 1.92;
 [r_lower,fval,exitflag,output] = fzero(plr,bd_rlow);
@@ -160,7 +162,6 @@ end
 r_conf_range=r_upper-r_lower;
 fprintf('r_conf_range=%.4f\n',r_conf_range);
 %% save
-return
 prefix='/home/liuy1/Documents/woundhealing/expdesign/simulations/';
 save([prefix,figtitle,'.mat'],'-mat');
 biggerFont(fig);

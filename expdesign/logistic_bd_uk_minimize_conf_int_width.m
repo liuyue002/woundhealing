@@ -2,13 +2,13 @@
 
 %% the default controls
 u_K0=200;
-tau0=5;
-tau=10;
-filename='logistic_bd_uk_minimize_conf_int_width_5';
+tau0=15;
+tau=5;
+filename='richard_bd_uk_minimize_conf_int_width_1';
 diary([filename,'_log.txt']);
 warning('off','MATLAB:ode45:IntegrationTolNotMet');
 %% do some plot first
-u_K0s=linspace(50,800,101);
+u_K0s=linspace(50,1800,101);
 ff=@(u_K0) logistic_bd_uk_rrange(u_K0,tau0,tau);
 widths_uK0=arrayfun(ff,u_K0s);
 

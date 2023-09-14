@@ -1,7 +1,7 @@
 %% general setup
 % whether the effects of the control variables are absolute (additive) or
 % relative (multiplicative)
-absolute = true;
+absolute = false;
 
 % uall=[ur,ud,uk];
 if absolute
@@ -10,9 +10,9 @@ if absolute
     dfdCgen= @(C,r,d,gamma,K,uall) (r+uall(1))*(1-(1+gamma)*(C./(K-uall(3))).^gamma)-(d+uall(2));
     % lower/upper bound for control variables
     lb = [0,0,0];
-    ub = [0.4, 0.2, 1300];
+    ub = [0.4, 0.2, 1200];
     % weight of control cost
-    alpha = [5e5, 5e5, 0.03];
+    alpha = [3e4, 5e5, 0.03];
     plotting_scale=[1000,1000,1];
     default_u = [0.1, 0, 700]; %starting point of optimisation
 else
@@ -23,26 +23,26 @@ else
     lb = [0,0,0];
     ub = [0.5, 0.5, 0.5];
     % weight of control cost
-    alpha = [1.3e6, 1.3e6, 3e4];
+    alpha = [1.3e5, 1.3e5, 3e4];
     plotting_scale=[1000,1000,1000];
     default_u = [0, 0.1, 0.1]; %starting point of optimisation
 end
 
-r1=0.45;
-d1=0.15;
-gamma1=1;
-K1=3900;
+r1=0.225;
+d1=0;
+gamma1=8;
+K1=2381;
 
-r2=0.3;
+r2=0.235;
 d2=0;
-gamma2=1;
-K2=2600;
+gamma2=3;
+K2=2433;
 
 active_u=logical([false, false, true]); % ud, ud, uk
 % initial guess
 ur=@(t) 0;
 ud=@(t) 0;
-uk=@(t) 700;
+uk=@(t) 0.4;
 
 C0=100;
 T=25;
@@ -52,7 +52,7 @@ omega=0.1;
 Hgen = @(C1,C2,lambda1,lambda2,uall) (C1-C2).^2-alpha(1)*uall(1).^2-alpha(2)*uall(2).^2-alpha(3)*uall(3).^2 + lambda1*fgen(C1,r1,d1,gamma1,K1,uall) + lambda2*fgen(C2,r2,d2,gamma2,K2,uall);
 H = @(C1,C2,lambda1,lambda2,u) Hgen(C1,C2,lambda1,lambda2,combine_u(u,active_u));
 
-filename=sprintf('simulations/twomodel_control_gen_%s_active=[%d,%d,%d],alpha=[%.2f,%.2f,%.2f],omega=%.2f',string(datetime,'yyyyMMdd_HHmmss'),active_u,alpha,omega);
+filename=sprintf('simulations/twomodel_control_gen_richard_%s_active=[%d,%d,%d],absolute=%d,alpha=[%.2f,%.2f,%.2f],omega=%.2f',string(datetime,'yyyyMMdd_HHmmss'),active_u,absolute,alpha,omega);
 makeplot=true;
 giffile=[filename,'.gif'];
 logfile=[filename,'.txt'];
@@ -65,9 +65,15 @@ fprintf('start run on: %s\n',string(datetime,'yyyyMMdd_HHmmss'));
 %% figure and initializations
 ts=linspace(0,T,upts);
 unum=zeros(3,upts);
-unum(1,:)=arrayfun(ur,ts);
-unum(2,:)=arrayfun(ud,ts);
-unum(3,:)=arrayfun(uk,ts);
+if active_u(1)
+    unum(1,:)=arrayfun(ur,ts);
+end
+if active_u(2)
+    unum(2,:)=arrayfun(ud,ts);
+end
+if active_u(3)
+    unum(3,:)=arrayfun(uk,ts);
+end
 Lambinit=[0;0];
 Jold=nan;
 maxiter=1000;
@@ -153,14 +159,14 @@ for iter=1:maxiter
         c1plot.YData=C(:,1);
         c2plot.YData=C(:,2);
         cdiffplot.YData=abs(C(:,1)-C(:,2));
-        urplot.YData=unum(1,:);
-        udplot.YData=unum(2,:);
-        ukplot.YData=unum(3,:);
+        urplot.YData=unum(1,:)*plotting_scale(1);
+        udplot.YData=unum(2,:)*plotting_scale(2);
+        ukplot.YData=unum(3,:)*plotting_scale(3);
         l1plot.YData=Lambda(:,1);
         l2plot.YData=Lambda(:,2);
-        urnewplot.YData=unumnew(1,:);
-        udnewplot.YData=unumnew(2,:);
-        uknewplot.YData=unumnew(3,:);
+        urnewplot.YData=unumnew(1,:)*plotting_scale(1);
+        udnewplot.YData=unumnew(2,:)*plotting_scale(2);
+        uknewplot.YData=unumnew(3,:)*plotting_scale(3);
         figtitle.String=['Iteration=',num2str(iter),', Jcontrol=',num2str(Jcontrols(iter),'%.02f'),', Jmodel=',num2str(Jmodels(iter),'%.02f'),', Jtotal=',num2str(Js(iter),'%.02f'),];
         drawnow;
         frame = getframe(fig);
@@ -195,6 +201,8 @@ ylabel('J');
 fprintf('finish run on: %s\n',string(datetime,'yyyyMMdd_HHmmss'));
 if makeplot
     save(matfile,'-mat');
+    saveas(fig,[filename,'.png']);
+    saveas(figJ,[filename,'_Jhistory.png']);
     diary off;
 end
 

@@ -12,7 +12,9 @@ K=params(4);
 
 ode=@(t,C)r*C*(1-(C/(K-u_K(t)))^gamma) - (d+u_d(t))*C;
 
-opt=odeset('MaxStep',t(2)-t(1));
+% smaller step size especially for large u_K, such that when it's turned on
+% it can cause the solution to sharply drop
+opt=odeset('MaxStep',(t(2)-t(1))/100);
 [tt,X] = ode45(ode,[t(1),t(end)],C0,opt);
 sol = interp1(tt,X,t);
 end

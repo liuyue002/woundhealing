@@ -36,6 +36,7 @@ end
 if ukmax ~= 0
     timepts = [timepts,tau0k,tau1k];
 end
+timepts=unique(timepts);
 timepts=sort(timepts);
 
 sol=[C0];

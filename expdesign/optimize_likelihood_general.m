@@ -55,6 +55,7 @@ eval(f_str);
 
 %% call optimization routine
 
+try
 if alg==1
     options=optimoptions('fmincon','Algorithm','interior-point');
     %options=optimoptions('fmincon','Algorithm','sqp');
@@ -142,6 +143,15 @@ elseif alg==3
     end
 else
     error("Unknown optimization algorithm");
+end
+
+catch exception
+    fprintf('Optimize_likelihood_general ERROR\n');
+    disp(initial);
+    disp(fixed_params);
+    disp(getReport(exception));
+    minimizer=nan;
+    min_sq_err=nan;
 end
 
 %% final result

@@ -1,4 +1,4 @@
-xx=linspace(0,10,100);
+xx=linspace(0,10,101);
 
 figg=figure('position',[200,200,1000,600],'color','w');
 t = tiledlayout(2,3);

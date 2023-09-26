@@ -5,14 +5,14 @@ c0=0.1;
 c2 = @(t,r) k*c0./(c0 + (k-c0).*exp(-r.*t));
 
 ts=linspace(0,8,40);
-ts2=linspace(0,8,10);
+ts2=linspace(0,8,40);
 
 fig=figure;
 hold on
 plot(ts,c2(ts,0.3),'DisplayName','r=0.4');
 plot(ts,c2(ts,0.7),'DisplayName','r=0.7');
 plot(ts,c2(ts,1.1),'DisplayName','r=1.0');
-plot(ts2,abs(c2(ts2,0.7) + normrnd(0,0.07,1,10)),'b*','DisplayName','Data');
+plot(ts2,abs(c2(ts2,0.7) + normrnd(0,0.07,1,40)),'b*','DisplayName','Data');
 hold off
 xlabel('t');
 ylabel('C(t)');
@@ -22,15 +22,15 @@ legend('Location','northwest');
 biggerFont(gcf);
 
 %%
-xx=linspace(0.15,0.3,20);
+xx=linspace(0.4,1.0,51);
 fig2=figure;
 hold on
-plot(xx,-1500*(xx-0.22).^2);
+plot(xx,-1000*(xx-0.7).^2);
 plot([0,1],[-1.92,-1.92],'-k');
-xlim([0.15,0.3]);
+xlim([0.4,1.0]);
 ylim([-2.5,0]);
 xlabel('\theta');
-ylabel('log(p)');
+ylabel('log(L)');
 biggerFont(gcf);
 
 yy2=-1500*(xx-0.22).^2;

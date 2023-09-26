@@ -9,8 +9,14 @@ gamma=params(3);
 K=params(4);
 r_eff=r-d;
 K_eff=K*(1-d/r)^(1/gamma);
-if r_eff<=0
-    warning('bad parameters');
-end
+%K_eff=K*abspow(1-d/r,1/gamma);
+% if r_eff<=0
+%     warning('bad parameters');
+% end
+%sol = K_eff*C0./(C0^gamma+(abspow(K_eff,gamma) - C0^gamma).*exp(-gamma*r_eff*t)).^(1/gamma);
 sol = K_eff*C0./(C0^gamma+(K_eff^gamma - C0^gamma).*exp(-gamma*r_eff*t)).^(1/gamma);
 end
+
+% function y = abspow(x,p)
+% y = abs(x)^p*sign(x);
+% end

@@ -4,7 +4,7 @@
 u_K0=200;
 tau0=15;
 tau=5;
-filename='richard_bd_uk_minimize_conf_int_width_1';
+filename='richard_bd_uk_minimize_conf_int_width_2';
 diary([filename,'_log.txt']);
 warning('off','MATLAB:ode45:IntegrationTolNotMet');
 %% do some plot first
@@ -41,7 +41,7 @@ ylabel('r range');
 %% do a 2D plot
 
 tau0ss=linspace(0,25,41);
-tauss=linspace(0,25,41);
+tauss=linspace(1,25,41);
 [X,Y]=meshgrid(tau0ss,tauss);
 Z=arrayfun(@(tau0,tau)logistic_bd_uk_rrange(u_K0,tau0,tau), X,Y);
 fig4=figure;

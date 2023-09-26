@@ -60,11 +60,7 @@ if ~isnan(ic)
     c=ic;
 end
 
-if ispc % is windows
-    folder='D:\liuyueFolderOxford1\woundhealing\simulations\';
-else % is linux
-    folder='/home/liuy1/Documents/woundhealing/simulations/';
-end
+folder='simulations/';
 prefix = sprintf('woundhealing_1d_%s_D0=%g,r=%g,alpha=%g,beta=%g,gamma=%g,n=%g,k=%.1f,dt=%.3g',datestr(datetime('now'), 'yyyymmdd_HHMMSS'),params,dt);
 prefix = strcat(folder, prefix);
 if makegif

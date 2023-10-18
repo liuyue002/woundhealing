@@ -14,7 +14,8 @@ K_eff=K*(1-d/r)^(1/gamma);
 %     warning('bad parameters');
 % end
 %sol = K_eff*C0./(C0^gamma+(abspow(K_eff,gamma) - C0^gamma).*exp(-gamma*r_eff*t)).^(1/gamma);
-sol = K_eff*C0./(C0^gamma+(K_eff^gamma - C0^gamma).*exp(-gamma*r_eff*t)).^(1/gamma);
+%sol = K_eff*C0./(C0^gamma+(K_eff^gamma - C0^gamma).*exp(-gamma*r_eff*t)).^(1/gamma);
+sol = K_eff*C0./( K_eff^gamma.*exp(-gamma*r_eff*t) + C0^gamma.*(1-exp(-gamma*r_eff*t)) ).^(1/gamma);
 end
 
 % function y = abspow(x,p)

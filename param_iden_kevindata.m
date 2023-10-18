@@ -1,13 +1,14 @@
 %load('/home/liuy1/Documents/woundhealing/simulations/kevindata_highdensity_phase20220221_135604.mat')
 %load('simulations/kevindata_highdensity_phase20220221_135604.mat')
-load('simulations/kevindata_circle_xy2_20220405_raw.mat');
+%load('simulations/kevindata_circle_xy2_20220405_raw.mat');
 %load('simulations/kevindata_triangle_xy3_20220405_raw.mat');
 %addpath('/home/liuy1/my_programs/nlopt/lib/matlab');
+load('/home/liuy1/Documents/woundhealing/simulations/woundhealing_2d_20231015_163923_circle_D0=1300,r=0.3,alpha=1,beta=1,gamma=1,n=0,k=2600.0,dt=0.033,dx=29.200,.mat'); noisy_data=cc_noisy_400;
 nFrame=size(noisy_data,1);
 ic=squeeze(noisy_data(1,:,:));
 dt=1/3;
 T=(nFrame-1)*dt;
-t_skip=1;
+t_skip=3;
 x_skip=1;
 N=prod(ceil(size(noisy_data)./[t_skip,x_skip,x_skip]));
 threshold=-1;
@@ -19,7 +20,7 @@ param_names={'D0','r','alpha','beta','gamma','n','k'};
 %leave sigma out
 num_params=size(fixed_param_val,2);
 %if fixed(i)==1, then the ith param is set to the true value and not optimized over
-fixed=[0,0,1,1,0,1,0];
+fixed=[0,0,1,1,1,1,0];
 num_free_params=sum(1-fixed);
 numeric_params=[T, dt/10, 10, 4380, 4380, 150, 150];
 % feasible range for the optimization algorithm

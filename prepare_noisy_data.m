@@ -78,3 +78,15 @@ animate_1d(cc_noisy_001,[0,L],drawperframe*dt,'c',[prefix,'_noise=',num2str(sigm
 cc_seg = double(cc>0.5);
 animate_1d(cc_seg,[0,L],drawperframe*dt,'c',[prefix,'_threshold'],1);
 save([prefix,'.mat'],'cc_noisy_005','cc_noisy_001','cc_seg','-mat','-append');
+
+%% 2D new
+
+[prefix,cc,timereachcenter] = woundhealing_2d([1300,0.3,1,1,1,0,2600],[25.4, 1/30, 10, 4380, 4380, 150, 150],1,nan);
+load([prefix,'.mat']);
+sigma=5;
+cc_noisy_5 = cc+normrnd(0,sigma,size(cc));
+sigma=20;
+cc_noisy_20 = cc+normrnd(0,sigma,size(cc));
+sigma=400;
+cc_noisy_400 = cc+normrnd(0,sigma,size(cc));
+save([prefix,'.mat'],'cc_noisy_5','cc_noisy_20','cc_noisy_400','-mat','-append');

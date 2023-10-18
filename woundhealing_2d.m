@@ -51,7 +51,7 @@ cc = zeros(nFrame,ny,nx); % history of c
 % ictext='dot';
 
 % circle
-c = sqrt((X-Lx/2).^2 + (Y-Ly/2).^2) < 0.1*Lx;
+c = sqrt((X-Lx/2).^2 + (Y-Ly/2).^2) < 1400;
 c = c*k;
 ictext='circle';
 

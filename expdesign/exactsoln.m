@@ -1,4 +1,5 @@
-%%
+% this script is some early explorations using the exact solution
+
 addpath('/home/liuy1/Documents/woundhealing');
 %%
 fig=figure;
@@ -9,18 +10,20 @@ hold on
 plot(tt,sol_richards(tt,[1,0.2,1,2600],100));
 
 %%
-noisy_data=sol_richards(tt,[0.25,0,3,2600],100);
+%noisy_data=sol_richards(tt,[0.25,0,3,2600],100);
+%noisy_data=sol_richards(tt,[0.225,0,8,2380],100);
 
 %% 
 % sps the true data is generated with Richards, 
 % r=0.18, gamma=2, K=2600
 C0=100;
 N=100;
-T=10;
+T=25;
 t=linspace(0,T,N);
-params=[0.18,0,2,2600];
+params=[0.225,0,8,2380];
 clean_data=sol_richards(t,params,C0);
-sigma=20;
+sigma=400;
+rng(1);
 noisy_data=clean_data+randn(size(clean_data))*sigma;
 
 figure;
@@ -83,7 +86,8 @@ hold on;
 plot(t,noisy_data);
 plot(t,sol_richards(t,mle_richards,C0));
 plot(t,sol_richards(t,mle_logistic,C0));
-legend('noisy data','MLE richards','MLE logistic');
+plot(t,sol_richards(t,params,C0));
+legend('noisy data','MLE richards','MLE logistic','true model');
 %% now we want to distinguish between the two models by picking a C0
 
 neg_model_diff=@(C0) -sum((sol_richards(t,mle_richards,C0)-sol_richards(t,mle_logistic,C0)).^2);
@@ -99,7 +103,7 @@ problem.solver='fmincon';
 problem.lb=[0];
 % if ub is above K, then will pick very large C0 (probably at ub)
 % if set below K, will pick small C0
-problem.ub=[4000]; 
+problem.ub=[3000]; 
 problem.options=options;
 [best_C0,best_model_diff,~,~,~,~,~] = fmincon(problem);
 best_model_diff= -best_model_diff;
@@ -118,11 +122,45 @@ disp(best_C0);
 %% plot model difference wrt C0
 C0s=linspace(0,5000,251);
 modeldiffs = -arrayfun(neg_model_diff,C0s);
-figure;
+figdiff=figure('color','w');
 plot(C0s,modeldiffs);
-xlim([0,1000]);
-xlabel('C_0');
-ylabel('model diff');
+xlim([0,2500]);
+xlabel('$C_0$','Interpreter','latex');
+ylabel('Model difference','Interpreter','latex');
+betterFig(figdiff);
+%saveas(figdiff,'figure/modeldiff_vs_c0.eps','epsc');
+%% plot for thesis
+figsolnplot=figure('Color','w');
+hold on;
+plot(t,sol_richards(t,mle_richards,C0),'DisplayName','MLE richards');
+plot(t,sol_richards(t,mle_logistic,C0),'DisplayName','MLE logistic');
+plot(t,sol_richards(t,params,C0),'DisplayName','true model');
+xlim([0,25]);
+ylim([0,2600]);
+xlabel('t','Interpreter','latex');
+legend('Interpreter','latex','Location','southeast');
+betterFig(figsolnplot);
+%saveas(figsolnplot,'figure/model_discrim.eps','epsc');
+
+%% illustrate difference between models
+
+C0=1925;
+figdiff2=figure('color','w');
+hold on;
+solrich=sol_richards(t,mle_richards,C0);
+sollogi=sol_richards(t,mle_logistic,C0);
+plot(t,solrich,'DisplayName','MLE richards');
+plot(t,sollogi,'DisplayName','MLE logistic');
+fill([t,fliplr(t)], [solrich,fliplr(sollogi)], 'b','FaceAlpha',0.1,'EdgeColor','none','DisplayName','Model difference');
+hold off;
+xlim([0,25]);
+ylim([0,2800]);
+xlabel('t','Interpreter','latex');
+legend('Interpreter','latex','Location','southeast');
+title(sprintf('$C_0=%g$',C0),'Interpreter','latex');
+betterFig(figdiff2);
+
+saveas(figdiff2,sprintf('figure/modeldiff_C0=%d.eps',C0),'epsc');
 
 %% MLE for logistic growth, with K fixed to be exact
 sq_err=@(x) sum((sol_richards(t,[x(1),0,1,params(4)],C0)-noisy_data).^2);
@@ -490,3 +528,20 @@ for param=1:num_params
         disp(zs{param});
     end
 end
+
+
+%% two solution difference
+
+params1=[0.45,0.15,1,3900];
+params2=[0.3,0,];
+
+C0=100;
+T=25;
+upts=100;
+
+fig=figure;
+tt=linspace(0,25,50);
+hold on
+%plot(tt,sol_richards(tt,[0.3,1,2600],100));
+%plot(tt,sol_richards(tt,[0.3,2,2600],100));
+plot(tt,sol_richards(tt,[1,0.2,1,2600],100));

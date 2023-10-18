@@ -21,7 +21,7 @@ if isequal(class(fig.Children),'matlab.graphics.layout.TiledChartLayout')
     t.Padding = 'none';
 elseif isequal(class(fig.Children),'matlab.graphics.axis.Axes')
     % figure made using subplot, or there is only 1 plot
-    axs=figg.Children;
+    axs=fig.Children;
     for i=1:length(axs)
         ax=axs(i);
         set(ax,'FontSize', fontsize);

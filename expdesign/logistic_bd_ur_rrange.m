@@ -1,4 +1,4 @@
-function r_conf_range = logistic_bd_uk_rrange(u_K0,tau0,tau)
+function r_conf_range = logistic_bd_uk_rrange(urmax,tau0,tau)
 %Find width of confidence interval of r
 % logistic model with birth/death and u_K control
 
@@ -15,7 +15,8 @@ params=[0.45,0.15,1,3900];
 %tau0=5;
 %tau=15;
 u_d=@(t)0;
-u_K=@(t) ((t>tau0)&(t<(tau0+tau)))*u_K0;
+u_K=@(t)0;
+u_r=@(t) ((t>tau0)&(t<(tau0+tau)))*urmax;
 clean_data=sol_richards_control(t,params,C0,u_d,u_K,u_r);
 fixed=[0,0,1,0]; %% change for logistic/richards
 try
@@ -61,11 +62,11 @@ else
     [r_upper,~,~,~] = fzero(plr,bd_rhigh);
 end
 r_conf_range=r_upper-r_lower;
-fprintf('u_K0=%g,tau0=%g,tau=%g, r Conf Int: [%.4f,%.4f], width=%.4f\n',u_K0,tau0,tau,r_lower,r_upper,r_conf_range);
+fprintf('urmax=%g,tau0=%g,tau=%g, r Conf Int: [%.4f,%.4f], width=%.4f\n',urmax,tau0,tau,r_lower,r_upper,r_conf_range);
 catch exception
     disp(getReport(exception));
     r_conf_range=nan;
-    fprintf('u_K0=%g,tau0=%g,tau=%g, had error\n',u_K0,tau0,tau);
+    fprintf('u_K0=%g,tau0=%g,tau=%g, had error\n',urmax,tau0,tau);
 end
 
 end

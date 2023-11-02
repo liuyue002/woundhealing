@@ -1,4 +1,4 @@
-function sol = sol_richards_control(t,params,C0,u_d,u_K)
+function sol = sol_richards_control(t,params,C0,u_d,u_K,u_r)
 %numeric solution for Richards model with death term
 % (includes logistic growth as special case with gamma=1)
 % with control function for death and carrying capacity
@@ -10,7 +10,7 @@ d=params(2);
 gamma=params(3);
 K=params(4);
 
-ode=@(t,C)r*C*(1-(C/(K-u_K(t)))^gamma) - (d+u_d(t))*C;
+ode=@(t,C)(r+u_r(t))*C*(1-(C/(K-u_K(t)))^gamma) - (d+u_d(t))*C;
 
 % smaller step size especially for large u_K, such that when it's turned on
 % it can cause the solution to sharply drop

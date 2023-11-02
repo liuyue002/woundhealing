@@ -67,6 +67,10 @@ for i=2:length(timepts)
     C0 = sol2(end);
     t = [t,t2(2:end)];
     sol = [sol,sol2(2:end)];
+
+    if any(isnan(sol))
+        error('nan detected');
+    end
 end
 
 end

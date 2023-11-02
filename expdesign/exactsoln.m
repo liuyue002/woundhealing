@@ -126,7 +126,8 @@ figdiff=figure('color','w');
 plot(C0s,modeldiffs);
 xlim([0,2500]);
 xlabel('$C_0$','Interpreter','latex');
-ylabel('Model difference','Interpreter','latex');
+%ylabel('Model difference','Interpreter','latex');
+ylabel('$\mathcal{D}(C_0)$','Interpreter','latex');
 betterFig(figdiff);
 %saveas(figdiff,'figure/modeldiff_vs_c0.eps','epsc');
 %% plot for thesis
@@ -286,7 +287,7 @@ disp(minimizer); % should pretty much recover it exactly
 
 %% MLE with the general function
 fixed=[0,0,1,0];
-fixed_param_val=[0.3,0.15,1,2600];
+fixed_param_val=[0.45,0.15,1,3900];
 numeric_params=[T,nt];
 lb_opt=[0,0,0,0];
 ub_opt=[2,2,2,5000];
@@ -297,7 +298,7 @@ opt.logging=true;
 optimal_param_vals=fixed_param_val';
 optimal_param_vals(fixed==0)=mle;
 %% profile likelihood for birth/death logistic
-fixed_param_val=[0.3,0.15,1,2600];
+fixed_param_val=[0.45,0.15,1,3900];
 fixed=[0,0,1,0];
 num_params=size(fixed_param_val,2);
 num_free_params=sum(1-fixed);
@@ -395,13 +396,13 @@ end
 %% add in control for K
 rng(0);
 C0=100;
-nt=100;
-T=50;
+nt=51;
+T=25;
 t=linspace(0,T,nt);
-params=[0.3,0.15,1,2600];
-u_K0=50;
+params=[0.45,0.15,1,3900];
+u_K0=200;
 u_d=@(t)0;
-u_K=@(t) ((t>10)&(t<30))*u_K0;
+u_K=@(t) ((t>5)&(t<15))*u_K0;
 clean_data=sol_richards_control(t,params,C0,u_d,u_K);
 sigma=20;
 noisy_data=clean_data+randn(size(clean_data))*sigma;
@@ -418,10 +419,10 @@ plot(t,u_K(t));
 
 %% MLE for logistic
 fixed=[0,0,1,0];
-fixed_param_val=[0.3,0.15,1,2600];
+fixed_param_val=[0.45,0.15,1,3900];
 numeric_params={T,nt,u_d,u_K};
 lb_opt=[0,0,0,0];
-ub_opt=[2,2,2,10000];
+ub_opt=[5,5,9,10000];
 opt.lb=lb_opt;
 opt.ub=ub_opt;
 opt.logging=true;
@@ -436,7 +437,7 @@ mle_soln=sol_richards_control(t,optimal_param_vals,C0,u_d,u_K);
 
 %% profile likelihood for logistic, with birth/death, and u_K
 
-fixed_param_val=[0.3,0.15,1,2600];
+fixed_param_val=[0.45,0.15,1,3900];
 fixed=[0,0,1,0];
 num_params=size(fixed_param_val,2);
 num_free_params=sum(1-fixed);
@@ -446,7 +447,7 @@ opt.ub=[10,10,10,99000];
 opt.alg=1;
 param_names={'r','\delta','\gamma','K'};
 
-numpts=21;
+numpts=11;
 param_vals=zeros(num_params,numpts);
 max_ls=zeros(num_params,numpts);
 minimizers=cell(num_params,numpts);

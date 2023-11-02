@@ -8,12 +8,12 @@ T=25;
 t=linspace(0,T,nt);
 params=[0.45,0.15,1,3900];
 %params=[0.225,0,8,2381];
-u_K0=200;
-tau0=5;
-tau=20;
+urmax=0.02;
+tau0=10;
+tau=10;
 u_d=@(t)0;
-u_r=@(t)0;
-u_K=@(t) ((t>tau0)&(t<(tau0+tau)))*u_K0;
+u_K=@(t)0;
+u_r=@(t) ((t>tau0)&(t<(tau0+tau)))*urmax;
 clean_data=sol_richards_control(t,params,C0,u_d,u_K,u_r);
 %clean_data=sol_richards_bangbang2(t,params,C0,0,0,0,0,0,0,u_K0,tau0,tau0+tau);
 sigma=20;
@@ -28,9 +28,7 @@ plot(t,noisy_data);
 plot(t,u_K(t));
 %plot(t,data2);
 
-figtitle=sprintf('pl_logistic_bd_uk_%s_sigma=%g,tau0=%g,tau=%g,uK0=%g,rng=%g',string(datetime,'yyyyMMdd_HHmmss'),sigma,tau0,tau,u_K0,seed);
-%figtitle=sprintf('pl_logistic_bd_uk_analytic_%s_sigma=%g,tau0=%g,tau=%g,uK0=%g,rng=%g',string(datetime,'yyyyMMdd_HHmmss'),sigma,tau0,tau,u_K0,seed);
-%figtitle=sprintf('pl_richards_bd_uk_%s_params=[%g,%g,%g,%g],sigma=%g,tau0=%g,tau=%g,uK0=%g,rng=%g',string(datetime,'yyyyMMdd_HHmmss'),params,sigma,tau0,tau,u_K0,seed);
+figtitle=sprintf('pl_logistic_bd_ur_%s_sigma=%g,tau0=%g,tau=%g,urmax=%g,rng=%g',string(datetime,'yyyyMMdd_HHmmss'),sigma,tau0,tau,urmax,seed);
 %% MLE
 fixed=[0,0,1,0];
 fixed_param_val=params;
@@ -47,7 +45,7 @@ opt.alg=1;
 optimal_param_vals=fixed_param_val';
 optimal_param_vals(fixed==0)=mle;
 
-mle_soln=sol_richards_control(t,optimal_param_vals,C0,u_d,u_K);
+mle_soln=sol_richards_control(t,optimal_param_vals,C0,u_d,u_K,u_r);
 
 % get something close to true value
 
@@ -57,13 +55,13 @@ fixed_param_val=params;
 %fixed=[0,0,1,0];
 num_params=size(fixed_param_val,2);
 num_free_params=sum(1-fixed);
-lb=[ 0.10, 0.00, 7,   500];
-ub=[ 2.00, 2.00, 9, 20000];
+lb=[ 0.10, 0.00, 7,  1000];
+ub=[ 1.00, 1.00, 9, 10000];
 opt.ub=[10,10,10,99000];
 opt.alg=1;
 param_names={'$r$','$\delta$','$\gamma$','$K$'};
 
-numpts=41;
+numpts=11;
 param_vals=zeros(num_params,numpts);
 max_ls=zeros(num_params,numpts);
 minimizers=cell(num_params,numpts);
@@ -106,7 +104,7 @@ end
 true_params=params;
 fig=figure('Position',[100 100 1200 400],'color','w');
 tl=tiledlayout(1,num_free_params);
-sgtitle(sprintf('$u_{max}=%.0f,\\tau_0=%.0f,\\tau=%.0f$',u_K0,tau0,tau),'interpreter','latex','fontSize',30);
+sgtitle(sprintf('$u_{max}=%.2f,\\tau_0=%.0f,\\tau=%.0f$',urmax,tau0,tau),'interpreter','latex','fontSize',30);
 free_param_count=0;
 zs = cell(num_params,1);
 conf_interval=nan(num_params,1);
@@ -129,9 +127,9 @@ for param=1:num_params
     axis('square');
     xlim([min(param_vals(param,:)),max(param_vals(param,:))]);
     ylim([-2.5,0]);
-    if param == 1 || param == 2
-        xtickformat('%.1f');
-    end
+    % if param == 1 || param == 2
+    %     xtickformat('%.1f');
+    % end
     ytickformat('%.1f');
     hold off;
 
@@ -157,25 +155,25 @@ betterFig(fig);
 %error('stop the execution');
 %% find lower edge of conf int of r (accurately with bisection)
 % so this is a more accurate version of zs{1}
-r_eff=params(1)-params(2);
-bd_rlow=[0.001,optimal_param_vals(1)];
-opt.logging=false;
-plr=@(r) plr_helper(r,params,noisy_data,numeric_params,C0,opt,max_l) + 1.92;
-[r_lower,fval,exitflag,output] = fzero(plr,bd_rlow);
-fprintf('r_lower=%.4f\n',r_lower);
-
-
-if length(zs{1})<2
-    % we didn't find an upper bound for the confidence interval of r
-    r_upper=Inf;
-else
-    bd_rhigh=[optimal_param_vals(1),ub(1)];
-    [r_upper,fval,exitflag,output] = fzero(plr,bd_rhigh);
-    fprintf('r_upper=%.4f\n',r_upper);
-end
-
-r_conf_range=r_upper-r_lower;
-fprintf('r_conf_range=%.4f\n',r_conf_range);
+% r_eff=params(1)-params(2);
+% bd_rlow=[0.001,optimal_param_vals(1)];
+% opt.logging=false;
+% plr=@(r) plr_helper(r,params,noisy_data,numeric_params,C0,opt,max_l) + 1.92;
+% [r_lower,fval,exitflag,output] = fzero(plr,bd_rlow);
+% fprintf('r_lower=%.4f\n',r_lower);
+% 
+% 
+% if length(zs{1})<2
+%     % we didn't find an upper bound for the confidence interval of r
+%     r_upper=Inf;
+% else
+%     bd_rhigh=[optimal_param_vals(1),ub(1)];
+%     [r_upper,fval,exitflag,output] = fzero(plr,bd_rhigh);
+%     fprintf('r_upper=%.4f\n',r_upper);
+% end
+% 
+% r_conf_range=r_upper-r_lower;
+% fprintf('r_conf_range=%.4f\n',r_conf_range);
 
 %% save
 prefix='/home/liuy1/Documents/woundhealing/expdesign/simulations/';
@@ -185,30 +183,30 @@ saveas(fig,[prefix,figtitle,'.png']);
 saveas(fig,[prefix,figtitle,'.eps'],'epsc');
 
 %% better fig
-betterFig(fig);
-% fig.Children.Title.FontSize=30;
-axes(fig.Children.Children(3));
-xtickformat('%.1f');
-ytickformat('%.1f');
-xlim([0,1]);
-ylim([-2.5,0]);
-yticks([-2.5,-2.0,-1.5,-1.0,-0.5,0]);
-axes(fig.Children.Children(2));
-xtickformat('%.1f');
-ytickformat('%.1f');
-xlim([0,1]);
-ylim([-2.5,0]);
-yticks([-2.5,-2.0,-1.5,-1.0,-0.5,0]);
-axes(fig.Children.Children(1));
-xtickformat('%d');
-ytickformat('%.1f');
-xlim([0,10000]);
-ylim([-2.5,0]);
-yticks([-2.5,-2.0,-1.5,-1.0,-0.5,0]);
-xticks(xlim);
-
-sgtitle('');
-saveas(fig,[figtitle,'.eps'],'epsc');
+% betterFig(fig);
+% % fig.Children.Title.FontSize=30;
+% axes(fig.Children.Children(3));
+% xtickformat('%.1f');
+% ytickformat('%.1f');
+% xlim([0,1]);
+% ylim([-2.5,0]);
+% yticks([-2.5,-2.0,-1.5,-1.0,-0.5,0]);
+% axes(fig.Children.Children(2));
+% xtickformat('%.1f');
+% ytickformat('%.1f');
+% xlim([0,1]);
+% ylim([-2.5,0]);
+% yticks([-2.5,-2.0,-1.5,-1.0,-0.5,0]);
+% axes(fig.Children.Children(1));
+% xtickformat('%d');
+% ytickformat('%.1f');
+% xlim([0,10000]);
+% ylim([-2.5,0]);
+% yticks([-2.5,-2.0,-1.5,-1.0,-0.5,0]);
+% xticks(xlim);
+% 
+% sgtitle('');
+% saveas(fig,[figtitle,'.eps'],'epsc');
 %%
 function pl = plr_helper(r,params,noisy_data,numeric_params,C0,opt,max_l)
     [~,~,max_l2]=optimize_likelihood_general(@richards_ctrl_sq_err,[r,params(2),params(3),params(4)],[1,0,1,0],noisy_data,numeric_params,C0,opt);

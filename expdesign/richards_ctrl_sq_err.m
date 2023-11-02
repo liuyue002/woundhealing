@@ -5,8 +5,9 @@ T=numeric_params{1};
 nt=numeric_params{2};
 u_d=numeric_params{3};
 u_K=numeric_params{4};
+u_r=numeric_params{5};
 t=linspace(0,T,nt);
-model_data=sol_richards_control(t,params,x0,u_d,u_K);
+model_data=sol_richards_control(t,params,x0,u_d,u_K,u_r);
 err=sum((model_data-data).^2,'all');
 
 if logging

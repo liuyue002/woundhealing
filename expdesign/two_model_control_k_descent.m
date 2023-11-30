@@ -16,7 +16,7 @@ K2=2600;
 
 C0=100;
 T=25;
-upts=200;
+upts=100;
 alpha=0.03; % weight of control cost
 omega=0.1; % control update rate
 uklim = 1200; %upper bound for uk
@@ -28,7 +28,7 @@ filename=sprintf('simulations/twomodel_control_fmincon_%s_alpha=%.2f,omega=%.2f'
 uk=@(t) 100;
 tfine=linspace(0,T,upts);
 uknum=arrayfun(uk,tfine);
-%load('simulations/twomodel_control_20230627_174137_alpha=0.03,omega=0.10.mat','uknum');
+load('simulations/twomodel_control_20230627_174137_alpha=0.03,omega=0.10.mat','uknum');
 
 J = @(uknum) J_uk(C0,T,tfine,uknum,r1,d1,gamma1,K1,r2,d2,gamma2,K2,alpha,bangbang);
 Jold=J(uknum);

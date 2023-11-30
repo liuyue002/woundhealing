@@ -20,19 +20,39 @@ figK=figure;
 plot(t,diffK);
 xlabel('$t$','Interpreter','latex');
 ylabel('$\phi_{K}$','Interpreter','latex');
-title('sensitivity');
+%title('sensitivity');
+xlim([0,25]);
+xticks(0:5:25);
+xtickangle(0);
+ytickformat('%.1f');
+betterFig(figK,2,28);
+saveas(figK,'figure/sensitivity_K.eps','epsc');
 
 figr=figure;
 plot(t,diffr);
 xlabel('$t$','Interpreter','latex');
 ylabel('$\phi_{r}$','Interpreter','latex');
-title('sensitivity');
+%title('sensitivity');
+xlim([0,25]);
+xticks(0:5:25);
+xtickangle(0);
+ylim([0,10000]);
+yticks(0:5000:10000);
+betterFig(figr,2,28);
+saveas(figr,'figure/sensitivity_r.eps','epsc');
 
 figd=figure;
 plot(t,diffd);
 xlabel('$t$','Interpreter','latex');
 ylabel('$\phi_{d}$','Interpreter','latex');
-title('sensitivity');
+%title('sensitivity');
+xlim([0,25]);
+xticks(0:5:25);
+xtickangle(0);
+ylim([-12000,0]);
+yticks(-12000:4000:0);
+betterFig(figd,2,28);
+saveas(figd,'figure/sensitivity_d.eps','epsc');
 
 %% solve numerically for combined system C, phi_k
 % r=params(1);

@@ -28,7 +28,7 @@ yticks(0:2);
 xticks(0:0.1:0.2);
 xlabel('$u_{max}$','Interpreter','latex');
 ylabel('$\Delta r$','Interpreter','latex');
-betterFig(fig1);
+betterFig(fig1,2,30);
 saveas(fig1,['figure/',filename,'_umax.eps'],'epsc');
 
 fig2=figure;
@@ -38,7 +38,7 @@ ylim([0,4]);
 yticks(0:4);
 xlabel('$\tau_0$','Interpreter','latex');
 ylabel('$\Delta r$','Interpreter','latex');
-betterFig(fig2);
+betterFig(fig2,2,30);
 saveas(fig2,['figure/',filename,'_tau0.eps'],'epsc');
 
 fig3=figure;
@@ -48,7 +48,7 @@ ylim([0,3]);
 yticks(0:3);
 xlabel('$\tau$','Interpreter','latex');
 ylabel('$\Delta r$','Interpreter','latex');
-betterFig(fig3);
+betterFig(fig3,2,30);
 saveas(fig3,['figure/',filename,'_tau.eps'],'epsc');
 
 %% do a 2D plot
@@ -66,6 +66,36 @@ clim([0,2]);
 view(0,90);
 colorbar;
 title('rrange vs tau,tau0');
+
+%% better figure
+
+Z2=Z;
+Z2(Z2==Inf)=10;
+fig42=figure;
+hold on;
+surf(X,Y,Z2,'LineStyle','none');
+xlabel('$\tau_0$','Interpreter','latex');
+ylabel('$\tau$','Interpreter','latex');
+zlabel('r range');
+clim([0,2]);
+xlim([0,25]);
+ylim([1,25]);
+view(0,90);
+plot3(20.4762,3.7539, 10,'r*','MarkerSize',25);
+plot3(5.6256,13.0002, 10,'r*','MarkerSize',25);
+plot3([25,0],[1,26],[10,10],'r--');
+hold off;
+cb=colorbar;
+%cb.TickLabelInterpreter = 'latex';
+cb.TickLabels = {'0.0','0.5','1.0','1.5','2.0'};
+betterFig(fig42);
+%saveas(fig42,['figure/',filename,'_2D_tau_tau0.eps'],'epsc');
+
+
+[~,I]=min(Z2,[],"all");
+[minrow,mincol]=ind2sub(size(Z2),I);
+mintau0=X(minrow,mincol);
+mintau=Y(minrow,mincol);
 
 %% do a 2D plot for model difference
 C0=100;
@@ -115,13 +145,20 @@ options.Diagnostics='on';
 options.MaxFunctionEvaluations=6000;
 %options.ScaleProblem=true;
 problem.objective=@(x)logistic_bd_ur_rrange(urmax,x(1),x(2));
-problem.x0=[15,10];
+%problem.x0=[20,5];
+problem.x0=[5.625,13];
 problem.solver='fmincon';
 problem.lb=[0,0];
-problem.ub=[25,25];
+%problem.ub=[25,25];
+problem.ub=[14,21];
+problem.Aineq=[1,1];
+problem.bineq=25;
 problem.options=options;
 [minimizer,min_rrange,exitflag,fmincon_output] = fmincon(problem);
 disp(minimizer);
+
+% 20.4762371702867          3.75391345218493
+%5.62561062742472          13.0002585390603
 %%
 save([filename,'.mat'],'-mat');
 diary off;

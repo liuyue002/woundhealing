@@ -15,6 +15,7 @@ params=[0.45,0.15,1,3900];
 %tau0=5;
 %tau=15;
 u_d=@(t)0;
+u_r=@(t)0;
 u_K=@(t) ((t>tau0)&(t<(tau0+tau)))*u_K0;
 clean_data=sol_richards_control(t,params,C0,u_d,u_K,u_r);
 fixed=[0,0,1,0]; %% change for logistic/richards

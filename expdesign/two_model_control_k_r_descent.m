@@ -16,17 +16,18 @@ K2=2600;
 
 C0=100;
 T=25;
-upts=100;
+upts=200;
 alphak=0.1; % weight of control cost
 alphar=7e5;
 uklim = 1200; %upper bound for uk
-urlim = 0.8;
+urlim = 1.0;
 bangbang=false;
 
 filename=sprintf('simulations/twomodel_control_kr_fmincon_%s_alphak=%.2f,alphar=%.2f',string(datetime,'yyyyMMdd_HHmmss'),alphak,alphar);
 
 %% initial guess
-uk=@(t) 500+rand()*50;
+%uk=@(t) 500+rand()*50;
+uk=@(t) 500;
 ur=@(t) 0.1;
 tfine=linspace(0,T,upts);
 uknum=arrayfun(uk,tfine);
@@ -37,12 +38,17 @@ uall=[uknum,urnum*1000];
 %uall=uall_best;
 %load('/home/liuy1/Documents/woundhealing/expdesign/simulations/twomodel_control_k_r_d_20230825_184919_alpha=0.10,5000000.000000,100000.000000,omega=0.10.mat','uknum','urnum');
 %uall=[uknum,urnum*1000];
+% load('/home/liuy1/Documents/woundhealing/expdesign/simulations/twomodel_control_k_r_d_20230823_173454_alpha=0.10,700000.000000,500000.000000,omega=0.10.mat','uknum','urnum');
+% %uall=[uknum,urnum*1000];
+% uknum=kron(uknum,[1,1]);
+% urnum=kron(urnum,[1,1]);
+% uall=[uknum,urnum*1000];
 
 J = @(uall) J_uk_ur(C0,T,tfine,uall(1:upts),uall(upts+1:end)/1000,r1,d1,gamma1,K1,r2,d2,gamma2,K2,alphak,alphar,bangbang);
 Jold=J(uall);
 
 %% use fmincon to find discretized optimal control
-optimopts=optimoptions('fmincon','Display','iter-detailed','MaxFunctionEvaluations',1e7,'MaxIterations',5e5,'OptimalityTolerance',1e-3,'PlotFcn',{@optimplotu,@optimplotfval,@optimplotfirstorderopt});
+optimopts=optimoptions('fmincon','Display','iter-detailed','MaxFunctionEvaluations',1e7,'MaxIterations',300,'OptimalityTolerance',1e-3,'PlotFcn',{@optimplotu,@optimplotfval,@optimplotfirstorderopt});
 [uall_best,Jbest,exitflag,output,lambda,grad,hessian] = fmincon(J,uall,[],[],[],[],zeros(size(uall)),[uklim*ones(size(uknum)),urlim*1000*ones(size(urnum))],[],optimopts);
 uknum_best=uall_best(1:upts);
 urnum_best=uall_best(upts+1:end)/1000;

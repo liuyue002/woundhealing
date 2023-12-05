@@ -22,14 +22,19 @@ xx=-1500:10:1500;
 pdfs=pdf(pd,xx);
 hold on;
 plot(xx,pdfs/max(pdfs)*max(h.Values),'-r');
+xlabel('Residual',Interpreter='latex');
+xlabel('Normalised frequency',Interpreter='latex');
 %%
 figure;
-h=histogram(residuals,[-1800:400:1800],'Normalization','probability');
+h=histogram(residuals,[-1800:400:1800],'Normalization','probability',HandleVisibility='off');
 pd=fitdist(residuals','Normal');
 xx=-1500:10:1500;
 pdfs=pdf(pd,xx);
 hold on;
-plot(xx,pdfs*400,'-r');
+plot(xx,pdfs*400,'-r',DisplayName='Fitted normal distribution');
+legend;
+xlabel('Residual',Interpreter='latex');
+ylabel('Normalised frequency',Interpreter='latex');
 
 %% excludde the region away from cell pop
 residuals_nonzero=residuals(cc_mle>100);
@@ -49,3 +54,15 @@ figure;
 cdfplot(residuals_nonzero);
 hold on;
 plot(xx,cdf(pd,xx));
+
+%% as the referee suggests
+residuals1=noisy_data-cc_mle;
+residuals1=residuals1(2:end,:,:);
+residuals1=reshape(residuals1,1,[]);
+cc_mle1=reshape(cc_mle(2:end,:,:),1,[]);
+figure;
+plot(cc_mle1,residuals1,'.');
+xlabel('Model density',Interpreter='latex');
+ylabel('Residual',Interpreter='latex');
+ylim([-3000,5000]);
+biggerFont(gca);

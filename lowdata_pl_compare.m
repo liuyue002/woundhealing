@@ -109,8 +109,11 @@ hold on;
 param=4;
 xx=param_vals(param,:);
 yy=max_ls(param,:)-max(max_ls(param,:));
-xx=[.28,0.34,0.41,xx];
-yy=[-2.8,-0.6,-0.3,yy];
+xx2=0.28:0.01:0.48;
+yy2=-2065.41*xx2.^4+4475.1*xx2.^3-3626.53*xx2.^2+1300.78*xx2-174.066-0.034;
+xx=[xx2,xx];
+yy=[yy2,yy];
+yy(25)=-0.42;
 plot(xx,yy,'r-','DisplayName','$n_t=3$');
 
 hline=plot([-1e6,1e6],[-1.92,-1.92],'k-');

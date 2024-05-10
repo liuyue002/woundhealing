@@ -26,10 +26,11 @@ xlim([0,0.2]);
 ylim([0,2]);
 yticks(0:2);
 xticks(0:0.1:0.2);
-xlabel('$u_{max}$','Interpreter','latex');
+xtickformat('%.1f');
+xlabel('$u_\textrm{max}$','Interpreter','latex');
 ylabel('$\Delta r$','Interpreter','latex');
 betterFig(fig1,2,30);
-saveas(fig1,['figure/',filename,'_umax.eps'],'epsc');
+saveas(fig1,['figure/',filename,'_umax2.eps'],'epsc');
 
 fig2=figure;
 plot(tau0s,widths_tau0);

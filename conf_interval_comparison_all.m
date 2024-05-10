@@ -375,10 +375,10 @@ xticklabels({'1','2','3','4','1','2','3','4'});
 % yticks([1,1.1,1.2,1.3]);
 % yticklabels({'1.0','1.1','1.2','1.3'});
 xlabel('Experiment','Interpreter','latex');
-title('$\alpha\quad\quad\quad\quad\beta$','Interpreter','latex');
+title('$\alpha\quad\ \quad\beta$','Interpreter','latex');
 hold on
 plot([4.5,4.5],[0,3],'--k');
-ylim([0.8,1.5]);
+ylim([0.8,2.5]);
 % nexttile;
 % bplot=rangebar(b_ranges,barwidth);
 % bplot.FaceColor='yellow';

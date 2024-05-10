@@ -120,16 +120,25 @@ disp(best_C0);
 % capacity early
 
 %% plot model difference wrt C0
-C0s=linspace(0,5000,251);
+C0s=linspace(0,5000,1001);
 modeldiffs = -arrayfun(neg_model_diff,C0s);
 figdiff=figure('color','w');
 plot(C0s,modeldiffs);
-xlim([0,2500]);
+xlim([0,4000]);
 xlabel('$C_0$','Interpreter','latex');
 %ylabel('Model difference','Interpreter','latex');
 ylabel('$\mathcal{D}(C_0)$','Interpreter','latex');
+ax=axes('Position',[0.605,0.615,0.3,0.3]);
+box on;
+plot(C0s,modeldiffs);
+xlim([0,200]);
+ylim([0,1.5e7]);
+xticks([0,200]);
+yticks([]);
+
 betterFig(figdiff);
-%saveas(figdiff,'figure/modeldiff_vs_c0.eps','epsc');
+saveas(figdiff,'figure/modeldiff_vs_c0.fig');
+saveas(figdiff,'figure/modeldiff_vs_c0.eps','epsc');
 %% plot for thesis
 figsolnplot=figure('Color','w');
 hold on;
@@ -138,27 +147,31 @@ plot(t,sol_richards(t,mle_logistic,C0),'DisplayName','MLE logistic');
 plot(t,sol_richards(t,params,C0),'DisplayName','true model');
 xlim([0,25]);
 ylim([0,2600]);
-xlabel('t','Interpreter','latex');
+xlabel('$t$','Interpreter','latex');
+ylabel('$C$','Interpreter','latex');
 legend('Interpreter','latex','Location','southeast');
 betterFig(figsolnplot);
-%saveas(figsolnplot,'figure/model_discrim.eps','epsc');
+saveas(figsolnplot,'figure/model_discrim.eps','epsc');
+saveas(figsolnplot,'figure/model_discrim.fig');
 
 %% illustrate difference between models
 
-C0=1925;
+C0=4.718;
 figdiff2=figure('color','w');
 hold on;
 solrich=sol_richards(t,mle_richards,C0);
 sollogi=sol_richards(t,mle_logistic,C0);
-plot(t,solrich,'DisplayName','MLE richards');
+plot(t,solrich,'DisplayName','MLE Richards');
 plot(t,sollogi,'DisplayName','MLE logistic');
 fill([t,fliplr(t)], [solrich,fliplr(sollogi)], 'b','FaceAlpha',0.1,'EdgeColor','none','DisplayName','Model difference');
 hold off;
 xlim([0,25]);
-ylim([0,2800]);
-xlabel('t','Interpreter','latex');
-legend('Interpreter','latex','Location','southeast');
-title(sprintf('$C_0=%g$',C0),'Interpreter','latex');
+ylim([0,4000]);
+xlabel('$t$','Interpreter','latex');
+ylabel('$C$','Interpreter','latex');
+legend('Interpreter','latex','Location','northwest');
+%legend('Interpreter','latex','Location','northwest');
+title(sprintf('$C_0=%g$ cells/mm$^2$',C0),'Interpreter','latex');
 betterFig(figdiff2);
 
 saveas(figdiff2,sprintf('figure/modeldiff_C0=%d.eps',C0),'epsc');

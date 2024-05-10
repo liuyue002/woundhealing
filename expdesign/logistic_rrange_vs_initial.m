@@ -1,9 +1,9 @@
 % look at exactsoln.m
 
-r=0.3;
+r=0.225;
 d=0;
-g=1;
-k=2600;
+g=8;
+k=2380;
 true_params=[r,d,g,k];
 T=25;
 nt=51; % use fewer points to illustrate reduce in identifiability
@@ -11,7 +11,7 @@ C0=2300; % vary this
 
 
 %% do a profile likelihood with C0=100
-filename=sprintf('simulations/logistic_rrange_vs_initial_C0=%g_2',C0);
+filename=sprintf('simulations/logistic_rrange_vs_initial_C0=%g_3',C0);
 diary([filename,'.txt']);
 fprintf('Doing C0=%f\n',C0);
 
@@ -136,9 +136,9 @@ saveas(plfig,[filename,'_pl.png']);
 %% plot r range, k range vs C0
 
 params=true_params;
-fixed=[0,1,1,0];
+fixed=[0,1,0,0];
 numeric_params=[T,nt];
-C0s=linspace(1,2500,100);
+C0s=[linspace(1,300,100),linspace(301,2500,100)];
 rrangefun=@(C0) logistic_bd_c0_confintrange(C0,params,1,fixed,numeric_params,[0.1,2]);
 rranges=arrayfun(rrangefun,C0s);
 
@@ -151,14 +151,17 @@ tl=tiledlayout(1,2);
 nexttile;
 %subplot(1,2,1);
 plot(C0s,rranges);
+xlim([0,2500]);
+ylim([0,1.6]);
 xlabel('$C_0$','Interpreter','latex');
 ylabel('$\Delta r$','Interpreter','latex');
 nexttile;
 %subplot(1,2,2);
 plot(C0s,kranges);
+xlim([0,2500]);
+ylim([200,1000]);
 xlabel('$C_0$','Interpreter','latex');
 ylabel('$\Delta K$','Interpreter','latex');
-ylim([300,1000]);
 
 axs=tl.Children;
 for i=1:length(axs)
@@ -177,7 +180,7 @@ t.Padding = 'none';
 [best_C0_k, krange_min]=fminbnd(krangefun,500,2000); 
 
 %% save
-save('figure/logistic_bd_c0_confint.mat');
-saveas(rangefig,'figure/logistic_bd_c0_confint.png');
-saveas(rangefig,'figure/logistic_bd_c0_confint.fig');
-saveas(rangefig,'figure/logistic_bd_c0_confint.eps','epsc');
+save('figure/richards_bd_c0_confint_2.mat');
+saveas(rangefig,'figure/richards_bd_c0_confint_2.png');
+saveas(rangefig,'figure/richards_bd_c0_confint_2.fig');
+saveas(rangefig,'figure/richards_bd_c0_confint_2.eps','epsc');

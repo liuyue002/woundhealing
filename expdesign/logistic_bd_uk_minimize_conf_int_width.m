@@ -4,7 +4,7 @@
 u_K0=200;
 tau0=10;
 tau=10;
-filename='logistic_bd_uk_minimize_conf_int_width_6';
+filename='logistic_bd_uk_minimize_conf_int_width_7';
 diary([filename,'_log.txt']);
 warning('off','MATLAB:ode45:IntegrationTolNotMet');
 %% do some plot first
@@ -25,7 +25,7 @@ plot(u_K0s,widths_uK0);
 xlim([0,800]);
 xticks(0:400:800);
 yticks(0:2);
-xlabel('$u_{max}$','Interpreter','latex');
+xlabel('$u_{\textrm{max}}$','Interpreter','latex');
 ylabel('$\Delta r$','Interpreter','latex');
 betterFig(fig1,2,30);
 saveas(fig1,['figure/',filename,'_umax.eps'],'epsc');

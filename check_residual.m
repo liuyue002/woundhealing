@@ -66,3 +66,73 @@ xlabel('Model density',Interpreter='latex');
 ylabel('Residual',Interpreter='latex');
 ylim([-3000,5000]);
 biggerFont(gca);
+
+
+%% residual visualisation
+residuals2d=noisy_data-cc_mle;
+residuals2d1=squeeze(residuals2d(60,:,:));
+figresidual=figure;
+ax=gca;
+s=surf(residuals2d1,'EdgeColor','none');
+view(2);
+axis off;
+ax.Position=[0.113363095328034 0.11 0.675818452917128 0.815];
+cb=colorbar;
+cb.Position=[0.81,0.11,0.025,0.816];
+biggerFont(gcf,20);
+saveas(figresidual,'figure/residual_t=20.eps','epsc');
+saveas(figresidual,'figure/residual_t=20.fig');
+
+%% moran's I
+
+residuals2d2=squeeze(residuals2d(60,40:120,40:120)); % should be 81x81
+% weight: 8 neighbors are 1, otherwise 0
+nx=size(residuals2d2,1);
+residual_mean = mean(residuals2d2,'all');
+
+numerator=0;
+denominator=0;
+moment4=0;
+ww=zeros(nx,nx,nx,nx);
+for i=2:nx-1
+    for j=2:nx-1
+        for k=-1:1
+            for l=-1:1
+                if (k~=0) && (l~=0)
+                    numerator = numerator + (residuals2d2(i,j)-residual_mean)*(residuals2d2(i+k,j+l)-residual_mean);
+                    ww(i,j,i+k,i+l)=1;
+                end
+            end
+        end
+        denominator = denominator + (residuals2d2(i,j)-residual_mean)^2;
+        moment4 = moment4+ (residuals2d2(i,j)-residual_mean)^4;
+    end
+end
+N=(nx-2)^2;
+%W=N*8;
+moranI=(N/W)*numerator/denominator;
+
+ww2=reshape(ww,nx^2,nx^2);
+W=sum(ww2,'all');
+
+EI= -1/(N-1);
+s1=(1/2)*32*N;
+s2=N*16^2;
+% s1=0;
+% s2=0;
+% for i=1:nx^2
+%     s2tmp=0;
+%     for j=1:nx^2
+%         s1 = s1+(ww2(i,j)+ww2(j,i))^2;
+%         s2tmp = s2tmp+ww2(i,j)+ww2(j,i);
+%     end
+%     s2=s2+s2tmp^2;
+% end
+% s1=s1/2;
+s3=N*moment4/denominator^2;
+s4=(N^2-3*N+3)*s1-N*s2+3*W^2;
+s5=(N^2-N)*s1-2*N*s2+6*W^2;
+VarI=(N*s4-s3*s5)/((N-1)*(N-2)*(N-2)*W^2)-EI^2;
+
+z=(moranI-EI)/VarI;
+p=normcdf(z);

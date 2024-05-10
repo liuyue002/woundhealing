@@ -42,7 +42,12 @@ if mle_interest>search_lb && mle_interest < search_ub
         r_lower=0;
         fprintf('lower bound r=%g reached\n',search_lb);
     else
-        [r_lower,~,~,~] = fzero(plr,[search_lb, mle_interest]);
+        if plr(mle_interest)<0
+            r_lower=0;
+            warning('something wrong');
+        else
+            [r_lower,~,~,~] = fzero(plr,[search_lb, mle_interest]);
+        end
     end
     if plr(search_ub)>0
         r_upper=Inf;

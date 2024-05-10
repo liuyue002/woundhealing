@@ -37,6 +37,10 @@ logging = true;
 if isfield(opt,'logging')
     logging = opt.logging;
 end
+if size(initial,1)>1
+    % force it to be a row vector
+    initial = initial';
+end
 
 %% build objective function
 param_str='[';
@@ -155,7 +159,11 @@ catch exception
 end
 
 %% final result
-N=numel(data);
+if isfield(opt,'N')
+    N=opt.N;
+else
+    N=numel(data);
+end
 [max_l,sigma]= log_likelihood(min_sq_err,N);
 
 end

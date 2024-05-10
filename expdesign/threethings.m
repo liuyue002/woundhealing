@@ -49,7 +49,7 @@ exact_soln=arrayfun(exact_solnf,tt,'UniformOutput',false);
 exact_soln=cell2mat(exact_soln);
 figure;
 hold on;
-plot(tt,exact_soln(1,:));
+plot(tt,exact_soln(1,:),'-*');
 plot(tt,exact_soln(2,:));
 plot(tt,exact_soln(3,:));
 ylim([0,15]);

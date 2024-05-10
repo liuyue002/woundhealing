@@ -18,6 +18,7 @@ if isequal(class(fig.Children),'matlab.graphics.layout.TiledChartLayout')
         set(findall(ax, 'Type', 'Line'),'LineWidth',linewidth);
     end
     t.TileSpacing = 'tight';
+    %t.TileSpacing = 'compact';
     t.Padding = 'none';
 elseif isequal(class(fig.Children),'matlab.graphics.axis.Axes')
     % figure made using subplot, or there is only 1 plot

@@ -1,4 +1,4 @@
-function r_conf_range = logistic_bd_uk_rrange(urmax,tau0,tau)
+function r_conf_range = logistic_bd_ur_rrange(urmax,tau0,tau)
 %Find width of confidence interval of r
 % logistic model with birth/death and u_K control
 

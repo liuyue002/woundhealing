@@ -8,6 +8,8 @@ C0=100; % vary this
 
 
 %% do a profile likelihood with C0=100
+
+C0=118;
 filename=sprintf('simulations/richards_rrange_vs_initial_C0=%g_2',C0);
 diary([filename,'.txt']);
 fprintf('Doing C0=%f\n',C0);
@@ -22,14 +24,14 @@ noisy_data_100 = clean_data_100 + normrnd(0,sigma,size(clean_data_100));
 numpts=41;
 fixed=[0,1,0,0];
 fixed_param_val=[r,d,g,k];
-lb=[0.01, 0, 0.1,   100];
-ub=[2.00, 1, 9.0, 10000];
+lb=[0.21, 0, 0.1, 2325];
+ub=[0.28, 1, 9.0, 2400];
 param_names={'r','\delta','\gamma','K'};
 num_params=size(fixed_param_val,2);
 num_free_params=sum(1-fixed);
 numeric_params=[T,nt];
 opt.lb=[0.01, 0.01, 0.1,   500];
-opt.ub=[2.00, 1.00, 9.0, 10000];
+opt.ub=[5.00, 1.00, 9.0, 10000];
 opt.alg=1;
 [mle,mle_sigma,max_l] = optimize_likelihood_general(@richards_sq_err,fixed_param_val,fixed,noisy_data_100,numeric_params,C0,opt);
 fprintf(['Overall max likelihood param is: ',repmat('%.3f,',size(mle)),'sigma=%.3f,\n'],mle,mle_sigma);
@@ -49,7 +51,7 @@ minimizers=cell(num_params,numpts);
 % add the global optimum to the list of param vals
 param_vals=[param_vals,optimal_param_vals];
 
-for param=1:num_params
+for param=1:1%num_params
     if fixed(param)
         continue;
     end
@@ -63,7 +65,7 @@ for param=1:num_params
     max_ls(param,mle_idx)=max_l;
     for i=mle_idx+1:numpts+1
         fprintf('Optimizing for %s=%.3f\n',param_names{param},param_vals(param,i));
-        initial(fixed_params==0)=minimizers{param,i-1};
+        %initial(fixed_params==0)=minimizers{param,i-1};
         initial(param)=param_vals(param,i);
         [minimizer,~,max_ls(param,i)] = optimize_likelihood_general(@richards_sq_err,initial,fixed_params,noisy_data_100,numeric_params,C0,opt);
         minimizers{param,i}=minimizer;
@@ -71,7 +73,7 @@ for param=1:num_params
     end
     for i=mle_idx-1:-1:1
         fprintf('Optimizing for %s=%.3f\n',param_names{param},param_vals(param,i));
-        initial(fixed_params==0)=minimizers{param,i+1};
+        %initial(fixed_params==0)=minimizers{param,i+1};
         initial(param)=param_vals(param,i);
         [minimizer,~,max_ls(param,i)] = optimize_likelihood_general(@richards_sq_err,initial,fixed_params,noisy_data_100,numeric_params,C0,opt);
         minimizers{param,i}=minimizer;
@@ -122,9 +124,9 @@ for param=1:num_params
     end
 end
 
-save([filename,'.mat']);
-saveas(solnfig,[filename,'_soln.png']);
-saveas(plfig,[filename,'_pl.png']);
+% save([filename,'.mat']);
+% saveas(solnfig,[filename,'_soln.png']);
+% saveas(plfig,[filename,'_pl.png']);
 
 %% do a profile likelihood with C0=1
 
@@ -135,7 +137,8 @@ saveas(plfig,[filename,'_pl.png']);
 params=true_params;
 fixed=[0,1,0,0];
 numeric_params=[T,nt];
-C0s=linspace(1,2500,100);
+%C0s=linspace(1,2500,100);
+C0s=[1:10:300, 301:25:2500];
 rrangefun=@(C0) logistic_bd_c0_confintrange(C0,params,1,fixed,numeric_params,[0.01,5]);
 rranges=arrayfun(rrangefun,C0s);
 
@@ -175,7 +178,7 @@ tl.Padding = 'none';
 [best_C0_k, krange_min]=fminbnd(krangefun,900,1400); 
 
 %% save
-save('figure/richards_bd_c0_confint.mat');
-saveas(rangefig,'figure/richards_bd_c0_confint.png');
-saveas(rangefig,'figure/richards_bd_c0_confint.fig');
-saveas(rangefig,'figure/richards_bd_c0_confint.eps','epsc');
+% save('figure/richards_bd_c0_confint.mat');
+% saveas(rangefig,'figure/richards_bd_c0_confint.png');
+% saveas(rangefig,'figure/richards_bd_c0_confint.fig');
+% saveas(rangefig,'figure/richards_bd_c0_confint.eps','epsc');

@@ -130,22 +130,27 @@ for param=1:num_params
 end
 
 %% fisher info
-ff_str=strcat('ff=@(x) get_reduced_model_data(',param_str,',numeric_params,t_skip,x_skip,1,ic,rs);');
-if isnan(scaling)
-    scaling=ones(size(fixed_param_val));
-end
+%ff_str=strcat('ff=@(x) get_reduced_model_data(',param_str,',numeric_params,t_skip,x_skip,1,ic,rs);');
+%if isnan(scaling)
+%    scaling=ones(size(fixed_param_val));
+%end
 N=prod(ceil(size(noisy_data)./[t_skip,x_skip])); % number of data pts
-eval(ff_str);
+%eval(ff_str);
 dXdtheta=zeros(N,num_free_params);
-model_data0=ff(optimal_param_vals);
-for i=1:num_free_params
-    dtheta=0.00001;
-    param_vals2=optimal_param_vals;
-    param_vals2(i)=param_vals2(i)+dtheta;
-    model_data_plus=ff(param_vals2);
-    param_vals2(i)=param_vals2(i)-2*dtheta;
-    model_data_minus=ff(param_vals2);
-    dXdtheta(:,i)=(model_data_plus-model_data_minus)/(2*dtheta);
+model_data0=get_reduced_model_data(optimal_param_vals,numeric_params,t_skip,x_skip,1,ic,rs);
+free_param_counter=0;
+for i=1:num_params
+    if fixed(i)==0
+        free_param_counter=free_param_counter+1;
+        dtheta=0.001;
+        param_vals2=optimal_param_vals;
+        param_vals2(i)=param_vals2(i)+dtheta;
+        model_data_plus=get_reduced_model_data(param_vals2,numeric_params,t_skip,x_skip,1,ic,rs);
+        param_vals2=optimal_param_vals;
+        param_vals2(i)=param_vals2(i)-dtheta;
+        model_data_minus=get_reduced_model_data(param_vals2,numeric_params,t_skip,x_skip,1,ic,rs);
+        dXdtheta(:,free_param_counter)=(model_data_plus-model_data_minus)/(2*dtheta);
+    end
 end
 fim = sigma^2 * (dXdtheta'*dXdtheta);
 

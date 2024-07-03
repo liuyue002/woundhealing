@@ -148,22 +148,77 @@ for param=1:num_params
     end
 end
 %% fisher info
-ff_str=strcat('ff=@(x) get_reduced_model_data(',param_str,',numeric_params,t_skip,x_skip,2,ic,nan);');
-N=prod(ceil(size(noisy_data)./[t_skip,x_skip,x_skip])); % number of data pts
-eval(ff_str);
-dXdtheta=zeros(N,num_free_params);
-model_data0=ff(overall_minimizer);
-for i=1:num_free_params
-    dtheta=0.00001;
-    param_vals2=overall_minimizer;
-    param_vals2(i)=param_vals2(i)+dtheta;
-    model_data_plus=ff(param_vals2);
-    param_vals2(i)=param_vals2(i)-2*dtheta;
-    model_data_minus=ff(param_vals2);
-    dXdtheta(:,i)=(model_data_plus-model_data_minus)/(2*dtheta);
-end
-fim = sigma^2 * (dXdtheta'*dXdtheta);
+% %ff_str=strcat('ff=@(x) get_reduced_model_data(',param_str,',numeric_params,t_skip,x_skip,1,ic,rs);');
+% %if isnan(scaling)
+% %    scaling=ones(size(fixed_param_val));
+% %end
+% N=prod(ceil(size(noisy_data)./[t_skip,x_skip,x_skip])); % number of data pts
+% %eval(ff_str);
+% dXdtheta=zeros(N,num_free_params);
+% model_data0=get_reduced_model_data(optimal_param_vals,numeric_params,t_skip,x_skip,2,ic,rs);
+% free_param_counter=0;
+% for i=1:num_params
+%     if fixed(i)==0
+%         free_param_counter=free_param_counter+1;
+%         dtheta=0.001;
+%         param_vals2=optimal_param_vals;
+%         param_vals2(i)=param_vals2(i)+dtheta;
+%         model_data_plus=get_reduced_model_data(param_vals2,numeric_params,t_skip,x_skip,2,ic,rs);
+%         param_vals2=optimal_param_vals;
+%         param_vals2(i)=param_vals2(i)-dtheta;
+%         model_data_minus=get_reduced_model_data(param_vals2,numeric_params,t_skip,x_skip,2,ic,rs);
+%         dXdtheta(:,free_param_counter)=(model_data_plus-model_data_minus)/(2*dtheta);
+%     end
+% end
+% fim = sigma^2 * (dXdtheta'*dXdtheta);
 
+%% Fisher info, my way
+N=prod(ceil(size(noisy_data)./[t_skip,x_skip,x_skip])); % number of data pts
+free_i=0;
+free_j=0;
+% err1=squared_error(noisy_data,optimal_param_vals',numeric_params,t_skip,x_skip,threshold,ic,nan,nan);
+% l1=log_likelihood(err1,N);
+dldtheta2=zeros(num_free_params,num_free_params);
+for i=1:num_params
+    if fixed(i)==0
+        free_i=free_i+1;
+        free_j=0;
+        for j=1:num_params
+            if fixed(j)==0
+                free_j=free_j+1;
+                disp([i,j]);
+                dtheta=0.005;
+                param_vals2=optimal_param_vals;
+                param_vals2(i)=param_vals2(i)+dtheta;
+                param_vals2(j)=param_vals2(j)+dtheta;
+                errpp=squared_error(noisy_data,param_vals2',numeric_params,t_skip,x_skip,threshold,ic,nan,nan);
+                lpp = log_likelihood(errpp,N);
+                param_vals2=optimal_param_vals;
+                param_vals2(i)=param_vals2(i)-dtheta;
+                param_vals2(j)=param_vals2(j)-dtheta;
+                errmm=squared_error(noisy_data,param_vals2',numeric_params,t_skip,x_skip,threshold,ic,nan,nan);
+                lmm = log_likelihood(errmm,N);
+                param_vals2=optimal_param_vals;
+                param_vals2(i)=param_vals2(i)-dtheta;
+                param_vals2(j)=param_vals2(j)+dtheta;
+                errmp=squared_error(noisy_data,param_vals2',numeric_params,t_skip,x_skip,threshold,ic,nan,nan);
+                lmp = log_likelihood(errmp,N);
+                param_vals2=optimal_param_vals;
+                param_vals2(i)=param_vals2(i)+dtheta;
+                param_vals2(j)=param_vals2(j)-dtheta;
+                errpm=squared_error(noisy_data,param_vals2',numeric_params,t_skip,x_skip,threshold,ic,nan,nan);
+                lpm = log_likelihood(errpm,N);
+                % disp([free_i,free_j]);
+                dldtheta2(free_i,free_j)=(lpp-lpm-lmp+lmm)/(4*dtheta^2);
+            end
+        end
+    end
+end
+fim=-dldtheta2;
+% print for latex
+for i=1:num_free_params
+    fprintf('%.4g & %.4g & %.4g & %.4g & %.4g \\\\\n',fim(i,:));
+end
 %% save
 saveas(fig,[prefix,'_',figtitle,'.png']);
 save([prefix,'_',figtitle,'.mat'],'-mat');

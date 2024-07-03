@@ -4,7 +4,7 @@
 u_K0=200;
 tau0=10;
 tau=10;
-filename='logistic_bd_uk_minimize_conf_int_width_7';
+filename='logistic_bd_uk_minimize_conf_int_width_8';
 diary([filename,'_log.txt']);
 warning('off','MATLAB:ode45:IntegrationTolNotMet');
 %% do some plot first
@@ -29,6 +29,7 @@ xlabel('$u_{\textrm{max}}$','Interpreter','latex');
 ylabel('$\Delta r$','Interpreter','latex');
 betterFig(fig1,2,30);
 saveas(fig1,['figure/',filename,'_umax.eps'],'epsc');
+saveas(fig1,['figure/',filename,'_umax.png']);
 
 fig2=figure;
 plot(tau0s,widths_tau0);
@@ -39,6 +40,7 @@ xlabel('$\tau_0$','Interpreter','latex');
 ylabel('$\Delta r$','Interpreter','latex');
 betterFig(fig2,2,30);
 saveas(fig2,['figure/',filename,'_tau0.eps'],'epsc');
+saveas(fig2,['figure/',filename,'_tau0.png']);
 
 fig3=figure;
 plot(taus,widths_tau);
@@ -49,6 +51,7 @@ xlabel('$\tau$','Interpreter','latex');
 ylabel('$\Delta r$','Interpreter','latex');
 betterFig(fig3,2,30);
 saveas(fig3,['figure/',filename,'_tau.eps'],'epsc');
+saveas(fig3,['figure/',filename,'_tau.png']);
 
 %% do a 2D plot
 

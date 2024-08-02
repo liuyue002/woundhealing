@@ -9,17 +9,18 @@ x_skip=1;
 N=prod(ceil(size(noisy_data)./[t_skip,x_skip]));
 threshold=-1;
 
-fixed_param_val=[1460,0.22,1,1,1.3,0,2610]; % a 'good guess' for param values
+fixed_param_val=[1390,0.134,1.1,1.2,1,0,2664]; % a 'good guess' for param values
 % range of param values to scan over for profile likelihood
-lb=[1300, 0.200, 0.80, 0.60, 1.00, 0.000, 2600]; 
-ub=[1600, 0.250, 1.10, 0.80, 1.60, 0.050, 2630];
+lb=[1150, 0.050, 0.95, 0.95, 1.00, 0.000, 2590]; 
+ub=[1650, 0.250, 1.25, 1.45, 1.60, 0.080, 2740];
 param_names={'$D_0$','$r$','$\alpha$','$\beta$','$\gamma$','$\eta$','$K$'};
+param_names2={'$D_0$','$r$','alpha','beta','gamma','eta','K'};
 %leave sigma out
 num_params=size(fixed_param_val,2);
 %if fixed(i)==1, then the ith param is set to the true value and not optimized over
-fixed=[0,0,1,1,0,1,0];
-param1=5; % which 2 params to loop over
-param2=7;
+fixed=[0,0,0,0,1,1,0];
+param1=2; % which 2 params to loop over
+param2=3;
 numeric_params=[T, dt/100, 100, NaN, NaN, 1];
 
 % feasible range for the optimization algorithm
@@ -27,7 +28,7 @@ lb_opt=[ 100, 0.01,  0.01,  0.01,  0.01, 0,   500]; %[0,0,0,0,0,0,0]
 ub_opt=[5000, 5.00,  99.0,  99.0,  99.0, 4, 20000]; %[20000,5,10,10,10,10,10000]
 noiseweight = max(num_pts_in_bins,1)';
 
-figtitle=sprintf(['radial1D,bivariate,fixed=[',repmat('%d,',size(fixed)),'],%s,%s_20240703'],fixed,param_names{param1},param_names{param2});
+figtitle=sprintf(['radial1D,bivariate,fixed=[',repmat('%d,',size(fixed)),'],%s,%s_20240703_5'],fixed,param_names2{param1},param_names2{param2});
 logfile = [prefix,'_',figtitle,'_log.txt'];
 diary(logfile);
 fprintf('start run on: %s\n',datestr(datetime('now'), 'yyyymmdd_HHMMSS'));
@@ -48,6 +49,22 @@ for i=1:numpts
         initial(param1)=p1s(i);
         initial(param2)=p2s(j);
         fprintf('Optimizing for %s=%.3f,%s=%.3f\n',param_names{param1},initial(param1),param_names{param2},initial(param2));
+        %shortcut
+        if param1==2 && param2 ==5
+            if (initial(param2)< -9.28*(initial(param1)-0.19)+1.55) || (initial(param2)> -9.28*(initial(param1)-0.19)+1.85)
+                fprintf('Involking shortcut\n');
+                ls(i,j)=-Inf;
+                continue;
+            end
+        end
+        if param1==2 && param2==3
+            if (initial(param2)< -1.045*(initial(param1)-0.065)+1.145) || (initial(param2)> -1.045*(initial(param1)-0.065)+1.27)
+                fprintf('Involking shortcut\n');
+                ls(i,j)=-Inf;
+                continue;
+            end
+        end
+
         if num_free_params==0
             ls(i,j)=log_likelihood(squared_error(noisy_data,initial,numeric_params,t_skip,x_skip,threshold,ic,rs,noiseweight),N);
             minimizers{i,j}=initial;
@@ -82,7 +99,7 @@ plot(iy,ix,'r*','MarkerSize',20);
 %% contour
 figcontour=figure;
 [X,Y] = meshgrid(p1s,p2s);
-Z=ls'-max(ls,[],'all');
+Z=ls'-max(ls(1:36,:),[],'all');
 hold on;
 con=contour(X,Y,Z,[-3,-3],'-k',LineWidth=2);
 surf(X,Y,Z,'EdgeColor','none');

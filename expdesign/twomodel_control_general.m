@@ -1,7 +1,7 @@
 %% general setup
 % whether the effects of the control variables are absolute (additive) or
 % relative (multiplicative)
-absolute = false;
+absolute = true;
 
 % uall=[ur,ud,uk];
 if absolute
@@ -10,7 +10,7 @@ if absolute
     dfdCgen= @(C,r,d,gamma,K,uall) (r+uall(1))*(1-(1+gamma)*(C./(K-uall(3))).^gamma)-(d+uall(2));
     % lower/upper bound for control variables
     lb = [0,0,0];
-    ub = [0.5, 0.5, 1200];
+    ub = [0.5, 0.2, 1200];
     % weight of control cost
     alpha = [3e4, 3e4, 0.03];
     plotting_scale=[1000,1000,1];
@@ -31,12 +31,12 @@ end
 r1=0.225;
 d1=0;
 gamma1=8;
-K1=2381;
+K1=2380;
 
-r2=0.235;
+r2=0.291;
 d2=0;
-gamma2=3;
-K2=2433;
+gamma2=1;
+K2=2605;
 
 active_u=logical([false, true, false]); % ud, ud, uk
 % initial guess

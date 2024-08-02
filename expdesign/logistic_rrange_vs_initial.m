@@ -179,6 +179,47 @@ t.Padding = 'none';
 [best_C0_r, rrange_min]=fminbnd(rrangefun,10,100); 
 [best_C0_k, krange_min]=fminbnd(krangefun,500,2000); 
 
+%% FIM
+addpath('/home/liuy1/Documents/woundhealing');
+dldtheta2=zeros(2,2);
+N=numel(noisy_data_100);
+for i=1:2
+    for j=1:2
+        ii=1;
+        if i==2
+            ii=4;
+        end
+        jj=1;
+        if j==2
+            jj=4;
+        end
+        dtheta=0.005;
+        param_vals2=optimal_param_vals;
+        param_vals2(ii)=param_vals2(ii)+dtheta;
+        param_vals2(jj)=param_vals2(jj)+dtheta;
+        errpp=richards_sq_err(noisy_data_100,param_vals2',numeric_params,C0,0);
+        lpp = log_likelihood(errpp,N);
+        param_vals2=optimal_param_vals;
+        param_vals2(i)=param_vals2(i)-dtheta;
+        param_vals2(j)=param_vals2(j)-dtheta;
+        errmm=richards_sq_err(noisy_data_100,param_vals2',numeric_params,C0,0);
+        lmm = log_likelihood(errmm,N);
+        param_vals2=optimal_param_vals;
+        param_vals2(i)=param_vals2(i)-dtheta;
+        param_vals2(j)=param_vals2(j)+dtheta;
+        errmp=richards_sq_err(noisy_data_100,param_vals2',numeric_params,C0,0);
+        lmp = log_likelihood(errmp,N);
+        param_vals2=optimal_param_vals;
+        param_vals2(i)=param_vals2(i)+dtheta;
+        param_vals2(j)=param_vals2(j)-dtheta;
+        errpm=richards_sq_err(noisy_data_100,param_vals2',numeric_params,C0,0);
+        lpm = log_likelihood(errpm,N);
+        % disp([free_i,free_j]);
+        dldtheta2(i,j)=(lpp-lpm-lmp+lmm)/(4*dtheta^2);
+    end
+end
+fim=-dldtheta2;
+
 %% save
 save('figure/richards_bd_c0_confint_2.mat');
 saveas(rangefig,'figure/richards_bd_c0_confint_2.png');

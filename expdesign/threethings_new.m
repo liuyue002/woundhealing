@@ -36,7 +36,7 @@ warning('off','MATLAB:singularMatrix');
 % title('exact soln');
 
 %% generate data
-
+rng(0);
 starttime=string(datetime,'yyyyMMddHHmm');
 
 params = [1, 0, 0, 0.1, 0.6, 0.4, 0.3, 0.4, 1, 0];
@@ -50,7 +50,7 @@ param_names = {'a_0','b_0','c_0','a_1','b_1','b_2','c_1','c_2','c_3','B_0'};
 nt=100;
 tt=linspace(0,T,nt);
 % numeric_params: [T,nt,tau0A,tau1A,uA,tau0B,tau1B,uB,tau0C,tau1C,uC,]
-numeric_params=[T,nt,0,0,0, 0,0,0, 10,20,3];
+numeric_params=[T,nt,0,0,0, 10,20,18, 0,0,0];
 %exact_soln=threethings_solnf_new(params,numeric_params,x0);
 exact_soln=threethings_solnf_control(params,numeric_params,x0);
 clean_data=exact_soln;
@@ -76,7 +76,7 @@ legend('A','B','C');
 title('noisy data');
 
 %%
-figtitle=sprintf('threethings,%s,',starttime,num2str(numeric_params(3:11)));
+figtitle=sprintf('threethings,%s,_4',starttime,num2str(numeric_params(3:11)));
 diary(['simulations/',figtitle,'.txt']);
 true_err=threethings_sq_err_noB(noisy_data,params,numeric_params,x0,0);
 fprintf('Error of true param set: %.5f\n',true_err);
@@ -158,7 +158,7 @@ optimal_param_vals=fixed_param_val';
 optimal_param_vals(fixed==0)=mle;
 
 disp(optimal_param_vals);
-mle_soln=threethings_solnf_new(optimal_param_vals,numeric_params,x0);
+mle_soln=threethings_solnf_control(optimal_param_vals,numeric_params,x0);
 figure;
 hold on;
 plot(tt,mle_soln(1,:));
@@ -174,8 +174,8 @@ fixed=[1,0,1,1,0,0,0,0,0,0];
 num_free_params=sum(1-fixed);
 true_params=params;
 fixed_param_val= [1.00, 0.00, 0.00, 0.10, 0.60, 0.40, 0.30,  0.40,  1.00, 0.00];
-lb=              [0.00, 0.00, 0.00, 0.01, 0.00, 0.01, 0.00,  0.00,  0.01, 0.00];
-ub=              [2.00, 6.00, 0.00, 2.00, 4.00, 4.00, 6.00,  6.00,  6.00, 5.00];
+lb=              [0.00, 0.00, 0.00, 0.01, 0.00, 0.01, 0.00,  0.30,  0.20, 0.00];
+ub=              [2.00, 6.00, 0.00, 2.00, 4.00, 4.00, 0.60,  0.60,  1.50, 5.00];
 % diagonal params (4,6,9) must be nonzero
 scaling = ones(size(fixed_param_val));
 %opt.logging=false;
@@ -183,7 +183,7 @@ opt.scaling=scaling;
 opt.alg=2;
 num_params=size(params,2);
 
-numpts=11;
+numpts=41;
 param_vals=zeros(num_params,numpts);
 max_ls=zeros(num_params,numpts+2);
 minimizers=cell(num_params,numpts+2);

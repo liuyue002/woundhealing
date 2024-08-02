@@ -351,3 +351,66 @@ xlim([0,T]);
 betterFig(fig1);
 
 saveas(fig1,'figure/twomodel_control_gen_richard_20230914_002937_active=[0,1,0],alpha=[30000.00,500000.00,0.03]_forward.eps','epsc');
+
+%%
+load('/home/liuy1/Documents/woundhealing/expdesign/simulations/twomodel_control_gen_richard_20240719_182155_active=[0,1,0],absolute=1,alpha=[30000.00,30000.00,0.03],omega=0.10.mat')
+fig1=figure('Position',[100,100,800,450]);
+hold on;
+plot(ts,C(:,1));
+plot(ts,C(:,2));
+plot(ts,abs(C(:,1)-C(:,2)));
+ylim([0,2500]);
+ylabel('$C_1, C_2, |C_1-C_2|$','Interpreter','latex');
+yyaxis right;
+ytickformat('%.2f');
+ylabel('$u_\delta$','Interpreter','latex');
+plot(ts,unum(2,:));
+ylim([0,0.25]);
+hold off
+xlabel('$t$','interpreter','latex');
+legend('$C_1$','$C_2$','$|C_1-C_2|$','$u_\delta^*$','location','northeastoutside','interpreter','latex');
+xlim([0,T]);
+betterFig(fig1);
+
+saveas(fig1,'figure/twomodel_control_gen_richard_20240719_182155_active=[0,1,0],absolute=1,alpha=[30000.00,30000.00,0.03],omega=0.10_forward.eps','epsc');
+
+%%
+load('/home/liuy1/Documents/woundhealing/expdesign/simulations/twomodel_control_gen_richard_20240719_180045_active=[1,0,0],absolute=1,alpha=[30000.00,30000.00,0.03],omega=0.10.mat')
+fig1=figure('Position',[100,100,800,450]);
+hold on;
+plot(ts,C(:,1));
+plot(ts,C(:,2));
+plot(ts,abs(C(:,1)-C(:,2)));
+ylim([0,3000]);
+ylabel('$C_1, C_2, |C_1-C_2|$','Interpreter','latex');
+yyaxis right;
+ytickformat('%.2f');
+ylabel('$u_r$','Interpreter','latex');
+plot(ts,unum(1,:));
+ylim([0,0.6]);
+hold off
+xlabel('$t$','interpreter','latex');
+legend('$C_1$','$C_2$','$|C_1-C_2|$','$u_r^*$','location','northeastoutside','interpreter','latex');
+xlim([0,T]);
+betterFig(fig1);
+
+saveas(fig1,'figure/twomodel_control_gen_richard_20240719_180045_active=[1,0,0],absolute=1,alpha=[30000.00,30000.00,0.03],omega=0.10_forward.eps','epsc');
+
+%%
+load('/home/liuy1/Documents/woundhealing/expdesign/simulations/twomodel_control_gen_richard_20240719_173300_active=[0,0,1],absolute=1,alpha=[30000.00,30000.00,0.03],omega=0.10.mat')
+
+fig1=figure('Position',[100,100,660,450]);
+hold on;
+plot(ts,C(:,1));
+plot(ts,C(:,2));
+plot(ts,abs(C(:,1)-C(:,2)));
+plot(ts,unum(3,:));
+ylim([0,2600]);
+hold off
+xlabel('$t$','interpreter','latex');
+ylabel('$C_1, C_2, |C_1-C_2|, u_K$','Interpreter','latex');
+legend('$C_1$','$C_2$','$|C_1-C_2|$','$u_K^*$','location','northeastoutside','interpreter','latex');
+xlim([0,T]);
+betterFig(fig1);
+
+saveas(fig1,'figure/twomodel_control_gen_richard_20240719_173300_active=[0,0,1],absolute=1,alpha=[30000.00,30000.00,0.03],omega=0.10_forward.eps','epsc');

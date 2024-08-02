@@ -39,6 +39,11 @@ fprintf(['Overall max likelihood param is: ',repmat('%.3f,',size(overall_minimiz
 optimal_param_vals=fixed_param_val';
 optimal_param_vals(fixed==0)=overall_minimizer;
 
+% correct computation for sigma, accounting for noise weight
+[~,cc_mle,~,~] = woundhealing_1d(optimal_param_vals,numeric_params,0,ic,rs);
+sigma_actual=sqrt(sum(((noisy_data-cc_mle).^2)*noiseweight')/(77*150*150));
+fprintf('sigma actual:%.2f\n',sigma_actual);
+
 aic = -2*max_l + 2*num_free_params;
 bic = -2*max_l + log(N)*num_free_params;
 fprintf('AIC=%.3f,BIC=%.3f\n',aic,bic);

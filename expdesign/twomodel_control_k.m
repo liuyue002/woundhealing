@@ -3,15 +3,15 @@ f = @(C,r,d,gamma,K,uk) r*C.*(1-(C./(K-uk)).^gamma)-d*C;
 dfdC= @(C,r,d,gamma,K,uk) r*(1-(1+gamma)*(C./(K-uk)).^gamma)-d;
 %dfduk= @(C,r,d,gamma,K,uk) -r*gamma*(C./(K-uk)).^(gamma+1);
 
-r1=0.45;
-d1=0.15;
-gamma1=1;
-K1=3900;
+r1=0.225;
+d1=0;
+gamma1=8;
+K1=2380;
 
-r2=0.3;
+r2=0.291;
 d2=0;
 gamma2=1;
-K2=2600;
+K2=2605;
 
 C0=100;
 T=25;

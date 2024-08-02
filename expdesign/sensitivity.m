@@ -44,7 +44,7 @@ saveas(figr,'figure/sensitivity_r.eps','epsc');
 figd=figure;
 plot(t,diffd);
 xlabel('$t$','Interpreter','latex');
-ylabel('$\phi_{d}$','Interpreter','latex');
+ylabel('$\phi_{\delta}$','Interpreter','latex');
 %title('sensitivity');
 xlim([0,25]);
 xticks(0:5:25);

@@ -1,0 +1,39 @@
+cd /home/liuy1/Documents/woundhealing
+./runscreen.sh
+====================
+rDk: (all fine)
+12: rota-ree
+17: sam-slick
+27: victor-vector
+
+rdnk: (1267) running second iter (all fine)
+12: loopy
+16: so-so-monkey
+17: hooded-claw (terminated early)--- captain-star
+26: bamm-bamm (killed early, run on rota-ree)
+27: cub-jones (first iter killed early)
+67: honey-bunny
+
+rdgk: (1257) running second iter
+12: lone-ranger
+15: blue-falcon
+17: penelope-pitstop
+25: battle-cat (need third run, on loopy)
+27: rickety-rocket (first iter killed early)
+57: high-rise (first iter killed early)
+
+rdabk: (12347) running second iter
+12: buttercup
+13: upsy-daisy
+14: red-dog
+17: flying-cloud
+23: alley-oop (on third run)
+24: timber-wolf
+27: chimp-and-zee
+34: trader-jones
+37: homer-pigeon
+47: gabby-gator (still running)
+
+=======
+still need:
+ rdgk25, rdabk23, rdabk47
